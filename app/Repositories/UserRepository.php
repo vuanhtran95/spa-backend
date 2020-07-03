@@ -21,11 +21,11 @@ class UserRepository implements UserRepositoryInterface
             $user = User::find($id);
         } else {
             $user = new User();
+            $user->email = $data['email'];
         }
-
         $user->name = $data['name'];
-        $user->email = $data['email'];
         $user->password = Hash::make($data['password']);
+        $user->type = $data['type'];
 
         if ($user->save()) {
             return $user;
@@ -36,12 +36,12 @@ class UserRepository implements UserRepositoryInterface
 
     public function get(array $condition = [])
     {
-        // TODO: Implement get() method.
+        return User::all();
     }
 
     public function getOneBy($by, $value)
     {
-        // TODO: Implement getOneBy() method.
+        return User::where($by, '=', $value)->first();
     }
 
     public function update($id, array $attributes = [])

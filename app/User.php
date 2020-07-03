@@ -2,10 +2,16 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
+/**
+ * Class Address
+ * @package App
+ * @mixin Builder
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;

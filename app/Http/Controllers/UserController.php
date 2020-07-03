@@ -36,8 +36,39 @@ class UserController extends Controller
         }
     }
 
-    public function update($id)
+    public function getOneById($id)
     {
+        $user = $this->userRepository->getOneBy('id', $id);
+        if ($user) {
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $user);
+        } else {
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+        }
+    }
+
+    public function get(Request $request) {
+        $users = $this->userRepository->get();
+        if ($users) {
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_USER_SUCCESS, $users);
+        } else {
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $params = $request->all();
+        try {
+            $user = $this->userRepository->update($id, $params);
+            if ($user) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $user);
+            } else {
+                //TODO: Need to improve
+                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
+            }
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USER_UPDATE_FAILURE);
+        }
     }
 
     public function delete($id)
