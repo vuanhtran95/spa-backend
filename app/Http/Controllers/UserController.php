@@ -46,7 +46,8 @@ class UserController extends Controller
         }
     }
 
-    public function get(Request $request) {
+    public function get(Request $request)
+    {
         $users = $this->userRepository->get();
         if ($users) {
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_USER_SUCCESS, $users);
@@ -73,5 +74,15 @@ class UserController extends Controller
 
     public function delete($id)
     {
+        try {
+            $delete = $this->userRepository->delete($id);
+            if ($delete) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_USER_SUCCESS);
+            } else {
+                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$DELETE_USER_FAILURE);
+            }
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$DELETE_USER_FAILURE);
+        }
     }
 }

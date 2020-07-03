@@ -29,3 +29,5 @@ Route::get('/v1/users', 'UserController@get')->middleware('auth:api');
 Route::get('/v1/users/{id}', 'UserController@getOneById')->middleware('auth:api');
 // Update One User By Id
 Route::put('/v1/users/{id}', 'UserController@update')->middleware('auth:api');
+// Delete One User By Id
+Route::delete('/v1/users/{id}', 'UserController@delete')->middleware('auth:api');

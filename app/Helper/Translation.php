@@ -15,5 +15,9 @@ class Translation
     public static $GET_ALL_USER_SUCCESS = "GET_ALL_USER_SUCCESS";
     public static $NO_USER_FOUND = "NO_USER_FOUND";
     public static $USERNAME_EXIST = "USERNAME_EXIST";
+
+    public static $DELETE_USER_SUCCESS = "DELETE_USER_SUCCESS";
+    public static $DELETE_USER_FAILURE = "DELETE_USER_FAILURE";
+
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
 }
