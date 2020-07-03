@@ -28,7 +28,7 @@ class UserRepository implements UserRepositoryInterface
             return $user;
         } else {
             //TODO: Need to handle
-            return;
+            return false;
         }
     }
 

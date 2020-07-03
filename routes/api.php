@@ -16,3 +16,5 @@ use Illuminate\Http\Request;
 Route::get('/test', function (Request $request) {
     return "Test";
 });
+
+Route::post('/v1/users', 'UserController@create');

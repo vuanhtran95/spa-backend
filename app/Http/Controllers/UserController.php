@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller as Controller;
 use App\Repositories\UserRepositoryInterface;
 use Illuminate\Http\Request;
-use Laravel\Passport\Bridge\UserRepository;
+use Illuminate\Http\Response as Response;
 
 
 class UserController extends Controller
@@ -19,7 +19,12 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        return $request->all();
+        $params = $request->all();
+        if ($this->userRepository->create($params)) {
+            return Response::HTTP_CREATED;
+        } else {
+            return Response::HTTP_BAD_REQUEST;
+        }
     }
 
     public function update($id)
