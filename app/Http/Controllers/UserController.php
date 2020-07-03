@@ -26,13 +26,13 @@ class UserController extends Controller
         try {
             $user = $this->userRepository->create($params);
             if ($user) {
-                return HttpResponse::toJson(true, Response::HTTP_CREATED, $user, Translation::$USER_CREATED);
+                return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$USER_CREATED, $user);
             } else {
                 //TODO: Need to improve
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, [], Translation::$SYSTEM_ERROR);
+                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
             }
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, [], Translation::$USERNAME_EXIST);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USERNAME_EXIST);
         }
     }
 

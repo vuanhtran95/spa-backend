@@ -21,4 +21,4 @@ Route::get('/private', function (Request $request) {
     return "Private";
 })->middleware('auth:api');
 
-Route::post('/v1/users', 'UserController@create');
+Route::post('/v1/users', 'UserController@create')->middleware('auth:api');

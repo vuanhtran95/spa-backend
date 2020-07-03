@@ -9,7 +9,7 @@ class HttpResponse
     {
     }
 
-    public static function toJson($isSuccess, $statusCode, $body = [], $message = '', $headers = [])
+    public static function toJson($isSuccess, $statusCode, $message = '', $body = [], $headers = [])
     {
         $body = [
             "IsSuccess" => $isSuccess,
@@ -17,6 +17,6 @@ class HttpResponse
             "Message" => $message,
             "StatusCode" => $statusCode
         ];
-        return response($body, $statusCode)->withHeaders($headers);
+        return response($body, $statusCode);
     }
 }
