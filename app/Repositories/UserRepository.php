@@ -3,6 +3,9 @@
 namespace App\Repositories;
 
 use App\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Hash;
+use Mockery\Exception;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -22,12 +25,11 @@ class UserRepository implements UserRepositoryInterface
 
         $user->name = $data['name'];
         $user->email = $data['email'];
-        $user->password = $data['password'];
+        $user->password = Hash::make($data['password']);
 
         if ($user->save()) {
             return $user;
         } else {
-            //TODO: Need to handle
             return false;
         }
     }

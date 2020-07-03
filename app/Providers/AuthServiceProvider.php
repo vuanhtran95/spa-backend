@@ -27,8 +27,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Passport::loadKeysFrom('/secret-keys/oauth');
-
         Passport::routes();
 
         Passport::tokensExpireIn(now()->addHours(12));

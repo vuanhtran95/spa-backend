@@ -13,8 +13,12 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/test', function (Request $request) {
-    return "Test";
+Route::get('/public', function (Request $request) {
+    return "Public";
 });
+
+Route::get('/private', function (Request $request) {
+    return "Private";
+})->middleware('auth:api');
 
 Route::post('/v1/users', 'UserController@create');
