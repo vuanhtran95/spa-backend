@@ -46,6 +46,7 @@ class UserRepository implements UserRepositoryInterface
 
             return User::where('role_id', $roleId)
                 ->where('phone', 'LIKE', $phone . '%')
+                ->with('role')
                 ->limit($perPage)
                 ->get()->toArray();
         }
