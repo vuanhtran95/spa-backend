@@ -40,3 +40,6 @@ Route::delete('/v1/users/{id}', 'UserController@delete')->middleware('auth:api')
 
 // Get all services
 Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');
+
+// Create service
+Route::post('/v1/services', 'ServiceController@create')->middleware('auth:api');

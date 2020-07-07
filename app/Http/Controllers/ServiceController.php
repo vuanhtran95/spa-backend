@@ -23,9 +23,9 @@ class ServiceController extends Controller
     {
         $params = $request->all();
         try {
-            $user = $this->serviceRepository->create($params);
-            if ($user) {
-                return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$SERVICE_CREATED, $user);
+            $service = $this->serviceRepository->create($params);
+            if ($service) {
+                return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$SERVICE_CREATED, $service);
             } else {
                 //TODO: Need to improve
                 return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
