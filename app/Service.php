@@ -16,4 +16,8 @@ class Service extends Model
     protected $fillable = [
         'name', 'descriptions'
     ];
+
+    public function serviceCategory() {
+        return $this->belongsTo('App\ServiceCategory', 'service_category_id', 'id');
+    }
 }

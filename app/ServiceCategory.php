@@ -16,4 +16,9 @@ class ServiceCategory extends Model
     protected $fillable = [
         'name', 'description'
     ];
+
+    public function categories()
+    {
+        return $this->hasMany('App\Service');
+    }
 }

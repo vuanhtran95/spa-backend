@@ -48,11 +48,16 @@ class User extends Authenticatable
     /**
      * Find the user instance for the given username.
      *
-     * @param  string  $username
+     * @param string $username
      * @return \App\User
      */
     public function findForPassport($username)
     {
         return $this->where('email', $username)->first();
+    }
+
+    public function role()
+    {
+        return $this->belongsTo('App\Role', 'role_id', 'id');
     }
 }

@@ -85,4 +85,15 @@ class UserController extends Controller
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$DELETE_USER_FAILURE);
         }
     }
+
+    public function getUserInfo(Request $request)
+    {
+        $userId = $request->user()->id;
+        try {
+            $userInfo = $this->userRepository->getOneBy('id', $userId);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $userInfo);
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+        }
+    }
 }

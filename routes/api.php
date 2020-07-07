@@ -25,6 +25,8 @@ Route::get('/private', function (Request $request) {
 // Get All Roles
 Route::get('/v1/roles', 'RoleController@get')->middleware('auth:api');
 
+// Get User Info
+Route::get('/v1/userinfo', 'UserController@getUserInfo')->middleware('auth:api');
 // Create User
 Route::post('/v1/users', 'UserController@create')->middleware('auth:api');
 // Get All User
