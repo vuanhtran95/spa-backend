@@ -52,10 +52,9 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-
     public function getOneBy($by, $value)
     {
-        return User::where($by, '=', $value)->first();
+        return User::where($by, '=', $value)->with('role')->first();
     }
 
     public function update($id, array $attributes = [])
