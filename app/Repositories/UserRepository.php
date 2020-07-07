@@ -36,8 +36,20 @@ class UserRepository implements UserRepositoryInterface
 
     public function get(array $condition = [])
     {
-        return User::all();
+        if (empty($condition)) {
+            return User::all();
+        } else {
+            $roleId = $condition['roleId'];
+            $phone = $condition['phone'];
+            $perPage = $condition['perPage'];
+
+            return User::where('role_id', $roleId)
+                ->where('phone', 'LIKE', $phone . '%')
+                ->limit($perPage)
+                ->get()->toArray();
+        }
     }
+
 
     public function getOneBy($by, $value)
     {
