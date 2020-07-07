@@ -26,6 +26,7 @@ class UserRepository implements UserRepositoryInterface
         $user->name = $data['name'];
         $user->password = Hash::make($data['password']);
         $user->role_id = $data['role_id'];
+        $user->phone = $data['phone'];
 
         if ($user->save()) {
             return $user;
