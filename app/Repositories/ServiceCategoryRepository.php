@@ -3,11 +3,8 @@
 namespace App\Repositories;
 
 use App\ServiceCategory;
-use App\User;
-use Illuminate\Database\QueryException;
-use Mockery\Exception;
 
-class ServiceCategoryRepository implements ServiceCategoryInterface
+class ServiceCategoryRepository implements ServiceCategoryRepositoryInterface
 {
 
     public function create(array $attributes = [])

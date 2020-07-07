@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-interface ServiceCategoryInterface
+interface ServiceCategoryRepositoryInterface
 {
     public function create(array $attributes = []);
 

@@ -3,8 +3,6 @@
 namespace App\Repositories;
 
 use App\Service;
-use Illuminate\Database\QueryException;
-use Mockery\Exception;
 
 class ServiceRepository implements ServiceRepositoryInterface
 {

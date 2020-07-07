@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller as Controller;
 use App\Http\HttpResponse;
 use App\Repositories\RoleRepositoryInterface;
-use App\Repositories\UserRepositoryInterface;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response as Response;
-use Exception;
 use App\Helper\Translation;
 
 
