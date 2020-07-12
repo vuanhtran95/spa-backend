@@ -9,15 +9,16 @@ class Cors
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
-    public function handle( $request, Closure $next )
+    public function handle($request, Closure $next)
     {
-        $response = $next( $request );
-        $response->header( 'Access-Control-Allow-Origin', '*' );
-        $response->header( 'Access-Control-Allow-Headers', 'Origin, Content-Type' );
+        $response = $next($request);
+        $response->header('Access-Control-Allow-Origin', '*');
+        $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE,OPTIONS');
+        $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type');
 
         return $response;
     }
