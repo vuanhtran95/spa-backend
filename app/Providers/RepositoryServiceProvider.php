@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Repositories\CustomerRepositoryInterface;
 use App\Repositories\RoleRepository;
 use App\Repositories\RoleRepositoryInterface;
 use App\Repositories\ServiceCategoryRepository;
@@ -35,5 +36,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(ServiceRepositoryInterface::class, ServiceRepository::class);
         $this->app->bind(ServiceCategoryRepositoryInterface::class, ServiceCategoryRepository::class);
+        $this->app->bind(CustomerRepositoryInterface::class, CustomerRepositoryInterface::class);
     }
 }

@@ -18,7 +18,7 @@ class CreateCustomersTable extends Migration
             $table->string('phone')->nullable();
             $table->string('name')->nullable();
             $table->string('email')->nullable();
-            $table->unsignedBigInteger('point')->nullable();
+            $table->unsignedBigInteger('point')->nullable()->default(0);
             $table->timestamps();
         });
     }
