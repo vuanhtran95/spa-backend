@@ -18,10 +18,6 @@ class RoleTableSeeder extends Seeder
                 'descriptions' => 'Administrator'
             ],
             [
-                'name' => 'customer',
-                'descriptions' => 'Customer'
-            ],
-            [
                 'name' => 'ktv',
                 'descriptions' => 'KTV'
             ],
