@@ -44,6 +44,5 @@ Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');
 // Create service
 Route::post('/v1/services', 'ServiceController@create')->middleware('auth:api');
 
-
 // Customer
 Route::post('/v1/customers', 'CustomerController@create')->middleware('auth:api');

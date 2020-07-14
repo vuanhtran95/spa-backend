@@ -39,4 +39,5 @@ class Translation
     public static $NO_SERVICE_FOUND = "NO_SERVICE_FOUND";
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
+    public static $INPUT_ERROR = "INPUT_ERROR";
 }

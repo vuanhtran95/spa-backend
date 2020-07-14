@@ -25,7 +25,9 @@ class CustomerRepository implements CustomerRepositoryInterface
         $customer->name = $data['name'];
         $customer->email = $data['email'];
         $customer->phone = $data['phone'];
-        $customer->points = $data['points'];
+        if (isset($data['points'])) {
+            $customer->points = $data['points'];
+        }
 
         if ($customer->save()) {
             return $customer;
