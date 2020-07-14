@@ -37,9 +37,10 @@ class CustomerController extends Controller
         }
     }
 
+    //TODO:
     public function getOneById($id)
     {
-        $user = $this->userRepository->getOneBy('id', $id);
+        $user = $this->customerRepository->getOneBy('id', $id);
         if ($user) {
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $user);
         } else {
@@ -50,19 +51,25 @@ class CustomerController extends Controller
     public function get(Request $request)
     {
         $params = $request->all();
-        $users = $this->userRepository->get($params);
-        if (!empty($users)) {
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_USER_SUCCESS, $users);
-        } else {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+
+        try {
+            $customers = $this->customerRepository->get($params);
+            if (!empty($customers)) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_CUSTOMER_SUCCESS, $customers);
+            } else {
+                return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_CUSTOMER_FOUND);
+            }
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SYSTEM_ERROR);
         }
+
     }
 
     public function update(Request $request, $id)
     {
         $params = $request->all();
         try {
-            $user = $this->userRepository->update($id, $params);
+            $user = $this->customerRepository->update($id, $params);
             if ($user) {
                 return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $user);
             } else {
@@ -77,7 +84,7 @@ class CustomerController extends Controller
     public function delete($id)
     {
         try {
-            $delete = $this->userRepository->delete($id);
+            $delete = $this->customerRepository->delete($id);
             if ($delete) {
                 return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_USER_SUCCESS);
             } else {
@@ -92,7 +99,7 @@ class CustomerController extends Controller
     {
         $userId = $request->user()->id;
         try {
-            $userInfo = $this->userRepository->getOneBy('id', $userId);
+            $userInfo = $this->customerRepository->getOneBy('id', $userId);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $userInfo);
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
