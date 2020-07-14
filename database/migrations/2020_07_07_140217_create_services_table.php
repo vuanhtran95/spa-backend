@@ -16,7 +16,7 @@ class CreateServicesTable extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
-            $table->longText('descriptions');
+            $table->longText('descriptions')->nullable();
             $table->float('price');
             $table->boolean('is_combo_sold');
             $table->float('commission');

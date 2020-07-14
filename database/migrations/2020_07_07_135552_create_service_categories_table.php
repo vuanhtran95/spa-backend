@@ -16,7 +16,7 @@ class CreateServiceCategoriesTable extends Migration
         Schema::create('service_categories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
-            $table->longText('descriptions');
+            $table->longText('descriptions')->nullable();
             $table->timestamps();
         });
     }

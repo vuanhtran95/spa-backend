@@ -22,6 +22,9 @@ class ServiceRepository implements ServiceRepositoryInterface
         $service->name = $data['name'];
         $service->descriptions = $data['descriptions'];
         $service->price = $data['price'];
+        $service->is_combo_sold = $data['is_combo_sold'];
+        $service->commission = $data['commission'];
+        $service->service_category_id = $data['service_category_id'];
 
 
         if ($service->save()) {
@@ -33,7 +36,7 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function get()
     {
-        return Service::with('service_category')->get()->toArray();
+        return Service::with('serviceCategory')->get()->toArray();
     }
 
 

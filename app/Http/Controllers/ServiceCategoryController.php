@@ -23,7 +23,6 @@ class ServiceCategoryController extends Controller
     public function create(Request $request)
     {
         $params = $request->all();
-        die(var_dump($params));
         try {
             $service = $this->serviceCategoryRepository->create($params);
             if ($service) {
@@ -44,7 +43,10 @@ class ServiceCategoryController extends Controller
     {
         $service_categories = $this->serviceCategoryRepository->get();
         if (!empty($service_categories)) {
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_SERVICE_CATEGORY_SUCCESS, $services);
+            return HttpResponse::toJson(true,
+                Response::HTTP_OK,
+                Translation::$GET_ALL_SERVICE_CATEGORY_SUCCESS,
+                $service_categories);
         } else {
             return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_SERVICE_CATEGORY_FOUND);
         }
