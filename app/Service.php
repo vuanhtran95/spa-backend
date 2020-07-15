@@ -17,6 +17,15 @@ class Service extends Model
         'name', 'descriptions'
     ];
 
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'service_category_id',
+    ];
+
     public function serviceCategory() {
         return $this->belongsTo('App\ServiceCategory', 'service_category_id', 'id');
     }

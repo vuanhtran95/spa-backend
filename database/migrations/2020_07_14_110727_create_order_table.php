@@ -15,9 +15,9 @@ class CreateOrderTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->timestamps();
             $table->unsignedSmallInteger('amount');
             $table->longText('note');
+            $table->timestamps();
         });
 
         Schema::table('orders', function (Blueprint $table) {
@@ -49,7 +49,7 @@ class CreateOrderTable extends Migration
         });
 
         Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('combo_id');
+            $table->unsignedBigInteger('combo_id')->nullable();
 
             $table->foreign('combo_id')
                 ->references('id')

@@ -15,12 +15,12 @@ class CreateIntakeTable extends Migration
     {
         Schema::create('intakes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->boolean('is_valid');
+            $table->boolean('is_valid')->default(false);
             $table->timestamps();
         });
 
         Schema::table('intakes', function (Blueprint $table) {
-            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('customer_id')->nullable();
 
             $table->foreign('customer_id')
                 ->references('id')

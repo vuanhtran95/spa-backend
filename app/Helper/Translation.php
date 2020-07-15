@@ -48,6 +48,16 @@ class Translation
     public static $DELETE_CUSTOMER_SUCCESS = "DELETE_CUSTOMER_SUCCESS";
     public static $DELETE_CUSTOMER_FAILURE = "DELETE_CUSTOMER_FAILURE";
 
+    public static $INTAKE_CREATED = "INTAKE_CREATED";
+    public static $INTAKE_UPDATED = "INTAKE_UPDATED";
+    public static $INTAKE_UPDATE_FAILURE = "INTAKE_UPDATE_FAILURE";
+    public static $GET_SINGLE_INTAKE_SUCCESS = "GET_SINGLE_INTAKE_SUCCESS";
+    public static $GET_ALL_INTAKE_SUCCESS = "GET_ALL_INTAKE_SUCCESS";
+    public static $NO_INTAKE_FOUND = "NO_INTAKE_FOUND";
+    public static $INTAKE_EXIST = "INTAKE_EXIST";
+    public static $DELETE_INTAKE_SUCCESS = "DELETE_INTAKE_SUCCESS";
+    public static $DELETE_INTAKE_FAILURE = "DELETE_INTAKE_FAILURE";
+
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
 }
