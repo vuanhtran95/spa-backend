@@ -48,6 +48,16 @@ class Translation
     public static $DELETE_CUSTOMER_SUCCESS = "DELETE_CUSTOMER_SUCCESS";
     public static $DELETE_CUSTOMER_FAILURE = "DELETE_CUSTOMER_FAILURE";
 
+    public static $COMBO_CREATED = "COMBO_CREATED";
+    public static $COMBO_UPDATED = "COMBO_UPDATED";
+    public static $COMBO_UPDATE_FAILURE = "COMBO_UPDATE_FAILURE";
+    public static $GET_SINGLE_COMBO_SUCCESS = "GET_SINGLE_COMBO_SUCCESS";
+    public static $GET_ALL_COMBO_SUCCESS = "GET_ALL_COMBO_SUCCESS";
+    public static $NO_COMBO_FOUND = "NO_COMBO_FOUND";
+    public static $COMBO_EXIST = "COMBO_EXIST";
+    public static $DELETE_COMBO_SUCCESS = "DELETE_COMBO_SUCCESS";
+    public static $DELETE_COMBO_FAILURE = "DELETE_COMBO_FAILURE";
+
     public static $INTAKE_CREATED = "INTAKE_CREATED";
     public static $INTAKE_UPDATED = "INTAKE_UPDATED";
     public static $INTAKE_UPDATE_FAILURE = "INTAKE_UPDATE_FAILURE";
