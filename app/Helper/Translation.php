@@ -45,6 +45,7 @@ class Translation
     public static $GET_ALL_CUSTOMER_SUCCESS = "GET_ALL_CUSTOMER_SUCCESS";
     public static $NO_CUSTOMER_FOUND = "NO_CUSTOMER_FOUND";
     public static $CUSTOMER_EXIST = "CUSTOMER_EXIST";
+    public static $PHONE_EXIST = "PHONE_EXIST";
     public static $DELETE_CUSTOMER_SUCCESS = "DELETE_CUSTOMER_SUCCESS";
     public static $DELETE_CUSTOMER_FAILURE = "DELETE_CUSTOMER_FAILURE";
 

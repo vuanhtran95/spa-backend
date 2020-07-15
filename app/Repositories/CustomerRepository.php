@@ -4,8 +4,8 @@ namespace App\Repositories;
 
 use App\Customer;
 use App\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class CustomerRepository implements CustomerRepositoryInterface
 {
@@ -17,8 +17,15 @@ class CustomerRepository implements CustomerRepositoryInterface
             $return = $this->save($attributes, false);
             DB::commit();
             return $return;
+        } catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                DB::rollBack();
+                return 1062;
+            }
         } catch (\Exception $exception) {
             DB::rollBack();
+            return false;
         }
     }
 
