@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Customer;
 use App\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class CustomerRepository implements CustomerRepositoryInterface
@@ -11,7 +12,14 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function create(array $attributes = [])
     {
-        return $this->save($attributes, false);
+        DB::beginTransaction();
+        try {
+            $return = $this->save($attributes, false);
+            DB::commit();
+            return $return;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+        }
     }
 
     public function save($data, $is_update, $id = null)
@@ -54,7 +62,14 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function update($id, array $attributes = [])
     {
-        return $this->save($attributes, true, $id);
+        DB::beginTransaction();
+        try {
+            $return = $this->save($attributes, true, $id);
+            DB::commit();
+            return $return;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+        }
     }
 
     public function delete($id)
