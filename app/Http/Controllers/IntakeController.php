@@ -36,19 +36,20 @@ class IntakeController extends Controller
         }
     }
 
-    //TODO:
-    public function getOneById($id)
-    {
-
-    }
-
-    public function get(Request $request)
-    {
-
-    }
-
     public function update(Request $request, $id)
     {
+        $params = $request->all();
+        try {
+            $intake = $this->intakeRepository->update($id, $params);
+            if ($intake) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INTAKE_UPDATED, $intake);
+            } else {
+                //TODO: Need to improve
+                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
+            }
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$INTAKE_UPDATE_FAILURE);
+        }
     }
 
     public function delete($id)
@@ -56,8 +57,21 @@ class IntakeController extends Controller
 
     }
 
-    public function getUserInfo(Request $request)
+    public function get(Request $request)
     {
+        $params = $request->all();
+
+        try {
+            $intakes = $this->intakeRepository->get($params);
+            if (!empty($intakes)) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INTAKE_SUCCESS, $intakes);
+            } else {
+                return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_INTAKE_FOUND);
+            }
+        } catch (Exception $e) {
+            die(var_dump($e->getMessage()));
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SYSTEM_ERROR);
+        }
 
     }
 }

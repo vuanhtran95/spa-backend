@@ -51,7 +51,7 @@ class Translation
     public static $INTAKE_CREATED = "INTAKE_CREATED";
     public static $INTAKE_UPDATED = "INTAKE_UPDATED";
     public static $INTAKE_UPDATE_FAILURE = "INTAKE_UPDATE_FAILURE";
-    public static $GET_SINGLE_INTAKE_SUCCESS = "GET_SINGLE_INTAKE_SUCCESS";
+    public static $GET_INTAKE_SUCCESS = "GET_INTAKE_SUCCESS";
     public static $GET_ALL_INTAKE_SUCCESS = "GET_ALL_INTAKE_SUCCESS";
     public static $NO_INTAKE_FOUND = "NO_INTAKE_FOUND";
     public static $INTAKE_EXIST = "INTAKE_EXIST";

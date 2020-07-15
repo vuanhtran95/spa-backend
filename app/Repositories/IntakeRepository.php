@@ -18,9 +18,25 @@ class IntakeRepository implements IntakeRepositoryInterface
     {
         if ($is_update) {
             $intake = Intake::find($id);
+            if (isset($data['is_valid'])) {
+                $intake->is_valid = $data['is_valid'];
+                return $intake->save() ? $intake : false;
+            } else if (isset($data['orders']) && !empty($data['orders'])) {
+                foreach ($data['orders'] as $order) {
+                    if ($order['id'] !== null) {
+                        // Update order
+                        $orderId = Order::find($order['id']);
+                    } else {
+                        // Create new order
+                    }
+                }
+            } else {
+                //TODO:
+                return false;
+            }
         } else {
             $intake = new Intake();
-            isset($data['customer_id']) ? $intake->customer_id = $data['customer_id']: null;
+            isset($data['customer_id']) ? $intake->customer_id = $data['customer_id'] : null;
             $intake->user_id = $data['user_id'];
 
             DB::beginTransaction();
@@ -49,6 +65,14 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function get(array $condition = [])
     {
+        if (empty($condition)) {
+            return Intake::all();
+        } else {
+            $userId = asset($condition['user_id']) ? $condition['user_id'] : null;
+
+            return Intake::where('user_id', '=', $userId)
+                ->with('orders')->get()->toArray();
+        }
     }
 
     public function getOneBy($by, $value)
@@ -57,6 +81,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function update($id, array $attributes = [])
     {
+        return $this->save($attributes, true, $id);
     }
 
     public function delete($id)
