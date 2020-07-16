@@ -50,6 +50,7 @@ Route::post('/v1/service-categories', 'ServiceCategoryController@create')->middl
 // Customer
 Route::post('/v1/customers', 'CustomerController@create')->middleware('auth:api');
 Route::get('/v1/customers', 'CustomerController@get')->middleware('auth:api');
+Route::get('/v1/customers/{id}', 'CustomerController@getOneById')->middleware('auth:api');
 
 
 // Combo

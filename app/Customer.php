@@ -16,4 +16,8 @@ class Customer extends Model
     protected $fillable = [
         'name','phone', 'email', 'points', 'is_active'
     ];
+
+    public function combos() {
+        return $this->hasMany('App\Combo');
+    }
 }

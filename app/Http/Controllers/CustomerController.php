@@ -40,12 +40,11 @@ class CustomerController extends Controller
         }
     }
 
-    //TODO:
     public function getOneById($id)
     {
-        $user = $this->customerRepository->getOneBy('id', $id);
-        if ($user) {
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $user);
+        $customer = $this->customerRepository->getOneBy('id', $id);
+        if ($customer) {
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $customer);
         } else {
             return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
         }

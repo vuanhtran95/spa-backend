@@ -49,11 +49,15 @@ class UserController extends Controller
     public function get(Request $request)
     {
         $params = $request->all();
-        $users = $this->userRepository->get($params);
-        if (!empty($users)) {
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_USER_SUCCESS, $users);
-        } else {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+        try {
+            $users = $this->userRepository->get($params);
+            if (!empty($users)) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_USER_SUCCESS, $users);
+            } else {
+                return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+            }
+        } catch (\Exception $e) {
+            die(var_dump($e->getMessage()));
         }
     }
 

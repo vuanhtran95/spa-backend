@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Customer;
 use App\User;
+use Cassandra\Custom;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
@@ -64,7 +65,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return User::where($by, '=', $value)->with('role')->first();
+        return Customer::where($by, '=', $value)->with('combos')->first();
     }
 
     public function update($id, array $attributes = [])
