@@ -74,4 +74,14 @@ class IntakeController extends Controller
         }
 
     }
+
+    public function getOneById($id)
+    {
+        $user = $this->intakeRepository->getOneBy('id', $id);
+        if ($user) {
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INTAKE_SUCCESS, $user);
+        } else {
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_INTAKE_FOUND);
+        }
+    }
 }

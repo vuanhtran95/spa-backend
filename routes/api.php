@@ -37,6 +37,7 @@ Route::delete('/v1/users/{id}', 'UserController@delete')->middleware('auth:api')
 Route::post('/v1/intakes', 'IntakeController@create')->middleware('auth:api');
 Route::put('/v1/intakes/{id}', 'IntakeController@update')->middleware('auth:api');
 Route::get('/v1/intakes', 'IntakeController@get')->middleware('auth:api');
+Route::get('/v1/intakes/{id}', 'IntakeController@getOneById')->middleware('auth:api');
 
 // Service
 Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');

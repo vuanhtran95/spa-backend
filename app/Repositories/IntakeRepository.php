@@ -101,6 +101,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function getOneBy($by, $value)
     {
+        return Intake::with('orders', 'user')->where('id', $value)->first();
     }
 
     public function update($id, array $attributes = [])
