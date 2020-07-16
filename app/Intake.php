@@ -23,7 +23,15 @@ class Intake extends Model
         'customer_id', 'user_id', 'is_valid'
     ];
 
+    protected $hidden = [
+        'user_id',
+    ];
+
     public function orders() {
         return $this->hasMany('App\Order');
+    }
+
+    public function user() {
+        return $this->belongsTo('App\User', 'user_id', 'id');
     }
 }

@@ -95,7 +95,7 @@ class IntakeRepository implements IntakeRepositoryInterface
             $userId = asset($condition['user_id']) ? $condition['user_id'] : null;
 
             return Intake::where('user_id', '=', $userId)
-                ->with('orders')->get()->toArray();
+                ->with('orders')->with('user')->get()->toArray();
         }
     }
 
