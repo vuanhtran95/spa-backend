@@ -17,7 +17,9 @@ class IntakeRepository implements IntakeRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
+            dd($exception->getMessage());
             DB::rollBack();
+            return false;
         }
     }
 
@@ -40,6 +42,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         if (isset($updateData['user_id'])) $orderData->user_id = $updateData['user_id'];
                         if (isset($updateData['amount'])) $orderData->amount = $updateData['amount'];
                         if (isset($updateData['note'])) $orderData->note = $updateData['note'];
+                        if (isset($updateData['combo_id'])) $orderData->combo_id = $updateData['combo_id'];
                         $orderData->save();
                     } else {
                         // Need to delete
@@ -56,11 +59,13 @@ class IntakeRepository implements IntakeRepositoryInterface
                         $orderData->amount = $order['amount'];
                         $orderData->note = $order['note'];
                         $orderData->intake_id = $id;
+                        $orderData->combo_id = $order['combo_id'];
                         $orderData->save();
                     }
                 }
-
-                return Intake::with('orders')->find($id);
+                return Intake::with(['orders' => function ($query) {
+                    $query->with('combo');
+                }])->find($id);
             } else {
                 //TODO:
                 return false;
@@ -76,6 +81,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $orders[$key]['intake_id'] = $intake->id;
                     $orders[$key]['created_at'] = Carbon::now();
                     $orders[$key]['updated_at'] = Carbon::now();
+                    $orders[$key]['combo_id'] = isset($orders[$key]['combo_id']) ? $orders[$key]['combo_id'] : null;
                 }
                 Order::insert($orders);
                 // Return Intake with order
@@ -95,7 +101,9 @@ class IntakeRepository implements IntakeRepositoryInterface
             $userId = asset($condition['user_id']) ? $condition['user_id'] : null;
 
             return Intake::where('user_id', '=', $userId)
-                ->with('orders')->with('user')->get()->toArray();
+                ->with(['orders' => function ($query) {
+                    $query->with('combo');
+                }])->with('user')->get()->toArray();
         }
     }
 

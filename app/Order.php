@@ -22,4 +22,8 @@ class Order extends Model
     protected $fillable = [
         'service_id', 'user_id', 'amount', 'note', 'intake_id', 'combo_id'
     ];
+
+    public function combo() {
+        return $this->belongsTo('App\Combo');
+    }
 }
