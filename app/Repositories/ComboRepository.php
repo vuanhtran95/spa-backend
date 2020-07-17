@@ -50,7 +50,7 @@ class ComboRepository implements ComboRepositoryInterface
             $customer_id = $condition['customer_id'];
 
             return Combo::where('service_id', '=', $service_id)
-                ->where('customer_id', '=', $customer_id)
+                ->where('customer_id', '=', $customer_id)->with('service')
                 ->get()->toArray();
         }
     }

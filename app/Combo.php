@@ -23,4 +23,10 @@ class Combo extends Model
         'user_id',
         'is_active'
     ];
+
+    protected $hidden = ['service_id'];
+
+    public function service() {
+        return $this->belongsTo('App\Service');
+    }
 }
