@@ -14,7 +14,7 @@ class AddIsActiveToCombosTable extends Migration
     public function up()
     {
         Schema::table('combos', function (Blueprint $table) {
-            $table->boolean('is_active');
+            $table->boolean('is_active')->default(false);
         });
     }
 

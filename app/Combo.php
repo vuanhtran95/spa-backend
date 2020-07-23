@@ -21,7 +21,9 @@ class Combo extends Model
         'customer_id',
         'amount',
         'user_id',
-        'is_active'
+        'is_active',
+        'price',
+        'number_used'
     ];
 
     protected $hidden = ['service_id'];

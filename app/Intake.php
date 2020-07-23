@@ -20,7 +20,7 @@ class Intake extends Model
      * @var array
      */
     protected $fillable = [
-        'customer_id', 'user_id', 'is_valid'
+        'customer_id', 'user_id', 'is_valid', 'price'
     ];
 
     protected $hidden = [
