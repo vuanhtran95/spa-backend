@@ -57,3 +57,4 @@ Route::get('/v1/customers/{id}', 'CustomerController@getOneById')->middleware('a
 // Combo
 Route::post('/v1/combos', 'ComboController@create')->middleware('auth:api');
 Route::get('/v1/combos', 'ComboController@get')->middleware('auth:api');
+Route::put('/v1/combos/{id}', 'ComboController@update')->middleware('auth:api');

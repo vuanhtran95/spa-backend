@@ -103,7 +103,9 @@ class IntakeRepository implements IntakeRepositoryInterface
             return Intake::where('user_id', '=', $userId)
                 ->with(['orders' => function ($query) {
                     $query->with('combo');
-                }])->with('user')->get()->toArray();
+                }])->with(['user' => function($query) {
+                    $query->with('combos');
+                }])->get()->toArray();
         }
     }
 

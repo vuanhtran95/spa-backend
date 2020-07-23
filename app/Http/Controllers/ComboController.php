@@ -63,17 +63,17 @@ class ComboController extends Controller
 
     public function update(Request $request, $id)
     {
-        $params = $request->all();
+        $params = $request->only('is_active');
         try {
-            $user = $this->customerRepository->update($id, $params);
-            if ($user) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $user);
+            $combo = $this->comboRepository->update($id, $params);
+            if ($combo) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$COMBO_UPDATED, $combo);
             } else {
                 //TODO: Need to improve
                 return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
             }
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USER_UPDATE_FAILURE);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$COMBO_UPDATE_FAILURE);
         }
     }
 

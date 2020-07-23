@@ -26,16 +26,28 @@ class ComboRepository implements ComboRepositoryInterface
     public function save($data, $is_update, $id = null)
     {
         if ($is_update) {
-            $combo = Combo::find($id);
+            $combo = Combo::with('service')->find($id);
+            if ($combo->is_active) {
+                foreach ($data as $key => $value) {
+                    $combo->$key = $value;
+                }
+            } else {
+                if ($data['is_active']) {
+                    $price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
+                    $combo->price = $price;
+                    $combo->is_active = data['is_active'];
+                } else {
+                    return false;
+                }
+            }
+
         } else {
             $combo = new Combo();
         }
 
-        foreach ($data as $key => $value) {
-            $combo->$key = $value;
-        }
+
         if ($combo->save()) {
-            return $combo;
+            return Combo::find($id);
         } else {
             return false;
         }
