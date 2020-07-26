@@ -18,7 +18,6 @@ class ComboRepository implements ComboRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
-            die(var_dump($exception->getMessage()));
             DB::rollBack();
         }
     }
@@ -26,12 +25,15 @@ class ComboRepository implements ComboRepositoryInterface
     public function save($data, $is_update, $id = null)
     {
         if ($is_update) {
+            // Update
             $combo = Combo::with('service')->find($id);
             if ($combo->is_active) {
+                // Decrease combo
                 foreach ($data as $key => $value) {
                     $combo->$key = $value;
                 }
             } else {
+                // Activate combo
                 if ($data['is_active']) {
                     $price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
                     $combo->price = $price;
@@ -42,12 +44,20 @@ class ComboRepository implements ComboRepositoryInterface
             }
 
         } else {
+            // Create Combo
             $combo = new Combo();
+            foreach ($data as $key => $value) {
+                $combo->$key = $value;
+            }
         }
 
 
         if ($combo->save()) {
-            return Combo::find($id);
+            if ($id) {
+                return Combo::find($id);
+            } else {
+                return Combo::find($combo->id);
+            }
         } else {
             return false;
         }
@@ -56,14 +66,17 @@ class ComboRepository implements ComboRepositoryInterface
     public function get(array $condition = [])
     {
         if (empty($condition)) {
-            return [];
+            return Combo::with('service')
+                ->get()->toArray();
         } else {
             $service_id = $condition['service_id'];
             $customer_id = $condition['customer_id'];
 
             return Combo::where('service_id', '=', $service_id)
-                ->where('customer_id', '=', $customer_id)->with('service')
-                ->get()->toArray();
+                ->where('customer_id', '=', $customer_id)
+                ->with('service')
+                ->get()
+                ->toArray();
         }
     }
 

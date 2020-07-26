@@ -17,7 +17,6 @@ class IntakeRepository implements IntakeRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
-            dd($exception->getMessage());
             DB::rollBack();
             return false;
         }
@@ -103,15 +102,17 @@ class IntakeRepository implements IntakeRepositoryInterface
             return Intake::where('user_id', '=', $userId)
                 ->with(['orders' => function ($query) {
                     $query->with('combo');
-                }])->with(['user' => function($query) {
-                    $query->with('combos');
+                }])->with(['customer' => function($query) {
+                    $query->with(['combos' => function($queryService) {
+                        $queryService->with('service');
+                    }]);
                 }])->get()->toArray();
         }
     }
 
     public function getOneBy($by, $value)
     {
-        return Intake::with('orders', 'user')->where('id', $value)->first();
+        return Intake::with('orders', 'customer')->where('id', $value)->first();
     }
 
     public function update($id, array $attributes = [])

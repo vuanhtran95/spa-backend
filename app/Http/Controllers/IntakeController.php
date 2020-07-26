@@ -48,7 +48,6 @@ class IntakeController extends Controller
                 return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
             }
         } catch (Exception $e) {
-            die(var_dump($e->getMessage()));
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$INTAKE_UPDATE_FAILURE);
         }
     }
