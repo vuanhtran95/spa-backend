@@ -102,8 +102,8 @@ class IntakeRepository implements IntakeRepositoryInterface
             return Intake::where('user_id', '=', $userId)
                 ->with(['orders' => function ($query) {
                     $query->with('combo');
-                }])->with(['customer' => function($query) {
-                    $query->with(['combos' => function($queryService) {
+                }])->with(['customer' => function ($query) {
+                    $query->with(['combos' => function ($queryService) {
                         $queryService->with('service');
                     }]);
                 }])->get()->toArray();
@@ -112,7 +112,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return Intake::with('orders', 'customer')->where('id', $value)->first();
+        return Intake::with(['orders', 'customer' => function ($query) {
+            $query->with('combos');
+        }])->where('id', $value)->first();
     }
 
     public function update($id, array $attributes = [])
