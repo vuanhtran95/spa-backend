@@ -54,18 +54,22 @@ class CustomerRepository implements CustomerRepositoryInterface
         if (empty($condition)) {
             return Customer::all();
         } else {
-            $phone = $condition['phone'];
-            $perPage = $condition['perPage'];
+            $phone = isset($condition['phone']) ? $condition['phone'] : null;
+            $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+            $offset = isset($condition['page']) ? $condition['page'] : 1;
 
             return Customer::where('phone', 'LIKE', $phone . '%')
+                ->offset(($offset - 1) * $perPage)
                 ->limit($perPage)
-                ->get()->toArray();
+                ->orderBy('id', 'desc')
+                ->get()
+                ->toArray();
         }
     }
 
     public function getOneBy($by, $value)
     {
-        return Customer::where($by, '=', $value)->with(['combos' => function($query) {
+        return Customer::where($by, '=', $value)->with(['combos' => function ($query) {
             $query->with('service');
         }])->first();
     }
