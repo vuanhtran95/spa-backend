@@ -94,20 +94,31 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function get(array $condition = [])
     {
-        if (empty($condition)) {
-            return Intake::all();
-        } else {
-            $userId = asset($condition['user_id']) ? $condition['user_id'] : null;
+        $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+        $page = isset($condition['page']) ? $condition['page'] : 1;
 
-            return Intake::where('user_id', '=', $userId)
-                ->with(['orders' => function ($query) {
-                    $query->with('combo');
-                }])->with(['customer' => function ($query) {
-                    $query->with(['combos' => function ($queryService) {
-                        $queryService->with('service');
-                    }]);
-                }])->get()->toArray();
+        $userId = isset($condition['user_id']) ? $condition['user_id'] : null;
+
+        $query = new Intake();
+
+        if ($userId) {
+            $query = $query::where('user_id', $userId);
         }
+
+        $intake = $query->limit($perPage)
+            ->with(['customer'])
+            ->offset(($page - 1) * $perPage)
+            ->get()
+            ->toArray();
+
+        return [
+            "Data" => $intake,
+            "Pagination" => [
+                "CurrentPage" => $page,
+                "PerPage" => $perPage,
+                "TotalItems" => $query->count()
+            ]
+        ];
     }
 
     public function getOneBy($by, $value)
