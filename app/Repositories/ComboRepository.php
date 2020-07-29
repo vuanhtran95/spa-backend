@@ -65,19 +65,40 @@ class ComboRepository implements ComboRepositoryInterface
 
     public function get(array $condition = [])
     {
-        if (empty($condition)) {
-            return Combo::with('service')
-                ->get()->toArray();
-        } else {
-            $service_id = $condition['service_id'];
-            $customer_id = $condition['customer_id'];
+        $service_id = isset($condition['service_id']) ? $condition['service_id'] : null;
+        $customer_id = isset($condition['customer_id']) ? $condition['customer_id'] : null;
 
-            return Combo::where('service_id', '=', $service_id)
-                ->where('customer_id', '=', $customer_id)
-                ->with('service')
-                ->get()
-                ->toArray();
+        $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+        $page = isset($condition['page']) ? $condition['page'] : 1;
+
+        $query = new Combo();
+
+        if ($service_id) {
+            $query = $query::where('service_id', '=', $service_id);
         }
+        if ($customer_id) {
+            if ($service_id) {
+                $query = $query->where('customer_id', '=', $customer_id);
+            } else {
+                $query = $query::where('customer_id', '=', $customer_id);
+            }
+        }
+
+        $combos = $query->with(['service', 'customer'])
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->toArray();
+
+        return [
+            "Data" => $combos,
+            "Pagination" => [
+                "CurrentPage" => $page,
+                "PerPage" => $perPage,
+                "TotalItems" => $query->count()
+            ]
+        ];
     }
 
     public function getOneBy($by, $value)

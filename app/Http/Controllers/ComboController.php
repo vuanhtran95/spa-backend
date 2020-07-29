@@ -50,8 +50,13 @@ class ComboController extends Controller
 
         try {
             $combos = $this->comboRepository->get($params);
-            if (!empty($combos)) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_COMBO_SUCCESS, $combos);
+            if (!empty($combos['Data'])) {
+                return HttpResponse::toJson(true,
+                    Response::HTTP_OK,
+                    Translation::$GET_ALL_COMBO_SUCCESS,
+                    $combos['Data'],
+                    $combos['Pagination']
+                );
             } else {
                 return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_COMBO_FOUND);
             }

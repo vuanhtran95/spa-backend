@@ -31,4 +31,8 @@ class Combo extends Model
     public function service() {
         return $this->belongsTo('App\Service');
     }
+
+    public function customer() {
+        return $this->belongsTo('App\Customer');
+    }
 }

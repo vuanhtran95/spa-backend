@@ -105,14 +105,14 @@ class IntakeRepository implements IntakeRepositoryInterface
             $query = $query::where('user_id', $userId);
         }
 
-        $intake = $query->limit($perPage)
+        $intakes = $query->limit($perPage)
             ->with(['customer'])
             ->offset(($page - 1) * $perPage)
             ->get()
             ->toArray();
 
         return [
-            "Data" => $intake,
+            "Data" => $intakes,
             "Pagination" => [
                 "CurrentPage" => $page,
                 "PerPage" => $perPage,

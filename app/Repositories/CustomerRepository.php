@@ -56,14 +56,28 @@ class CustomerRepository implements CustomerRepositoryInterface
         } else {
             $phone = isset($condition['phone']) ? $condition['phone'] : null;
             $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
-            $offset = isset($condition['page']) ? $condition['page'] : 1;
+            $page = isset($condition['page']) ? $condition['page'] : 1;
 
-            return Customer::where('phone', 'LIKE', $phone . '%')
-                ->offset(($offset - 1) * $perPage)
+            $query = new Customer();
+
+            if ($phone) {
+                $query = $query::where('phone', 'LIKE', $phone . '%');
+            }
+
+            $customer = $query->offset(($page - 1) * $perPage)
                 ->limit($perPage)
                 ->orderBy('id', 'desc')
                 ->get()
                 ->toArray();
+
+            return [
+                "Data" => $customer,
+                "Pagination" => [
+                    "CurrentPage" => $page,
+                    "PerPage" => $perPage,
+                    "TotalItems" => $query->count()
+                ]
+            ];
         }
     }
 
