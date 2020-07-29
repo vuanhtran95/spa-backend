@@ -61,7 +61,7 @@ class CustomerRepository implements CustomerRepositoryInterface
             $query = new Customer();
 
             if ($phone) {
-                $query = $query::where('phone', 'LIKE', $phone . '%');
+                $query = $query::where('phone', 'LIKE', '%' . $phone . '%');
             }
 
             $customer = $query->offset(($page - 1) * $perPage)
