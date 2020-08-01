@@ -29,7 +29,7 @@ class IntakeRepository implements IntakeRepositoryInterface
             if (isset($data['is_valid'])) {
                 $intake->is_valid = $data['is_valid'];
                 return $intake->save() ? $intake : false;
-            } else if (isset($data['orders']) && !empty($data['orders'])) {
+            } else if (isset($data['orders'])) {
                 $allOrdersOfIntake = Order::where('intake_id', '=', $id)->get()->toArray();
                 $updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $data['orders']));
                 foreach ($allOrdersOfIntake as $order) {
@@ -123,9 +123,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return Intake::with(['orders', 'customer' => function ($query) {
-            $query->with('combos');
-        }])->where('id', $value)->first();
+        return Intake::with(['orders', 'customer'])->where('id', $value)->first();
     }
 
     public function update($id, array $attributes = [])
