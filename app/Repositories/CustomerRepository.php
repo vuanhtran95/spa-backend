@@ -51,34 +51,31 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function get(array $condition = [])
     {
-        if (empty($condition)) {
-            return Customer::all();
-        } else {
-            $phone = isset($condition['phone']) ? $condition['phone'] : null;
-            $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
-            $page = isset($condition['page']) ? $condition['page'] : 1;
+        $phone = isset($condition['phone']) ? $condition['phone'] : null;
+        $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+        $page = isset($condition['page']) ? $condition['page'] : 1;
 
-            $query = new Customer();
+        $query = new Customer();
 
-            if ($phone) {
-                $query = $query::where('phone', 'LIKE', '%' . $phone . '%');
-            }
-
-            $customer = $query->offset(($page - 1) * $perPage)
-                ->limit($perPage)
-                ->orderBy('id', 'desc')
-                ->get()
-                ->toArray();
-
-            return [
-                "Data" => $customer,
-                "Pagination" => [
-                    "CurrentPage" => $page,
-                    "PerPage" => $perPage,
-                    "TotalItems" => $query->count()
-                ]
-            ];
+        if ($phone) {
+            $query = $query::where('phone', 'LIKE', '%' . $phone . '%');
         }
+
+        $customer = $query->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->toArray();
+
+        return [
+            "Data" => $customer,
+            "Pagination" => [
+                "CurrentPage" => $page,
+                "PerPage" => $perPage,
+                "TotalItems" => $query->count()
+            ]
+        ];
+
     }
 
     public function getOneBy($by, $value)

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Customer;
 use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;
@@ -37,17 +38,31 @@ class UserRepository implements UserRepositoryInterface
 
     public function get(array $condition = [])
     {
-        if (empty($condition)) {
-            return User::all();
-        } else {
-            $roleId = $condition['roleId'];
-            $perPage = $condition['perPage'];
+        $roleId = isset($condition['roleId']) ? $condition['roleId'] : null;
+        $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+        $page = isset($condition['page']) ? $condition['page'] : 1;
 
-            return User::where('role_id', $roleId)
-                ->with('role')
-                ->limit($perPage)
-                ->get()->toArray();
+        $query = new User();
+
+        if ($roleId) {
+            $query = $query::where('role_id', $roleId);
         }
+
+        $users = $query->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->toArray();
+
+        return [
+            "Data" => $users,
+            "Pagination" => [
+                "CurrentPage" => $page,
+                "PerPage" => $perPage,
+                "TotalItems" => $query->count()
+            ]
+        ];
+
     }
 
     public function getOneBy($by, $value)

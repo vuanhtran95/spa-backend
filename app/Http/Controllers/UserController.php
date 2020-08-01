@@ -51,8 +51,11 @@ class UserController extends Controller
         $params = $request->all();
         try {
             $users = $this->userRepository->get($params);
-            if (!empty($users)) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_USER_SUCCESS, $users);
+            if (!empty($users['Data'])) {
+                return HttpResponse::toJson(true,
+                    Response::HTTP_OK,
+                    Translation::$GET_ALL_USER_SUCCESS,
+                    $users['Data'], $users['Pagination']);
             } else {
                 return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
             }
