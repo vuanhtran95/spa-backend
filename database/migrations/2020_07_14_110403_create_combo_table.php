@@ -19,6 +19,9 @@ class CreateComboTable extends Migration
             $table->longText('descriptions')->nullable();
             $table->date('expiry_date');
             $table->unsignedSmallInteger('amount');
+            $table->unsignedSmallInteger('number_used')->default(0);
+            $table->boolean('is_valid')->default(false);
+            $table->float('total_price')->default(0);
             $table->timestamps();
         });
 
@@ -39,6 +42,15 @@ class CreateComboTable extends Migration
                 ->on('customers')
                 ->onUpdate('cascade');
         });
+
+        Schema::table('combos', function (Blueprint $table) {
+            $table->unsignedBigInteger('employee_id');
+
+            $table->foreign('employee_id')
+                ->references('id')
+                ->on('employees')
+                ->onUpdate('cascade');
+        });
     }
 
     /**
@@ -49,7 +61,7 @@ class CreateComboTable extends Migration
     public function down()
     {
         Schema::table('combos', function (Blueprint $table) {
-            $table->dropForeign(['customer_id', 'service_id']);
+            $table->dropForeign(['employee_id', 'customer_id', 'service_id']);
         });
         Schema::dropIfExists('combo');
     }

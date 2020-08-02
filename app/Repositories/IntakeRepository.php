@@ -58,7 +58,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         $orderData->amount = $order['amount'];
                         $orderData->note = $order['note'];
                         $orderData->intake_id = $id;
-                        $orderData->combo_id = $order['combo_id'];
+                        $orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
                         $orderData->save();
                     }
                 }
@@ -98,11 +98,20 @@ class IntakeRepository implements IntakeRepositoryInterface
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
         $userId = isset($condition['user_id']) ? $condition['user_id'] : null;
+        $isValid = isset($condition['is_valid']) ? (int) $condition['is_valid'] : null;
 
         $query = new Intake();
 
         if ($userId) {
             $query = $query::where('user_id', $userId);
+        }
+
+        if ($isValid !== null && ($isValid === 0 || $isValid === 1)) {
+            if ($userId) {
+                $query =$query->where('is_valid', $isValid);
+            } else {
+                $query = $query::where('is_valid', $isValid);
+            }
         }
 
         $intakes = $query->limit($perPage)

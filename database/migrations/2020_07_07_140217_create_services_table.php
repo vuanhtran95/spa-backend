@@ -19,7 +19,9 @@ class CreateServicesTable extends Migration
             $table->longText('descriptions')->nullable();
             $table->float('price');
             $table->boolean('is_combo_sold');
-            $table->float('commission');
+            $table->float('order_commission');
+            $table->float('combo_commission');
+            $table->float('combo_ratio')->default(1.2);
             $table->timestamps();
         });
         Schema::table('services', function (Blueprint $table) {

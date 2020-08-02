@@ -40,11 +40,11 @@ class CreateOrderTable extends Migration
         });
 
         Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('employee_id');
 
-            $table->foreign('user_id')
+            $table->foreign('employee_id')
                 ->references('id')
-                ->on('users')
+                ->on('employees')
                 ->onUpdate('cascade');
         });
 

@@ -16,11 +16,12 @@ class CreateIntakeTable extends Migration
         Schema::create('intakes', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->boolean('is_valid')->default(false);
+            $table->float('total_price')->default(0);
             $table->timestamps();
         });
 
         Schema::table('intakes', function (Blueprint $table) {
-            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->unsignedBigInteger('customer_id');
 
             $table->foreign('customer_id')
                 ->references('id')
@@ -29,11 +30,11 @@ class CreateIntakeTable extends Migration
         });
 
         Schema::table('intakes', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('employee_id');
 
-            $table->foreign('user_id')
+            $table->foreign('employee_id')
                 ->references('id')
-                ->on('users')
+                ->on('employees')
                 ->onUpdate('cascade');
         });
     }
@@ -46,7 +47,7 @@ class CreateIntakeTable extends Migration
     public function down()
     {
         Schema::table('intakes', function (Blueprint $table) {
-            $table->dropForeign(['user_id', 'customer_id']);
+            $table->dropForeign(['employee_id', 'customer_id']);
         });
         Schema::dropIfExists('intakes');
     }

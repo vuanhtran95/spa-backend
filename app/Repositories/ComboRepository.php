@@ -37,7 +37,7 @@ class ComboRepository implements ComboRepositoryInterface
                 if ($data['is_active']) {
                     $price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
                     $combo->price = $price;
-                    $combo->is_active = data['is_active'];
+                    $combo->is_active = $data['is_active'];
                 } else {
                     return false;
                 }
