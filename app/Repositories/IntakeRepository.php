@@ -38,7 +38,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         // Need to update
                         $updateData = $data['orders'][$key];
                         $orderData = Order::find($updateData['id']);
-                        if (isset($updateData['user_id'])) $orderData->user_id = $updateData['user_id'];
+                        if (isset($updateData['employee_id'])) $orderData->employee_id = $updateData['employee_id'];
                         if (isset($updateData['amount'])) $orderData->amount = $updateData['amount'];
                         if (isset($updateData['note'])) $orderData->note = $updateData['note'];
                         if (isset($updateData['combo_id'])) $orderData->combo_id = $updateData['combo_id'];
@@ -54,7 +54,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         // Need to create order
                         $orderData = new Order();
                         $orderData->service_id = $order['service_id'];
-                        $orderData->user_id = $order['user_id'];
+                        $orderData->employee_id = $order['employee_id'];
                         $orderData->amount = $order['amount'];
                         $orderData->note = $order['note'];
                         $orderData->intake_id = $id;
@@ -72,7 +72,7 @@ class IntakeRepository implements IntakeRepositoryInterface
         } else {
             $intake = new Intake();
             isset($data['customer_id']) ? $intake->customer_id = $data['customer_id'] : null;
-            $intake->user_id = $data['user_id'];
+            $intake->employee_id = $data['employee_id'];
 
             if ($intake->save()) {
                 $orders = $data['orders'];
@@ -97,17 +97,17 @@ class IntakeRepository implements IntakeRepositoryInterface
         $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
-        $userId = isset($condition['user_id']) ? $condition['user_id'] : null;
+        $employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
         $isValid = isset($condition['is_valid']) ? (int) $condition['is_valid'] : null;
 
         $query = new Intake();
 
-        if ($userId) {
-            $query = $query::where('user_id', $userId);
+        if ($employeeId) {
+            $query = $query::where('employee_id', $employeeId);
         }
 
         if ($isValid !== null && ($isValid === 0 || $isValid === 1)) {
-            if ($userId) {
+            if ($employeeId) {
                 $query =$query->where('is_valid', $isValid);
             } else {
                 $query = $query::where('is_valid', $isValid);

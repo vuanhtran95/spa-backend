@@ -14,8 +14,8 @@ use App\Repositories\ServiceCategoryRepository;
 use App\Repositories\ServiceCategoryRepositoryInterface;
 use App\Repositories\ServiceRepository;
 use App\Repositories\ServiceRepositoryInterface;
-use App\Repositories\UserRepository;
-use App\Repositories\UserRepositoryInterface;
+use App\Repositories\EmployeeRepository;
+use App\Repositories\EmployeeRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -37,7 +37,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(EmployeeRepositoryInterface::class, EmployeeRepository::class);
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(ServiceRepositoryInterface::class, ServiceRepository::class);
         $this->app->bind(ServiceCategoryRepositoryInterface::class, ServiceCategoryRepository::class);

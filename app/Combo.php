@@ -14,8 +14,6 @@ class Combo extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
-        'description',
         'expiry_date',
         'service_id',
         'customer_id',
@@ -23,7 +21,6 @@ class Combo extends Model
         'user_id',
         'is_active',
         'price',
-        'number_used'
     ];
 
     protected $hidden = ['service_id'];

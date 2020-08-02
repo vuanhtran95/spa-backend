@@ -25,23 +25,14 @@ class ComboRepository implements ComboRepositoryInterface
     public function save($data, $is_update, $id = null)
     {
         if ($is_update) {
-            // Update
+            // Activate combo
             $combo = Combo::with('service')->find($id);
-            if ($combo->is_active) {
-                // Decrease combo
-                foreach ($data as $key => $value) {
-                    $combo->$key = $value;
-                }
-            } else {
-                // Activate combo
-                if ($data['is_active']) {
-                    $price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
-                    $combo->price = $price;
-                    $combo->is_active = $data['is_active'];
-                } else {
-                    return false;
-                }
+            if (isset($data['is_valid'])) {
+                $total_price = ($combo->service->total_price * $combo->amount) / $combo->service->combo_ratio;
+                $combo->total_price = $total_price;
+                $combo->is_valid = $data['is_valid'];
             }
+
 
         } else {
             // Create Combo
@@ -103,7 +94,7 @@ class ComboRepository implements ComboRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return User::where($by, '=', $value)->with('role')->first();
+        return User::where($by, '=', $value)->first();
     }
 
     public function update($id, array $attributes = [])

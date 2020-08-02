@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller as Controller;
 use App\Http\HttpResponse;
 use App\Repositories\ComboRepositoryInterface;
 use App\Repositories\CustomerRepositoryInterface;
-use App\Repositories\UserRepositoryInterface;
+use App\Repositories\EmployeeRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as Response;
 use Exception;

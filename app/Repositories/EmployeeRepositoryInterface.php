@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-interface UserRepositoryInterface
+interface EmployeeRepositoryInterface
 {
     public function create(array $attributes = []);
 

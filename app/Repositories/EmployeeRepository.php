@@ -3,37 +3,61 @@
 namespace App\Repositories;
 
 use App\Customer;
+use App\Employee;
 use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;
 use Mockery\Exception;
 
-class UserRepository implements UserRepositoryInterface
+class EmployeeRepository implements EmployeeRepositoryInterface
 {
 
     public function create(array $attributes = [])
     {
-        return $this->save($attributes, false);
+        DB::beginTransaction();
+        try {
+            $return = $this->save($attributes, false);
+            DB::commit();
+            return $return;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+        }
     }
 
     public function save($data, $is_update, $id = null)
     {
         if ($is_update) {
-            $user = User::find($id);
+//            $user = User::find($id);
         } else {
             $user = new User();
-            $user->email = $data['email'];
-        }
-        $user->name = $data['name'];
-        $user->password = Hash::make($data['password']);
-        $user->role_id = $data['role_id'];
-        $user->phone = $data['phone'];
+            $user->email = $data['username'];
+            $user->password = Hash::make($data['password']);
 
-        if ($user->save()) {
-            return $user;
-        } else {
-            return false;
+            if ($user->save()) {
+                $employee = new Employee();
+                $employee->name = $data['name'];
+                $employee->role_id = $data['role_id'];
+                $employee->phone = $data['phone'];
+
+                if ($employee->save()) {
+                    return Employee::with('user')->find($employee->id);
+                } else {
+                    throw new Exception("Error when storing employee");
+                }
+            } else {
+                throw new Exception("Error when storing user");
+            }
         }
+//        $user->name = $data['name'];
+//        $user->password = Hash::make($data['password']);
+//        $user->role_id = $data['role_id'];
+//        $user->phone = $data['phone'];
+//
+//        if ($user->save()) {
+//            return $user;
+//        } else {
+//            return false;
+//        }
     }
 
     public function get(array $condition = [])
