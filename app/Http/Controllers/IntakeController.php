@@ -23,6 +23,8 @@ class IntakeController extends Controller
     public function create(Request $request)
     {
         $params = $request->all();
+        $params['user_id'] = $request->user()->id;
+
         try {
             $intake = $this->intakeRepository->create($params);
             if ($intake !== false) {

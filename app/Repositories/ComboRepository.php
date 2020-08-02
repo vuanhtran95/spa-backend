@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Combo;
 use App\Customer;
+use App\Employee;
 use App\User;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +19,7 @@ class ComboRepository implements ComboRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
+            die(var_dump($exception->getMessage()));
             DB::rollBack();
         }
     }
@@ -35,11 +37,15 @@ class ComboRepository implements ComboRepositoryInterface
 
 
         } else {
+            $employeeId = Employee::where('user_id', $data['user_id'])->first()->toArray()['id'];
+            unset($data['user_id']);
+
             // Create Combo
             $combo = new Combo();
             foreach ($data as $key => $value) {
                 $combo->$key = $value;
             }
+            $combo->employee_id = $employeeId;
         }
 
 

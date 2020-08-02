@@ -42,7 +42,7 @@ class CustomerRepository implements CustomerRepositoryInterface
         }
 
         if ($customer->save()) {
-            return $customer;
+            return Customer::find($id ? $id : $customer->id);
         } else {
             return false;
         }

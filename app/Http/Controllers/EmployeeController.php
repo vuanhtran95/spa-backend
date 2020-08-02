@@ -94,12 +94,13 @@ class EmployeeController extends Controller
         }
     }
 
-    public function getUserInfo(Request $request)
+    public function getEmployeeInfo(Request $request)
     {
-        $userId = $request->user()->id;
+        // UserId
+        $id = $request->user()->id;
         try {
-            $userInfo = $this->employeeRepository->getOneBy('id', $userId);
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $userInfo);
+            $employeeInfo = $this->employeeRepository->getOneBy('user_id', $id);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $employeeInfo);
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
         }

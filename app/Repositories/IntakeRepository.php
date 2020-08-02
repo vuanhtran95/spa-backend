@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Employee;
 use App\Intake;
 use App\Order;
 use Illuminate\Support\Carbon;
@@ -25,11 +26,8 @@ class IntakeRepository implements IntakeRepositoryInterface
     public function save($data, $is_update, $id = null)
     {
         if ($is_update) {
-            $intake = Intake::find($id);
-            if (isset($data['is_valid'])) {
-                $intake->is_valid = $data['is_valid'];
-                return $intake->save() ? $intake : false;
-            } else if (isset($data['orders'])) {
+            // Change Orders
+            if (isset($data['orders'])) {
                 $allOrdersOfIntake = Order::where('intake_id', '=', $id)->get()->toArray();
                 $updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $data['orders']));
                 foreach ($allOrdersOfIntake as $order) {
@@ -38,10 +36,12 @@ class IntakeRepository implements IntakeRepositoryInterface
                         // Need to update
                         $updateData = $data['orders'][$key];
                         $orderData = Order::find($updateData['id']);
+
                         if (isset($updateData['employee_id'])) $orderData->employee_id = $updateData['employee_id'];
                         if (isset($updateData['amount'])) $orderData->amount = $updateData['amount'];
                         if (isset($updateData['note'])) $orderData->note = $updateData['note'];
                         if (isset($updateData['combo_id'])) $orderData->combo_id = $updateData['combo_id'];
+                        if (isset($updateData['service_id'])) $orderData->service_id = $updateData['service_id'];
                         $orderData->save();
                     } else {
                         // Need to delete
@@ -70,9 +70,13 @@ class IntakeRepository implements IntakeRepositoryInterface
                 return false;
             }
         } else {
+
+            $employeeId = Employee::where('user_id', $data['user_id'])->first()->toArray()['id'];
+            unset($data['user_id']);
+
             $intake = new Intake();
-            isset($data['customer_id']) ? $intake->customer_id = $data['customer_id'] : null;
-            $intake->employee_id = $data['employee_id'];
+            $intake->customer_id = $data['customer_id'];
+            $intake->employee_id = $employeeId;
 
             if ($intake->save()) {
                 $orders = $data['orders'];
@@ -81,6 +85,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $orders[$key]['created_at'] = Carbon::now();
                     $orders[$key]['updated_at'] = Carbon::now();
                     $orders[$key]['combo_id'] = isset($orders[$key]['combo_id']) ? $orders[$key]['combo_id'] : null;
+                    $order[$key]['note'] = isset($orders[$key]['note']) ? $orders[$key]['note'] : null;
                 }
                 Order::insert($orders);
                 // Return Intake with order

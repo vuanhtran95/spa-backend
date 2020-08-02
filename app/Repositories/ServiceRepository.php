@@ -19,15 +19,11 @@ class ServiceRepository implements ServiceRepositoryInterface
         } else {
             $service = new Service();
         }
-        $service->name = $data['name'];
-        $service->descriptions = $data['descriptions'];
-        $service->price = $data['price'];
-        $service->is_combo_sold = $data['is_combo_sold'];
-        $service->order_commission = $data['order_commission'];
-        $service->combo_commission = $data['combo_commission'];
-        $service->combo_ratio = $data['combo_ratio'];
-        $service->service_category_id = $data['service_category_id'];
 
+
+        foreach ($data as $key => $value) {
+            $service->$key = $value;
+        }
 
         if ($service->save()) {
             return $service;

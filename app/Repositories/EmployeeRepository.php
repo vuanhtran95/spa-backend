@@ -6,6 +6,7 @@ use App\Customer;
 use App\Employee;
 use App\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Mockery\Exception;
 
@@ -38,6 +39,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 $employee->name = $data['name'];
                 $employee->role_id = $data['role_id'];
                 $employee->phone = $data['phone'];
+                $employee->user_id = $user->id;
 
                 if ($employee->save()) {
                     return Employee::with('user')->find($employee->id);
@@ -66,7 +68,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
-        $query = new User();
+        $query = new Employee();
 
         if ($roleId) {
             $query = $query::where('role_id', $roleId);
@@ -91,16 +93,19 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return User::where($by, '=', $value)->with('role')->first();
+        return Employee::where($by, '=', $value)->with('role')->first();
     }
 
+
+    // Not working now
     public function update($id, array $attributes = [])
     {
         return $this->save($attributes, true, $id);
     }
 
+    // Not working now
     public function delete($id)
     {
-        return User::destroy($id);
+//        return Employee::destroy($id);
     }
 }
