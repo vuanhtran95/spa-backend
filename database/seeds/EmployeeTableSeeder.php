@@ -1,10 +1,8 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\User;
-use Illuminate\Support\Facades\Hash;
 
-class UserTableSeeder extends Seeder
+class EmployeeTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,12 +13,13 @@ class UserTableSeeder extends Seeder
     {
         $users = [
             [
-                'email' => 'admin',
-                'password' => Hash::make('admin'),
+                'name' => "Victor",
+                'user_id' => 1,
+                'role_id' => 1
             ],
         ];
         foreach ($users as $key => $user) {
-            User::create($user);
+            \App\Employee::create($user);
         }
     }
 }

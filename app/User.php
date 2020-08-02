@@ -56,12 +56,7 @@ class User extends Authenticatable
         return $this->where('email', $username)->first();
     }
 
-    public function role()
-    {
-        return $this->belongsTo('App\Role', 'role_id', 'id');
-    }
-
-    public function combos() {
-        return $this->hasMany('App\Combo');
+    public function employee() {
+        return $this->hasOne('App\Employee');
     }
 }

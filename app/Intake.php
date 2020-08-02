@@ -31,8 +31,8 @@ class Intake extends Model
         return $this->hasMany('App\Order');
     }
 
-    public function user() {
-        return $this->belongsTo('App\User', 'user_id', 'id');
+    public function employee() {
+        return $this->belongsTo('App\Employee', 'employee_id', 'id');
     }
 
     public function customer() {
