@@ -25,7 +25,10 @@ class EmployeeController extends Controller
         $params = $request->all();
         try {
             $employee = $this->employeeRepository->create($params);
-            if ($employee) {
+            if ($employee === 1062) {
+                return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USERNAME_EXIST);
+            }
+            else if ($employee) {
                 return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$USER_CREATED, $employee);
             } else {
                 //TODO: Need to improve

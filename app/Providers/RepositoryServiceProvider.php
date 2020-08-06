@@ -8,6 +8,8 @@ use App\Repositories\CustomerRepository;
 use App\Repositories\CustomerRepositoryInterface;
 use App\Repositories\IntakeRepository;
 use App\Repositories\IntakeRepositoryInterface;
+use App\Repositories\OrderRepository;
+use App\Repositories\OrderRepositoryInterface;
 use App\Repositories\RoleRepository;
 use App\Repositories\RoleRepositoryInterface;
 use App\Repositories\ServiceCategoryRepository;
@@ -44,5 +46,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(IntakeRepositoryInterface::class, IntakeRepository::class);
         $this->app->bind(ComboRepositoryInterface::class, ComboRepository::class);
+        $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
     }
 }

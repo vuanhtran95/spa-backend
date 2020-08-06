@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Address
+ * Class Order
  * @package App
  * @mixin Builder
  */
@@ -25,5 +25,17 @@ class Order extends Model
 
     public function combo() {
         return $this->belongsTo('App\Combo');
+    }
+
+    public function intake() {
+        return $this->belongsTo('App\Intake');
+    }
+
+    public function service() {
+        return $this->belongsTo('App\Service');
+    }
+
+    public function customer() {
+        return $this->belongsTo('App\Customer');
     }
 }

@@ -3,7 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
+/**
+ * Class Address
+ * @package App
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
 class Customer extends Model
 {
     protected $table = 'customers';

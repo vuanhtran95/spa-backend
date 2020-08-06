@@ -77,9 +77,12 @@ class CustomerController extends Controller
     {
         $params = $request->all();
         try {
-            $user = $this->customerRepository->update($id, $params);
-            if ($user) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $user);
+            $customer = $this->customerRepository->update($id, $params);
+            if ($customer === 1062) {
+                return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$PHONE_EXIST);
+
+            } else if ($customer) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $customer);
             } else {
                 //TODO: Need to improve
                 return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);

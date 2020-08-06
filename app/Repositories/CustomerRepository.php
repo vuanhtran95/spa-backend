@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerRepository implements CustomerRepositoryInterface
 {
-
     public function create(array $attributes = [])
     {
         DB::beginTransaction();
@@ -91,6 +90,12 @@ class CustomerRepository implements CustomerRepositoryInterface
             $return = $this->save($attributes, true, $id);
             DB::commit();
             return $return;
+        } catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                DB::rollBack();
+                return 1062;
+            }
         } catch (\Exception $exception) {
             DB::rollBack();
         }

@@ -2,8 +2,14 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Combo
+ * @package App
+ * @mixin Builder
+ */
 class Combo extends Model
 {
     protected $table = 'combos';
@@ -22,8 +28,6 @@ class Combo extends Model
         'is_active',
         'price',
     ];
-
-    protected $hidden = ['service_id'];
 
     public function service() {
         return $this->belongsTo('App\Service');

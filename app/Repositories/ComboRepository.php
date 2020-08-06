@@ -62,23 +62,27 @@ class ComboRepository implements ComboRepositoryInterface
 
     public function get(array $condition = [])
     {
-        $service_id = isset($condition['service_id']) ? $condition['service_id'] : null;
-        $customer_id = isset($condition['customer_id']) ? $condition['customer_id'] : null;
+        $serviceId = isset($condition['service_id']) ? $condition['service_id'] : null;
+        $customerId = isset($condition['customer_id']) ? $condition['customer_id'] : null;
+        $employee_id = isset($condition['employee_id']) ? $condition['employee_id'] : null;
+        $isValid = isset($condition['is_valid']) ? $condition['is_valid'] : null;
 
         $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
         $query = new Combo();
 
-        if ($service_id) {
-            $query = $query::where('service_id', '=', $service_id);
+        if ($serviceId) {
+            $query = $query->where('service_id', '=', $serviceId);
         }
-        if ($customer_id) {
-            if ($service_id) {
-                $query = $query->where('customer_id', '=', $customer_id);
-            } else {
-                $query = $query::where('customer_id', '=', $customer_id);
-            }
+        if ($customerId) {
+            $query = $query->where('customer_id', '=', $customerId);
+        }
+        if ($employee_id) {
+            $query = $query->where('employee_id', '=', $employee_id);
+        }
+        if ($isValid) {
+            $query = $query->where('is_valid', '=', $isValid);
         }
 
         $combos = $query->with(['service', 'customer'])

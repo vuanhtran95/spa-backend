@@ -103,7 +103,10 @@ class IntakeRepository implements IntakeRepositoryInterface
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
         $employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
-        $isValid = isset($condition['is_valid']) ? (int) $condition['is_valid'] : null;
+        $isValid = isset($condition['is_valid']) ? (int)$condition['is_valid'] : null;
+
+        $fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
+        $toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
 
         $query = new Intake();
 
@@ -112,11 +115,16 @@ class IntakeRepository implements IntakeRepositoryInterface
         }
 
         if ($isValid !== null && ($isValid === 0 || $isValid === 1)) {
-            if ($employeeId) {
-                $query =$query->where('is_valid', $isValid);
-            } else {
-                $query = $query::where('is_valid', $isValid);
-            }
+            $query = $query->where('is_valid', $isValid);
+        }
+
+
+        if ($fromDate) {
+            $query = $query->where('created_at', '>=', $fromDate);
+        }
+
+        if ($toDate) {
+            $query = $query->where('created_at', '<=', $toDate);
         }
 
         $intakes = $query->limit($perPage)

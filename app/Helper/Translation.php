@@ -6,6 +6,8 @@ namespace App\Helper;
 class Translation
 {
     public static $UNAUTHORIZED = "UNAUTHORIZED";
+    public static $UPDATE_SUCCESS = 'UPDATED SUCCESS';
+    public static $UPDATE_FAILURE = 'UPDATED FAILURE';
 
     public static $SERVICE_CREATED = "SERVICE_CREATED";
     public static $SERVICE_CREATE_ERROR = "SERVICE_CREATE_ERROR";
@@ -71,4 +73,8 @@ class Translation
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
+
+
+    public static $GET_LIST_SUCCESS = "GET_LIST_SUCCESS";
+    public static $GET_LIST_EMPTY = "GET_LIST_EMPTY";
 }

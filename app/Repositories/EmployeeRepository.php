@@ -20,8 +20,15 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $return = $this->save($attributes, false);
             DB::commit();
             return $return;
+        } catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                DB::rollBack();
+                return 1062;
+            }
         } catch (\Exception $exception) {
             DB::rollBack();
+            return false;
         }
     }
 

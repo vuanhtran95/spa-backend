@@ -39,6 +39,10 @@ Route::put('/v1/intakes/{id}', 'IntakeController@update')->middleware('auth:api'
 Route::get('/v1/intakes', 'IntakeController@get')->middleware('auth:api');
 Route::get('/v1/intakes/{id}', 'IntakeController@getOneById')->middleware('auth:api');
 
+// Order
+Route::get('/v1/orders', 'OrderController@get')->middleware('auth:api');
+Route::put('/v1/orders/{id}', 'OrderController@update')->middleware('auth:api');
+
 // Service
 Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');
 Route::post('/v1/services', 'ServiceController@create')->middleware('auth:api');
@@ -52,6 +56,7 @@ Route::post('/v1/service-categories', 'ServiceCategoryController@create')->middl
 Route::post('/v1/customers', 'CustomerController@create')->middleware('auth:api');
 Route::get('/v1/customers', 'CustomerController@get')->middleware('auth:api');
 Route::get('/v1/customers/{id}', 'CustomerController@getOneById')->middleware('auth:api');
+Route::put('/v1/customers/{id}', 'CustomerController@update')->middleware('auth:api');
 
 
 // Combo
