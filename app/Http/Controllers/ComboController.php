@@ -70,7 +70,7 @@ class ComboController extends Controller
 
     public function update(Request $request, $id)
     {
-        $params = $request->only('is_active');
+        $params = $request->only('is_valid');
         try {
             $combo = $this->comboRepository->update($id, $params);
             if ($combo) {

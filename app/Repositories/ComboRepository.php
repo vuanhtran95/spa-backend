@@ -19,7 +19,6 @@ class ComboRepository implements ComboRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
-            die(var_dump($exception->getMessage()));
             DB::rollBack();
         }
     }
@@ -34,7 +33,6 @@ class ComboRepository implements ComboRepositoryInterface
                 $combo->total_price = $total_price;
                 $combo->is_valid = $data['is_valid'];
             }
-
 
         } else {
             $employeeId = Employee::where('user_id', $data['user_id'])->first()->toArray()['id'];
