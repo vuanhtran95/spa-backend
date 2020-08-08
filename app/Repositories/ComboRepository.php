@@ -8,6 +8,8 @@ use App\Employee;
 use App\Order;
 use App\Service;
 use App\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 class ComboRepository implements ComboRepositoryInterface
@@ -31,9 +33,14 @@ class ComboRepository implements ComboRepositoryInterface
             // Activate combo
             $combo = Combo::with('service')->find($id);
             if (isset($data['is_valid'])) {
+                // Calc price
                 $total_price = ($combo->service->total_price * $combo->amount) / $combo->service->combo_ratio;
                 $combo->total_price = $total_price;
                 $combo->is_valid = $data['is_valid'];
+
+                // Add Expired Date
+                $now = Carbon::now();
+                $combo->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
 
                 $employee = Employee::find($combo->employee_id);
                 $service = Service::find($combo->service_id);

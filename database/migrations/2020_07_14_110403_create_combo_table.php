@@ -15,7 +15,7 @@ class CreateComboTable extends Migration
     {
         Schema::create('combos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->date('expiry_date');
+            $table->date('expiry_date')->nullable();
             $table->unsignedSmallInteger('amount');
             $table->unsignedSmallInteger('number_used')->default(0);
             $table->boolean('is_valid')->default(false);
