@@ -6,6 +6,7 @@ use App\Combo;
 use App\Customer;
 use App\Employee;
 use App\Order;
+use App\Service;
 use App\User;
 use Illuminate\Support\Facades\DB;
 
@@ -33,11 +34,16 @@ class ComboRepository implements ComboRepositoryInterface
                 $total_price = ($combo->service->total_price * $combo->amount) / $combo->service->combo_ratio;
                 $combo->total_price = $total_price;
                 $combo->is_valid = $data['is_valid'];
+
+                $employee = Employee::find($combo->employee_id);
+                $service = Service::find($combo->service_id);
+                $employee->commission = $employee->commission + $service->combo_commission * $combo->amount;
+                $employee->save();
             }
 
         } else {
-            $employeeId = Employee::where('user_id', $data['user_id'])->first()->toArray()['id'];
-            unset($data['user_id']);
+            $employeeId = $data['employee_id'];
+            unset($data['employee_id']);
 
             // Create Combo
             $combo = new Combo();
@@ -103,7 +109,7 @@ class ComboRepository implements ComboRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return Combo::where($by, $value)->with(['orders' => function($query) {
+        return Combo::where($by, $value)->with(['orders' => function ($query) {
             $query->whereHas('intake', function ($query) {
                 $query->where('is_valid', 1);
             });

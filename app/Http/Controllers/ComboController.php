@@ -25,7 +25,7 @@ class ComboController extends Controller
     public function create(Request $request)
     {
         $params = $request->all();
-        $params['user_id'] = $request->user()->id;
+        $params['employee_id'] = $request->user()->id;
 
         try {
             $combo = $this->comboRepository->create($params);
