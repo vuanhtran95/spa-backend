@@ -36,4 +36,8 @@ class Combo extends Model
     public function customer() {
         return $this->belongsTo('App\Customer');
     }
+
+    public function orders() {
+        return $this->hasMany('App\Order');
+    }
 }

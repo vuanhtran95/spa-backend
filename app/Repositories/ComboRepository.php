@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Combo;
 use App\Customer;
 use App\Employee;
+use App\Order;
 use App\User;
 use Illuminate\Support\Facades\DB;
 
@@ -102,7 +103,11 @@ class ComboRepository implements ComboRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return User::where($by, '=', $value)->first();
+        return Combo::where($by, $value)->with(['orders' => function($query) {
+            $query->whereHas('intake', function ($query) {
+                $query->where('is_valid', 1);
+            });
+        }])->get()->toArray();
     }
 
     public function update($id, array $attributes = [])

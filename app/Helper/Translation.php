@@ -8,6 +8,9 @@ class Translation
     public static $UNAUTHORIZED = "UNAUTHORIZED";
     public static $UPDATE_SUCCESS = 'UPDATED SUCCESS';
     public static $UPDATE_FAILURE = 'UPDATED FAILURE';
+    public static $GET_SINGLE_SUCCESS = 'GET_SINGLE_SUCCESS';
+    public static $GET_SINGLE_FAILURE = 'GET_SINGLE_FAILURE';
+    public static $NOT_FOUND = 'NOT_FOUND';
 
     public static $SERVICE_CREATED = "SERVICE_CREATED";
     public static $SERVICE_CREATE_ERROR = "SERVICE_CREATE_ERROR";

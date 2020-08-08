@@ -40,12 +40,6 @@ class ComboController extends Controller
         }
     }
 
-    //TODO:
-    public function getOneById($id)
-    {
-
-    }
-
     public function get(Request $request)
     {
         $params = $request->all();
@@ -86,26 +80,15 @@ class ComboController extends Controller
 
     public function delete($id)
     {
-        try {
-            $delete = $this->customerRepository->delete($id);
-            if ($delete) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_USER_SUCCESS);
-            } else {
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$DELETE_USER_FAILURE);
-            }
-        } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$DELETE_USER_FAILURE);
-        }
     }
 
-    public function getUserInfo(Request $request)
+    public function getOneById($id)
     {
-        $userId = $request->user()->id;
-        try {
-            $userInfo = $this->customerRepository->getOneBy('id', $userId);
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $userInfo);
-        } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+        $order = $this->comboRepository->getOneBy('id', $id);
+        if ($order) {
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_SUCCESS, $order);
+        } else {
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NOT_FOUND);
         }
     }
 }
