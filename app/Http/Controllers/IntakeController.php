@@ -54,6 +54,21 @@ class IntakeController extends Controller
         }
     }
 
+    public function approve($id)
+    {
+        try {
+            $intake = $this->intakeRepository->approve($id);
+            if ($intake) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INTAKE_UPDATED, $intake);
+            } else {
+                //TODO: Need to improve
+                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
+            }
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$INTAKE_UPDATE_FAILURE);
+        }
+    }
+
     public function delete($id)
     {
 

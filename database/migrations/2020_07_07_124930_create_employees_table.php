@@ -18,6 +18,7 @@ class CreateEmployeesTable extends Migration
             $table->string('name');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
+            $table->bigInteger('commission')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

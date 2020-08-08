@@ -12,6 +12,8 @@ interface IntakeRepositoryInterface
 
     public function update($id, array $attributes = []);
 
+    public function approve($id);
+
     public function delete($id);
 
     public function save($data, $is_update, $id = null);

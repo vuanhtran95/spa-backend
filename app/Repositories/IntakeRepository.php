@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use App\Combo;
+use App\Customer;
 use App\Employee;
 use App\Intake;
 use App\Order;
@@ -160,7 +162,55 @@ class IntakeRepository implements IntakeRepositoryInterface
         }
     }
 
-    public function delete($id)
-    {
+    public function approve($id){
+        DB::beginTransaction();
+        try {
+            $intake = Intake::with(['orders' => function($query) {
+                $query->with('service');
+            }])->find($id);
+
+            // 2. Use combo and Calc price
+            $totalPrice = 0;
+            if (!empty($intake->orders)) {
+                foreach ($intake->orders as $order) {
+
+                    // Use combo won't pay money
+                    if ($order->combo_id) {
+                        $combo = Combo::find($order->combo_id);
+                        $combo->number_used = (int)$combo->number_used + (int)$order->amount;
+                        $combo->save();
+                    } else {
+                        // Pay money
+                        $totalPrice = $totalPrice + $order->service->price * $order->amount;
+                    }
+
+                    // Collect commission for employee
+                    $employee = Employee::find($order->employee_id);
+                    $employee->commission = $employee->commission + $order->service->order_commission * $order->amount;
+                    $employee->save();
+                }
+            }
+
+            // 3. Collect point for customer
+            if ($totalPrice > 0) {
+                $customer = Customer::find($intake->customer_id);
+                $customer->points = $customer->points + (int)$totalPrice/1000;
+                $customer->save();
+            }
+
+            // 1. Update Status For Intake
+            $intake->is_valid = 1;
+            $intake->total_price = $totalPrice;
+            $intake->save();
+
+            DB::commit();
+
+            return Intake::find($id);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return false;
+        }
     }
+
+    public function delete($id){}
 }
