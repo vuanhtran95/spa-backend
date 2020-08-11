@@ -25,7 +25,7 @@ class Combo extends Model
         'customer_id',
         'amount',
         'user_id',
-        'is_active',
+        'is_valid',
         'price',
     ];
 

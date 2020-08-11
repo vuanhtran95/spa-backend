@@ -23,6 +23,7 @@ class ComboRepository implements ComboRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
+
             DB::rollBack();
         }
     }
@@ -59,7 +60,6 @@ class ComboRepository implements ComboRepositoryInterface
             }
             $combo->employee_id = $employeeId;
         }
-
 
         if ($combo->save()) {
             if ($id) {
@@ -137,6 +137,24 @@ class ComboRepository implements ComboRepositoryInterface
 
     public function delete($id)
     {
-        return User::destroy($id);
+        $combo = Combo::find($id);
+        if ($combo !== null) {
+            if ($combo->is_valid) {
+                throw new \Exception('Can not delete valid combo');
+            } else {
+                DB::beginTransaction();
+                try {
+                    $destroy = Combo::destroy($id);
+                    DB::commit();
+                    return $destroy;
+                } catch (\Exception $exception) {
+                    DB::rollBack();
+                    throw $exception;
+                }
+            }
+        } else {
+            throw new \Exception('No Combo Found');
+        }
+
     }
 }

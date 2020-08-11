@@ -80,6 +80,16 @@ class ComboController extends Controller
 
     public function delete($id)
     {
+        try {
+            $delete = $this->comboRepository->delete($id);
+            if ($delete) {
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_SUCCESS);
+            } else {
+                return HttpResponse::toJson(false, Response::HTTP_OK, Translation::$DELETE_NOTHING);
+            }
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
     }
 
     public function getOneById($id)

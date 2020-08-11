@@ -11,6 +11,9 @@ class Translation
     public static $GET_SINGLE_SUCCESS = 'GET_SINGLE_SUCCESS';
     public static $GET_SINGLE_FAILURE = 'GET_SINGLE_FAILURE';
     public static $NOT_FOUND = 'NOT_FOUND';
+    public static $DELETE_ERROR = 'DELETE_ERROR';
+    public static $DELETE_SUCCESS = 'DELETED';
+    public static $DELETE_NOTHING = 'NOTHING TO DELETE';
 
     public static $SERVICE_CREATED = "SERVICE_CREATED";
     public static $SERVICE_CREATE_ERROR = "SERVICE_CREATE_ERROR";
