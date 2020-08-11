@@ -23,8 +23,8 @@ class ComboRepository implements ComboRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
-
             DB::rollBack();
+            throw $exception;
         }
     }
 
@@ -35,7 +35,7 @@ class ComboRepository implements ComboRepositoryInterface
             $combo = Combo::with('service')->find($id);
             if (isset($data['is_valid'])) {
                 // Calc price
-                $total_price = ($combo->service->total_price * $combo->amount) / $combo->service->combo_ratio;
+                $total_price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
                 $combo->total_price = $total_price;
                 $combo->is_valid = $data['is_valid'];
 
@@ -50,15 +50,16 @@ class ComboRepository implements ComboRepositoryInterface
             }
 
         } else {
-            $employeeId = $data['employee_id'];
-            unset($data['employee_id']);
+            $userId = $data['user_id'];
+            $employee = Employee::where('user_id', $userId)->first();
+            unset($data['user_id']);
 
             // Create Combo
             $combo = new Combo();
             foreach ($data as $key => $value) {
                 $combo->$key = $value;
             }
-            $combo->employee_id = $employeeId;
+            $combo->employee_id = $employee->id;
         }
 
         if ($combo->save()) {
@@ -120,7 +121,7 @@ class ComboRepository implements ComboRepositoryInterface
             $query->whereHas('intake', function ($query) {
                 $query->where('is_valid', 1);
             });
-        }])->get()->toArray();
+        }])->first();
     }
 
     public function update($id, array $attributes = [])
