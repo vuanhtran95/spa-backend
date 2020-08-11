@@ -130,7 +130,7 @@ class IntakeRepository implements IntakeRepositoryInterface
         }
 
         $intakes = $query->limit($perPage)
-            ->with(['customer'])
+            ->with(['customer', 'employee'])
             ->offset(($page - 1) * $perPage)
             ->get()
             ->toArray();
@@ -147,7 +147,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return Intake::with(['orders', 'customer'])->where('id', $value)->first();
+        return Intake::with(['orders', 'customer', 'employee'])->where('id', $value)->first();
     }
 
     public function update($id, array $attributes = [])
