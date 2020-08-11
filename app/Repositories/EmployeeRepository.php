@@ -72,7 +72,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function get(array $condition = [])
     {
         $roleId = isset($condition['roleId']) ? $condition['roleId'] : null;
-        $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
         $query = new Employee();

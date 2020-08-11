@@ -101,7 +101,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function get(array $condition = [])
     {
-        $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
         $employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
