@@ -106,6 +106,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
         $employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
         $isValid = isset($condition['is_valid']) ? (int)$condition['is_valid'] : null;
+        $customerId = isset($condition['customer_id']) ? $condition['customer_id'] : null;
 
         $fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
         $toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
@@ -114,6 +115,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 
         if ($employeeId) {
             $query = $query::where('employee_id', $employeeId);
+        }
+
+        if ($customerId) {
+            $query = $query::where('customer_id', $customerId);
         }
 
         if ($isValid !== null && ($isValid === 0 || $isValid === 1)) {
