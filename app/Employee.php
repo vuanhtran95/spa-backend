@@ -15,7 +15,7 @@ class Employee extends Model
     protected $table = 'employees';
 
     protected $fillable = [
-        'name', 'phone', 'email', 'user_id', 'role_id', 'is_active'
+        'name', 'phone', 'email', 'user_id', 'role_id', 'is_active', 'sale_commission', 'working_commission'
     ];
 
     public function user()
@@ -28,7 +28,8 @@ class Employee extends Model
         return $this->belongsTo('App\Role', 'role_id', 'id');
     }
 
-    public function combos() {
+    public function combos()
+    {
         return $this->hasMany('App\Combo');
     }
 }

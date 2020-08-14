@@ -43,6 +43,7 @@ class ComboRepository implements ComboRepositoryInterface
                 $now = Carbon::now();
                 $combo->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
 
+                // Add sale commission
                 $employee = Employee::find($combo->employee_id);
                 $service = Service::find($combo->service_id);
                 $employee->commission = $employee->commission + $service->combo_commission * $combo->amount;
@@ -98,7 +99,7 @@ class ComboRepository implements ComboRepositoryInterface
             $query = $query->where('is_valid', '=', $isValid);
         }
 
-        $combos = $query->with(['service', 'customer'])
+        $combos = $query->with(['service', 'customer', 'orders'])
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->orderBy('id', 'desc')
@@ -121,7 +122,7 @@ class ComboRepository implements ComboRepositoryInterface
             $query->whereHas('intake', function ($query) {
                 $query->where('is_valid', 1);
             });
-        }])->first();
+        }, 'service'])->first();
     }
 
     public function update($id, array $attributes = [])
