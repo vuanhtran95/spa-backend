@@ -46,7 +46,7 @@ class ComboRepository implements ComboRepositoryInterface
                 // Add sale commission
                 $employee = Employee::find($combo->employee_id);
                 $service = Service::find($combo->service_id);
-                $employee->commission = $employee->commission + $service->combo_commission * $combo->amount;
+                $employee->sale_commission = $employee->sale_commission + $total_price * $service->combo_commission;
                 $employee->save();
             }
 

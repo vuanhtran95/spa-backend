@@ -125,7 +125,6 @@ class IntakeRepository implements IntakeRepositoryInterface
             $query = $query->where('is_valid', $isValid);
         }
 
-
         if ($fromDate) {
             $query = $query->where('created_at', '>=', $fromDate);
         }
@@ -167,10 +166,11 @@ class IntakeRepository implements IntakeRepositoryInterface
         }
     }
 
-    public function approve($id){
+    public function approve($id)
+    {
         DB::beginTransaction();
         try {
-            $intake = Intake::with(['orders' => function($query) {
+            $intake = Intake::with(['orders' => function ($query) {
                 $query->with('service');
             }])->find($id);
 
@@ -183,23 +183,34 @@ class IntakeRepository implements IntakeRepositoryInterface
                     if ($order->combo_id) {
                         $combo = Combo::find($order->combo_id);
                         $combo->number_used = (int)$combo->number_used + (int)$order->amount;
+                        if ($combo->number_used > $combo->amount) {
+                            throw new Exception('You have run out of use this combo');
+                        }
                         $combo->save();
+
+                        // Collect commission for employee in combo used case
+                        $employee = Employee::find($order->employee_id);
+                        $employee->working_commission =
+                            $employee->working_commission + $order->service->order_commission * ($combo->total_price / $combo->amount);
+                        $employee->save();
+
                     } else {
                         // Pay money
                         $totalPrice = $totalPrice + $order->service->price * $order->amount;
-                    }
 
-                    // Collect commission for employee
-                    $employee = Employee::find($order->employee_id);
-                    $employee->commission = $employee->commission + $order->service->order_commission * $order->amount;
-                    $employee->save();
+                        // Collect commission for employee in money pay case
+                        $employee = Employee::find($order->employee_id);
+                        $employee->working_commission =
+                            $employee->working_commission + $order->service->order_commission * $order->service->price;
+                        $employee->save();
+                    }
                 }
             }
 
             // 3. Collect point for customer
             if ($totalPrice > 0) {
                 $customer = Customer::find($intake->customer_id);
-                $customer->points = $customer->points + (int)$totalPrice/1000;
+                $customer->points = $customer->points + (int)$totalPrice / 1000;
                 $customer->save();
             }
 
@@ -213,9 +224,11 @@ class IntakeRepository implements IntakeRepositoryInterface
             return Intake::find($id);
         } catch (\Exception $exception) {
             DB::rollBack();
-            return false;
+            return $exception;
         }
     }
 
-    public function delete($id){}
+    public function delete($id)
+    {
+    }
 }

@@ -57,16 +57,6 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 throw new Exception("Error when storing user");
             }
         }
-//        $user->name = $data['name'];
-//        $user->password = Hash::make($data['password']);
-//        $user->role_id = $data['role_id'];
-//        $user->phone = $data['phone'];
-//
-//        if ($user->save()) {
-//            return $user;
-//        } else {
-//            return false;
-//        }
     }
 
     public function get(array $condition = [])
