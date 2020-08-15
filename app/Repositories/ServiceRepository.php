@@ -3,13 +3,22 @@
 namespace App\Repositories;
 
 use App\Service;
+use Illuminate\Support\Facades\DB;
 
 class ServiceRepository implements ServiceRepositoryInterface
 {
 
     public function create(array $attributes = [])
     {
-        return $this->save($attributes, false);
+        DB::beginTransaction();
+        try {
+            $service = $this->save($attributes, false);
+            DB::commit();
+            return $service;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function save($data, $is_update, $id = null)
@@ -20,16 +29,13 @@ class ServiceRepository implements ServiceRepositoryInterface
             $service = new Service();
         }
 
-
         foreach ($data as $key => $value) {
             $service->$key = $value;
         }
 
-        if ($service->save()) {
-            return $service;
-        } else {
-            return false;
-        }
+        $service->save();
+        return $service;
+
     }
 
     public function get()
@@ -45,11 +51,29 @@ class ServiceRepository implements ServiceRepositoryInterface
 
     public function update($id, array $attributes = [])
     {
-        return $this->save($attributes, true, $id);
+        DB::beginTransaction();
+        try {
+            $service = $this->save($attributes, true, $id);
+            DB::commit();
+            return $service;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function delete($id)
     {
-        return Service::destroy($id);
+        DB::beginTransaction();
+        try {
+            $count = Service::destroy($id);
+            DB::commit();
+            if ($count === 0) {
+                throw new \Exception("Service not found");
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage());
+        }
     }
 }

@@ -27,8 +27,7 @@ class EmployeeController extends Controller
             $employee = $this->employeeRepository->create($params);
             if ($employee === 1062) {
                 return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USERNAME_EXIST);
-            }
-            else if ($employee) {
+            } else if ($employee) {
                 return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$USER_CREATED, $employee);
             } else {
                 //TODO: Need to improve
@@ -54,14 +53,10 @@ class EmployeeController extends Controller
         $params = $request->all();
         try {
             $employees = $this->employeeRepository->get($params);
-            if (!empty($employees['Data'])) {
-                return HttpResponse::toJson(true,
-                    Response::HTTP_OK,
-                    Translation::$GET_ALL_USER_SUCCESS,
-                    $employees['Data'], $employees['Pagination']);
-            } else {
-                return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
-            }
+            return HttpResponse::toJson(true,
+                Response::HTTP_OK,
+                Translation::$GET_ALL_USER_SUCCESS,
+                $employees['Data'], $employees['Pagination']);
         } catch (\Exception $e) {
             die(var_dump($e->getMessage()));
         }

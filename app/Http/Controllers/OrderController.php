@@ -21,9 +21,8 @@ class OrderController extends Controller
     {
         $params = $request->all();
 
-        $orders = $this->orderRepository->get($params);
-
-        if (!empty($orders['Data'])) {
+        try {
+            $orders = $this->orderRepository->get($params);
             return HttpResponse::toJson(
                 true,
                 Response::HTTP_OK,
@@ -31,17 +30,18 @@ class OrderController extends Controller
                 $orders['Data'],
                 $orders['Pagination']
             );
-        } else {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$GET_LIST_EMPTY);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         $params = $request->all();
         try {
             $order = $this->orderRepository->update($id, $params);
             if ($order) {
-                return HttpResponse::toJson(true,Response::HTTP_OK, Translation::$UPDATE_SUCCESS, $order);
+                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$UPDATE_SUCCESS, $order);
             } else {
                 //TODO: Need to improve
                 return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);

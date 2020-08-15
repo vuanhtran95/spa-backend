@@ -56,17 +56,12 @@ class CustomerController extends Controller
 
         try {
             $customers = $this->customerRepository->get($params);
-            if (!empty($customers['Data'])) {
-                return HttpResponse::toJson(
-                    true,
-                    Response::HTTP_OK,
-                    Translation::$GET_ALL_CUSTOMER_SUCCESS,
-                    $customers['Data'],
-                    $customers['Pagination']
-                );
-            } else {
-                return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_CUSTOMER_FOUND);
-            }
+            return HttpResponse::toJson(
+                true,
+                Response::HTTP_OK,
+                Translation::$GET_ALL_CUSTOMER_SUCCESS,
+                $customers['Data'],
+                $customers['Pagination']);
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SYSTEM_ERROR);
         }

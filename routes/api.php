@@ -47,6 +47,8 @@ Route::put('/v1/orders/{id}', 'OrderController@update')->middleware('auth:api');
 // Service
 Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');
 Route::post('/v1/services', 'ServiceController@create')->middleware('auth:api');
+Route::put('/v1/services/{id}', 'ServiceController@update')->middleware('auth:api');
+Route::delete('/v1/services/{id}', 'ServiceController@delete')->middleware('auth:api');
 
 // Service Category
 Route::get('/v1/service-categories', 'ServiceCategoryController@get')->middleware('auth:api');

@@ -24,56 +24,40 @@ class ServiceController extends Controller
         $params = $request->all();
         try {
             $service = $this->serviceRepository->create($params);
-            if ($service) {
-                return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$SERVICE_CREATED, $service);
-            } else {
-                //TODO: Need to improve
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
-            }
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$SERVICE_CREATED, $service);
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SERVICE_CREATE_ERROR);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 
     public function get()
     {
-        $services = $this->serviceRepository->get();
-        if (!empty($services)) {
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_SERVICE_SUCCESS, $services);
-        } else {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_SERVICE_FOUND);
+        try {
+            $services = $this->serviceRepository->get();
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_LIST_SUCCESS, $services);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 
-    // TODO:
     public function update(Request $request, $id)
     {
         $params = $request->all();
         try {
-            $user = $this->serviceRepository->update($id, $params);
-            if ($user) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $user);
-            } else {
-                //TODO: Need to improve
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
-            }
+            $service = $this->serviceRepository->update($id, $params);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$UPDATE_SUCCESS, $service);
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USER_UPDATE_FAILURE);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 
-    // TODO:
     public function delete($id)
     {
         try {
-            $delete = $this->userRepository->delete($id);
-            if ($delete) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_USER_SUCCESS);
-            } else {
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$DELETE_USER_FAILURE);
-            }
+            $this->serviceRepository->delete($id);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_SUCCESS);
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$DELETE_USER_FAILURE);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 
