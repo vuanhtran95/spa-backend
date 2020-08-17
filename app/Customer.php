@@ -20,7 +20,7 @@ class Customer extends Model
      * @var array
      */
     protected $fillable = [
-        'name','phone', 'email', 'points', 'is_active'
+        'name','phone', 'email', 'points', 'is_active', 'gender'
     ];
 
     public function combos() {

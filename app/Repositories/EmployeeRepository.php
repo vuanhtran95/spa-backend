@@ -46,6 +46,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 $employee->name = $data['name'];
                 $employee->role_id = $data['role_id'];
                 $employee->phone = $data['phone'];
+                $employee->gender = $data['gender'];
                 $employee->user_id = $user->id;
 
                 if ($employee->save()) {

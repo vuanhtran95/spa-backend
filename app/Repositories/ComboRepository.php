@@ -46,7 +46,7 @@ class ComboRepository implements ComboRepositoryInterface
                 // Add sale commission
                 $employee = Employee::find($combo->employee_id);
                 $service = Service::find($combo->service_id);
-                $employee->sale_commission = $employee->sale_commission + $total_price * $service->combo_commission;
+                $employee->sale_commission = $employee->sale_commission + $total_price * $service->combo_commission / 100;
                 $employee->save();
             }
 
@@ -99,7 +99,11 @@ class ComboRepository implements ComboRepositoryInterface
             $query = $query->where('is_valid', '=', $isValid);
         }
 
-        $combos = $query->with(['service', 'customer', 'orders'])
+        $combos = $query->with(['service', 'customer', 'orders' => function ($query) {
+            $query->whereHas('intake', function ($query) {
+                $query->where('is_valid', 1);
+            });
+        }])
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->orderBy('id', 'desc')
