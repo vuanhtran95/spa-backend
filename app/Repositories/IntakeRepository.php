@@ -216,7 +216,7 @@ class IntakeRepository implements IntakeRepositoryInterface
             // 3. Collect point for customer
             if ($totalPrice > 0) {
                 $customer = Customer::find($intake->customer_id);
-                $customer->points = $customer->points + (int)$totalPrice / 1000;
+                $customer->points = $customer->points + (int)($totalPrice / 50);
                 $customer->save();
             }
 
