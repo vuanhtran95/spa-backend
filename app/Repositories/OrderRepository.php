@@ -45,6 +45,11 @@ class OrderRepository implements OrderRepositoryInterface
         ];
     }
 
+    public function getOneBy($by, $value)
+    {
+        return Order::where($by, '=', $value)->with('employee')->first();
+    }
+
     // Not working now
     public function update($id, array $attributes = [])
     {

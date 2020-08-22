@@ -42,6 +42,7 @@ Route::get('/v1/intakes/{id}', 'IntakeController@getOneById')->middleware('auth:
 
 // Order
 Route::get('/v1/orders', 'OrderController@get')->middleware('auth:api');
+Route::get('/v1/orders/{id}', 'OrderController@getOneById')->middleware('auth:api');
 Route::put('/v1/orders/{id}', 'OrderController@update')->middleware('auth:api');
 
 // Service

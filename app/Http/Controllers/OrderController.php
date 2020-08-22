@@ -35,6 +35,21 @@ class OrderController extends Controller
         }
     }
 
+    public function getOneById($id)
+    {
+        try {
+            $orders = $this->orderRepository->getOneBy('id', $id);
+            return HttpResponse::toJson(
+                true,
+                Response::HTTP_OK,
+                Translation::$GET_SINGLE_SUCCESS,
+                $orders
+            );
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
     public function update(Request $request, $id)
     {
         $params = $request->all();
