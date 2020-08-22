@@ -168,11 +168,17 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function approve($id)
     {
+        $intake = Intake::with(['orders' => function ($query) {
+            $query->with('service');
+        }])->find($id);
+
+        if ($intake->is_valid) {
+            throw new \Exception("Intake already approved");
+        }
+
         DB::beginTransaction();
         try {
-            $intake = Intake::with(['orders' => function ($query) {
-                $query->with('service');
-            }])->find($id);
+
 
             // 2. Use combo and Calc price
             $totalPrice = 0;
@@ -201,7 +207,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         // Collect commission for employee in money pay case
                         $employee = Employee::find($order->employee_id);
                         $employee->working_commission =
-                            $employee->working_commission + $order->service->order_commission * $order->service->price;
+                            $employee->working_commission + ($order->service->order_commission / 100) * $order->service->price;
                         $employee->save();
                     }
                 }
