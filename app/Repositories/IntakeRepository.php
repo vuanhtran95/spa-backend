@@ -197,20 +197,20 @@ class IntakeRepository implements IntakeRepositoryInterface
                         $combo->save();
 
                         // Collect commission for employee in combo used case
-                        $employee = Employee::find($order->employee_id);
-                        $employee->working_commission =
-                            $employee->working_commission + ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount);
-                        $employee->save();
+//                        $employee = Employee::find($order->employee_id);
+//                        $employee->working_commission =
+//                            $employee->working_commission + ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount);
+//                        $employee->save();
 
                     } else {
                         // Pay money
                         $totalPrice = $totalPrice + $order->service->price * $order->amount;
 
                         // Collect commission for employee in money pay case
-                        $employee = Employee::find($order->employee_id);
-                        $employee->working_commission =
-                            $employee->working_commission + ($order->service->order_commission / 100) * $order->service->price;
-                        $employee->save();
+//                        $employee = Employee::find($order->employee_id);
+//                        $employee->working_commission =
+//                            $employee->working_commission + ($order->service->order_commission / 100) * $order->service->price;
+//                        $employee->save();
                     }
                 }
             }

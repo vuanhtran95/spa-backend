@@ -69,3 +69,6 @@ Route::get('/v1/combos', 'ComboController@get')->middleware('auth:api');
 Route::get('/v1/combos/{id}', 'ComboController@getOneById')->middleware('auth:api');
 Route::put('/v1/combos/{id}', 'ComboController@update')->middleware('auth:api');
 Route::delete('v1/combos/{id}', 'ComboController@delete')->middleware('auth:api');
+
+// Review
+Route::post('/v1/reviews', 'ReviewController@create')->middleware('auth:api');

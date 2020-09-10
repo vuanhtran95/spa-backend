@@ -19,19 +19,25 @@ class Authenticate extends Middleware
             $userId = $request->user()->id;
             $userType = $request->header()['user-type'][0];
 
-            $employee = Employee::where('user_id', $userId)->with('role')->first();
-            $roleName = $employee->role->name;
-            if ($roleName !== 'admin') {
-                if ($roleName !== $userType) {
+            if ($userType) {
 
-                    return HttpResponse::toJson(false,
-                        Response::HTTP_UNAUTHORIZED,
-                        Translation::$UNAUTHORIZED
-                    );
+                $employee = Employee::where('user_id', $userId)->with('role')->first();
+                $roleName = $employee->role->name;
+                if ($roleName !== 'admin') {
+                    if ($roleName !== $userType) {
+
+                        return HttpResponse::toJson(false,
+                            Response::HTTP_UNAUTHORIZED,
+                            Translation::$UNAUTHORIZED
+                        );
+                    }
                 }
+
+                return $next($request);
+            } else {
+                return HttpResponse::toJson(false, Response::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS, Translation::$HEADER_REQUIRED);
             }
 
-            return $next($request);
         }
         return HttpResponse::toJson(false, Response::HTTP_UNAUTHORIZED, Translation::$UNAUTHORIZED);
     }
