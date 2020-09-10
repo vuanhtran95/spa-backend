@@ -11,7 +11,10 @@ class Translation
     public static $UPDATE_FAILURE = 'UPDATED FAILURE';
     public static $GET_SINGLE_SUCCESS = 'GET_SINGLE_SUCCESS';
     public static $GET_SINGLE_FAILURE = 'GET_SINGLE_FAILURE';
+    public static $CREATED = 'CREATED';
+
     public static $NOT_FOUND = 'NOT_FOUND';
+
     public static $DELETE_ERROR = 'DELETE_ERROR';
     public static $DELETE_SUCCESS = 'DELETED';
     public static $DELETE_NOTHING = 'NOTHING TO DELETE';

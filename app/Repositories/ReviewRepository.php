@@ -17,9 +17,9 @@ class ReviewRepository implements ReviewRepositoryInterface
     {
         DB::beginTransaction();
         try {
-            $service = $this->save($attributes, false);
+            $review = $this->save($attributes, false);
             DB::commit();
-            return $service;
+            return $review;
         } catch (\Exception $e) {
             DB::rollBack();
             throw new \Exception($e->getMessage());
@@ -30,26 +30,9 @@ class ReviewRepository implements ReviewRepositoryInterface
     {
         if ($is_update) {
             // TODO: no need to do
+            return false;
         } else {
             // Create
-            $data = [
-                "orders" => [
-                    [
-                        "order_id" => 1,
-                        "skill" => 5,
-                        "attitude" => 5,
-                        "facility" => 5
-                    ],
-                    [
-                        "order_id" => 1,
-                        "skill" => 5,
-                        "attitude" => 5,
-                        "facility" => 5
-                    ],
-                ],
-                "intake_id" => 1
-            ];
-
             $intake_id = $data['intake_id'];
             $intake = Intake::find($intake_id);
             die(var_dump($intake));
@@ -80,6 +63,7 @@ class ReviewRepository implements ReviewRepositoryInterface
                 }
                 Review::insert($review);
             }
+            return true;
         }
     }
 }
