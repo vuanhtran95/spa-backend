@@ -42,4 +42,8 @@ class Order extends Model
     public function employee() {
         return $this->belongsTo('App\Employee');
     }
+
+    public function review() {
+        return $this->hasOne('App\Review');
+    }
 }
