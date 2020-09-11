@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Combo;
 use App\Employee;
+use App\Helper\Common;
 use App\Helper\Translation;
 use App\Intake;
 use App\Order;
@@ -67,6 +68,8 @@ class ReviewFormFormRepository implements ReviewFormRepositoryInterface
                 $order = Order::with('service')->find($reviewOrder['order_id']);
                 $employee = Employee::find($order->employee_id);
 
+                $percentCommission = Common::calCommissionPercent($reviewOrder['skill'], $reviewOrder['attitude']);
+
                 if ($order->combo_id) {
                     // Case order use combo
 
@@ -74,14 +77,16 @@ class ReviewFormFormRepository implements ReviewFormRepositoryInterface
 
                     // Collect commission for employee in combo used case
                     $employee->working_commission =
-                        $employee->working_commission + ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount);
+                        $employee->working_commission +
+                        ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount) * $percentCommission;
                     $employee->save();
 
                 } else {
                     // Case order doesn't use combo
                     // Collect commission for employee in money pay case
                     $employee->working_commission =
-                        $employee->working_commission + ($order->service->order_commission / 100) * $order->service->price;
+                        $employee->working_commission +
+                        ($order->service->order_commission / 100) * $order->service->price * $percentCommission;
                     $employee->save();
                 }
                 $review = new Review();
