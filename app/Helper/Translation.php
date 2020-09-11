@@ -81,6 +81,7 @@ class Translation
     public static $DELETE_INTAKE_SUCCESS = "DELETE_INTAKE_SUCCESS";
     public static $DELETE_INTAKE_FAILURE = "DELETE_INTAKE_FAILURE";
     public static $INTAKE_NOT_APPROVE = "INTAKE_NOT_APPROVE";
+    public static $INTAKE_ALREADY_REVIEWED = "INTAKE_ALREADY_REVIEWED";
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
