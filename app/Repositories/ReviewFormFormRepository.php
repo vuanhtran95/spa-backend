@@ -4,13 +4,14 @@ namespace App\Repositories;
 
 use App\Combo;
 use App\Employee;
+use App\Helper\Translation;
 use App\Intake;
 use App\Order;
 use App\Review;
-use App\Service;
+use App\ReviewForm;
 use Illuminate\Support\Facades\DB;
 
-class ReviewRepository implements ReviewRepositoryInterface
+class ReviewFormFormRepository implements ReviewFormRepositoryInterface
 {
 
     public function create(array $attributes = [])
@@ -35,13 +36,26 @@ class ReviewRepository implements ReviewRepositoryInterface
             // Create
             $intake_id = $data['intake_id'];
             $intake = Intake::find($intake_id);
-            die(var_dump($intake));
+            if (!$intake) {
+                throw new \Exception(Translation::$NO_INTAKE_FOUND);
+            }
 
-            $orders = $data['orders'];
+            if (!$intake->is_valid) {
+                throw new \Exception(Translation::$INTAKE_NOT_APPROVE);
+            }
 
-            foreach ($data as $review) {
+            $reviewForm = new ReviewForm();
+            $reviewForm->intake_id = $intake_id;
+            $reviewForm->facility = $data['facility'];
+            $reviewForm->note = $data['note'];
 
-                $order = Order::with('service')->find($review->order_id);
+            $reviewForm->save();
+
+            $reviews = $data['reviews'];
+
+            foreach ($reviews as $reviewOrder) {
+
+                $order = Order::with('service')->find($reviewOrder['order_id']);
                 $employee = Employee::find($order->employee_id);
 
                 if ($order->combo_id) {
@@ -61,7 +75,12 @@ class ReviewRepository implements ReviewRepositoryInterface
                         $employee->working_commission + ($order->service->order_commission / 100) * $order->service->price;
                     $employee->save();
                 }
-                Review::insert($review);
+                $review = new Review();
+                $review->order_id = $order->id;
+                $review->skill = $reviewOrder['skill'];
+                $review->attitude = $reviewOrder['attitude'];
+                $review->review_form_id = $reviewForm->id;
+                $review->save();
             }
             return true;
         }

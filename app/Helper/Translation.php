@@ -80,6 +80,7 @@ class Translation
     public static $INTAKE_EXIST = "INTAKE_EXIST";
     public static $DELETE_INTAKE_SUCCESS = "DELETE_INTAKE_SUCCESS";
     public static $DELETE_INTAKE_FAILURE = "DELETE_INTAKE_FAILURE";
+    public static $INTAKE_NOT_APPROVE = "INTAKE_NOT_APPROVE";
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";

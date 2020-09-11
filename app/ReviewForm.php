@@ -4,9 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Review extends Model
+class ReviewForm extends Model
 {
-    protected $table = 'reviews';
+    protected $table = 'review_forms';
 
     /**
      * The attributes that are mass assignable.
@@ -14,6 +14,6 @@ class Review extends Model
      * @var array
      */
     protected $fillable = [
-        'skill', 'attitude', 'order_id', 'review_form_id'
+        'facility', 'note', 'intake_id'
     ];
 }

@@ -15,10 +15,8 @@ class CreateReviewsTable extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('skill')->default(5);
-            $table->integer('attitude')->default(5);
-            $table->integer('facility')->default(5);
-            $table->string('note')->nullable();
+            $table->integer('skill')->default(0);
+            $table->integer('attitude')->default(0);
             $table->timestamps();
         });
 
@@ -31,6 +29,16 @@ class CreateReviewsTable extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });
+
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->unsignedBigInteger('review_form_id');
+
+            $table->foreign('review_form_id')
+                ->references('id')
+                ->on('review_forms')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+        });
     }
 
     /**
@@ -40,8 +48,8 @@ class CreateReviewsTable extends Migration
      */
     public function down()
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->dropForeign(['order_id']);
+        Schema::table('review_forms', function (Blueprint $table) {
+            $table->dropForeign(['review_form_id', 'order_id']);
         });
         Schema::dropIfExists('reviews');
     }

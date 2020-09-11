@@ -10,8 +10,8 @@ use App\Repositories\IntakeRepository;
 use App\Repositories\IntakeRepositoryInterface;
 use App\Repositories\OrderRepository;
 use App\Repositories\OrderRepositoryInterface;
-use App\Repositories\ReviewRepository;
-use App\Repositories\ReviewRepositoryInterface;
+use App\Repositories\ReviewFormFormRepository;
+use App\Repositories\ReviewFormRepositoryInterface;
 use App\Repositories\RoleRepository;
 use App\Repositories\RoleRepositoryInterface;
 use App\Repositories\ServiceCategoryRepository;
@@ -49,6 +49,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IntakeRepositoryInterface::class, IntakeRepository::class);
         $this->app->bind(ComboRepositoryInterface::class, ComboRepository::class);
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
-        $this->app->bind(ReviewRepositoryInterface::class, ReviewRepository::class);
+        $this->app->bind(ReviewFormRepositoryInterface::class, ReviewFormFormRepository::class);
     }
 }

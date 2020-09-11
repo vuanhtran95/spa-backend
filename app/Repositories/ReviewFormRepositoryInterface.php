@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-interface ReviewRepositoryInterface
+interface ReviewFormRepositoryInterface
 {
     public function create(array $attributes = []);
 

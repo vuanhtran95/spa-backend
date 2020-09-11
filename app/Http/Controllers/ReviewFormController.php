@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Helper\Translation;
 use App\Http\HttpResponse;
-use App\Repositories\ReviewRepositoryInterface;
+use App\Repositories\ReviewFormRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as Response;
 
-class ReviewController extends Controller
+class ReviewFormController extends Controller
 {
-    private $reviewRepository;
+    private $reviewFormRepository;
 
-    public function __construct(ReviewRepositoryInterface $reviewRepository)
+    public function __construct(ReviewFormRepositoryInterface $reviewFormRepository)
     {
-        $this->reviewRepository = $reviewRepository;
+        $this->reviewFormRepository = $reviewFormRepository;
     }
 
     public function create(Request $request)
@@ -22,7 +22,7 @@ class ReviewController extends Controller
         $params = $request->all();
 
         try {
-            $this->reviewRepository->create($params);
+            $this->reviewFormRepository->create($params);
             return HttpResponse::toJson(
                 true,
                 Response::HTTP_CREATED,
@@ -32,7 +32,7 @@ class ReviewController extends Controller
             return HttpResponse::toJson(
                 false,
                 Response::HTTP_CONFLICT,
-                Translation::$UPDATE_FAILURE
+                $e->getMessage()
             );
         }
     }
