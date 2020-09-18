@@ -57,6 +57,7 @@ class ReviewFormFormRepository implements ReviewFormRepositoryInterface
             $reviewForm = new ReviewForm();
             $reviewForm->intake_id = $intake_id;
             $reviewForm->facility = $data['facility'];
+            $reviewForm->customer_satisfy = $data['customer_satisfy'];
             $reviewForm->note = $data['note'];
 
             $reviewForm->save();
@@ -93,6 +94,7 @@ class ReviewFormFormRepository implements ReviewFormRepositoryInterface
                 $review->order_id = $order->id;
                 $review->skill = $reviewOrder['skill'];
                 $review->attitude = $reviewOrder['attitude'];
+                $review->service_point = $reviewOrder['service_point'];
                 $review->review_form_id = $reviewForm->id;
                 $review->save();
             }

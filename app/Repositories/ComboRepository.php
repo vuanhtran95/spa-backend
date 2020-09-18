@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Combo;
 use App\Customer;
 use App\Employee;
+use App\Helper\Translation;
 use App\Order;
 use App\Service;
 use App\User;
@@ -34,29 +35,25 @@ class ComboRepository implements ComboRepositoryInterface
         if ($is_update) {
             // Activate combo
             $combo = Combo::with('service')->find($id);
-            if (!$combo->is_valid) {
-                if (isset($data['is_valid'])) {
-                    // Calc price
-                    $total_price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
-                    $combo->is_valid = $data['is_valid'];
+            if ($combo->is_valid) {
+                throw new \Exception(Translation::$COMBO_ALREADY_VALID);
+            }
 
-                    // Add Expired Date
-                    $now = Carbon::now();
-                    $combo->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
+            if (isset($data['is_valid'])) {
+                // Calc price
+                $total_price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
+                $combo->is_valid = $data['is_valid'];
 
-                    // Add sale commission
-                    /* Deprecated : Store price to combo, instead of add commission to employee*
-                    $employee = Employee::find($combo->employee_id);
-                    $service = Service::find($combo->service_id);
-                    $employee->sale_commission = $employee->sale_commission + $total_price * $service->combo_commission / 100;
-                    $employee->save();
-                    */
+                // Add Expired Date
+                $now = Carbon::now();
+                $combo->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
 
-                    // Store Price to combo in case service price change
-                    $variant = Variant::with('service')->find($combo->variant_id);
-                    $combo->total_price = $total_price;
-                    $combo->sale_commission = $total_price * $variant->service->combo_commission / 100;
-                }
+                // Store Price to combo in case service price change
+                $variant = Variant::with('service')->find($combo->variant_id);
+                $combo->total_price = $total_price;
+                $combo->sale_commission = $total_price * $variant->service->combo_commission / 100;
+            } else {
+                throw new \Exception("Please pass is_valid value");
             }
 
         } else {

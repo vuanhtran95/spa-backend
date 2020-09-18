@@ -7,6 +7,7 @@ use App\Customer;
 use App\Employee;
 use App\Intake;
 use App\Order;
+use App\Variant;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -197,8 +198,10 @@ class IntakeRepository implements IntakeRepositoryInterface
                     } else {
                         // Pay money
                         $updateOrder = Order::find($order->id);
-                        $updateOrder->price =
-                        $totalPrice = $totalPrice + $order->service->price * $order->amount;
+                        $variant = Variant::find($updateOrder->variant_id);
+
+                        $updateOrder->price = $variant->price;
+                        $totalPrice = $totalPrice + $variant->price * $order->amount;
                     }
                 }
             }

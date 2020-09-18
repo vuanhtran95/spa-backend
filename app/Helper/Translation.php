@@ -11,6 +11,8 @@ class Translation
     public static $UPDATE_FAILURE = 'UPDATED FAILURE';
     public static $GET_SINGLE_SUCCESS = 'GET_SINGLE_SUCCESS';
     public static $GET_SINGLE_FAILURE = 'GET_SINGLE_FAILURE';
+    public static $GET_LIST_SUCCESS = "GET_LIST_SUCCESS";
+    public static $GET_LIST_EMPTY = "GET_LIST_EMPTY";
     public static $CREATED = 'CREATED';
     public static $UPDATED = 'UPDATED';
     public static $DELETED = 'DELETED';
@@ -72,6 +74,7 @@ class Translation
     public static $COMBO_EXIST = "COMBO_EXIST";
     public static $DELETE_COMBO_SUCCESS = "DELETE_COMBO_SUCCESS";
     public static $DELETE_COMBO_FAILURE = "DELETE_COMBO_FAILURE";
+    public static $COMBO_ALREADY_VALID = "COMBO_ALREADY_VALID";
 
     public static $INTAKE_CREATED = "INTAKE_CREATED";
     public static $INTAKE_UPDATED = "INTAKE_UPDATED";
@@ -88,7 +91,4 @@ class Translation
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
 
-
-    public static $GET_LIST_SUCCESS = "GET_LIST_SUCCESS";
-    public static $GET_LIST_EMPTY = "GET_LIST_EMPTY";
 }
