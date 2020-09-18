@@ -11,15 +11,15 @@ class ReviewerTableSeeder extends Seeder
      */
     public function run()
     {
-        $reviewer = [
+        $reviewers = [
             [
                 'name' => "Reviewer",
                 'user_id' => 2,
                 'role_id' => 3
             ],
         ];
-        foreach ($users as $key => $user) {
-            \App\Employee::create($user);
+        foreach ($reviewers as $key => $reviewer) {
+            \App\Reviewer::create($reviewer);
         }
     }
 }
