@@ -20,7 +20,7 @@ class Order extends Model
      * @var array
      */
     protected $fillable = [
-        'service_id', 'user_id', 'amount', 'note', 'intake_id', 'combo_id'
+        'variant_id', 'user_id', 'amount', 'note', 'intake_id', 'combo_id'
     ];
 
     public function combo() {

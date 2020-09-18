@@ -51,6 +51,13 @@ Route::post('/v1/services', 'ServiceController@create')->middleware('auth:api');
 Route::put('/v1/services/{id}', 'ServiceController@update')->middleware('auth:api');
 Route::delete('/v1/services/{id}', 'ServiceController@delete')->middleware('auth:api');
 
+// Variant
+Route::get('/v1/variants', 'VariantController@get')->middleware('auth:api');
+Route::get('/v1/variants/{id}', 'VariantController@getOneById')->middleware('auth:api');
+Route::post('/v1/variants', 'VariantController@create')->middleware('auth:api');
+Route::put('/v1/variants/{id}', 'VariantController@update')->middleware('auth:api');
+Route::delete('/v1/variants/{id}', 'VariantController@delete')->middleware('auth:api');
+
 // Service Category
 Route::get('/v1/service-categories', 'ServiceCategoryController@get')->middleware('auth:api');
 Route::post('/v1/service-categories', 'ServiceCategoryController@create')->middleware('auth:api');

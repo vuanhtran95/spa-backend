@@ -8,6 +8,7 @@ use App\Employee;
 use App\Order;
 use App\Service;
 use App\User;
+use App\Variant;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -52,9 +53,9 @@ class ComboRepository implements ComboRepositoryInterface
                     */
 
                     // Store Price to combo in case service price change
-                    $service = Service::find($combo->service_id);
+                    $variant = Variant::with('service')->find($combo->variant_id);
                     $combo->total_price = $total_price;
-                    $combo->sale_commission = $total_price * $service->combo_commission / 100;
+                    $combo->sale_commission = $total_price * $variant->service->combo_commission / 100;
                 }
             }
 
@@ -84,7 +85,7 @@ class ComboRepository implements ComboRepositoryInterface
 
     public function get(array $condition = [])
     {
-        $serviceId = isset($condition['service_id']) ? $condition['service_id'] : null;
+        $variantId = isset($condition['variant_id']) ? $condition['variant_id'] : null;
         $customerId = isset($condition['customer_id']) ? $condition['customer_id'] : null;
         $employee_id = isset($condition['employee_id']) ? $condition['employee_id'] : null;
         $isValid = isset($condition['is_valid']) ? $condition['is_valid'] : null;
@@ -94,8 +95,8 @@ class ComboRepository implements ComboRepositoryInterface
 
         $query = new Combo();
 
-        if ($serviceId) {
-            $query = $query->where('service_id', '=', $serviceId);
+        if ($variantId) {
+            $query = $query->where('variant_id', '=', $variantId);
         }
         if ($customerId) {
             $query = $query->where('customer_id', '=', $customerId);

@@ -43,7 +43,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         if (isset($updateData['amount'])) $orderData->amount = $updateData['amount'];
                         if (isset($updateData['note'])) $orderData->note = $updateData['note'];
                         if (isset($updateData['combo_id'])) $orderData->combo_id = $updateData['combo_id'];
-                        if (isset($updateData['service_id'])) $orderData->service_id = $updateData['service_id'];
+                        if (isset($updateData['variant_id'])) $orderData->variant_id = $updateData['variant_id'];
                         $orderData->save();
                     } else {
                         // Need to delete
@@ -55,7 +55,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                     if ($order['id'] === null) {
                         // Need to create order
                         $orderData = new Order();
-                        $orderData->service_id = $order['service_id'];
+                        $orderData->variant_id = $order['variant_id'];
                         $orderData->employee_id = $order['employee_id'];
                         $orderData->amount = $order['amount'];
                         $orderData->note = $order['note'];

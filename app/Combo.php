@@ -21,7 +21,7 @@ class Combo extends Model
      */
     protected $fillable = [
         'expiry_date',
-        'service_id',
+        'variant_id',
         'customer_id',
         'amount',
         'user_id',

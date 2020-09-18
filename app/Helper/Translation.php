@@ -12,6 +12,8 @@ class Translation
     public static $GET_SINGLE_SUCCESS = 'GET_SINGLE_SUCCESS';
     public static $GET_SINGLE_FAILURE = 'GET_SINGLE_FAILURE';
     public static $CREATED = 'CREATED';
+    public static $UPDATED = 'UPDATED';
+    public static $DELETED = 'DELETED';
 
     public static $NOT_FOUND = 'NOT_FOUND';
 
