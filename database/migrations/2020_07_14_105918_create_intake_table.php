@@ -16,7 +16,7 @@ class CreateIntakeTable extends Migration
         Schema::create('intakes', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->boolean('is_valid')->default(false);
-            $table->float('total_price')->default(0);
+            $table->float('discount_price')->default(0);
             $table->timestamps();
         });
 

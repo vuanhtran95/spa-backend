@@ -17,11 +17,11 @@ class CreateServicesTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->longText('descriptions')->nullable();
-            $table->float('price');
             $table->boolean('is_combo_sold');
             $table->integer('order_commission');
             $table->integer('combo_commission');
             $table->float('combo_ratio')->default(1.2);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
         Schema::table('services', function (Blueprint $table) {

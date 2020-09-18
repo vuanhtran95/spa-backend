@@ -181,36 +181,24 @@ class IntakeRepository implements IntakeRepositoryInterface
         DB::beginTransaction();
         try {
 
-
             // 2. Use combo and Calc price
             $totalPrice = 0;
             if (!empty($intake->orders)) {
                 foreach ($intake->orders as $order) {
 
-                    // Use combo won't pay money
                     if ($order->combo_id) {
+                        // Use combo won't pay money
                         $combo = Combo::find($order->combo_id);
                         $combo->number_used = (int)$combo->number_used + (int)$order->amount;
                         if ($combo->number_used > $combo->amount) {
                             throw new Exception('You have run out of use this combo');
                         }
                         $combo->save();
-
-                        // Collect commission for employee in combo used case
-//                        $employee = Employee::find($order->employee_id);
-//                        $employee->working_commission =
-//                            $employee->working_commission + ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount);
-//                        $employee->save();
-
                     } else {
                         // Pay money
+                        $updateOrder = Order::find($order->id);
+                        $updateOrder->price =
                         $totalPrice = $totalPrice + $order->service->price * $order->amount;
-
-                        // Collect commission for employee in money pay case
-//                        $employee = Employee::find($order->employee_id);
-//                        $employee->working_commission =
-//                            $employee->working_commission + ($order->service->order_commission / 100) * $order->service->price;
-//                        $employee->save();
                     }
                 }
             }
@@ -224,7 +212,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 
             // 1. Update Status For Intake
             $intake->is_valid = 1;
-            $intake->total_price = $totalPrice;
+            // Deprecated: Add price to orders instead of intake
+            // $intake->total_price = $totalPrice;
             $intake->save();
 
             DB::commit();

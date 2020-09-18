@@ -15,17 +15,20 @@ class CreateOrderTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedSmallInteger('amount');
+            $table->unsignedSmallInteger('amount')->default(1);
             $table->longText('note')->nullable();
+            $table->float('price')->default(0);
+            $table->text('gender')->default('both');
+            $table->float('working_commission')->default(0);
             $table->timestamps();
         });
 
         Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('service_id');
+            $table->unsignedBigInteger('variant_id');
 
-            $table->foreign('service_id')
+            $table->foreign('variant_id')
                 ->references('id')
-                ->on('services')
+                ->on('variants')
                 ->onUpdate('cascade');
         });
 

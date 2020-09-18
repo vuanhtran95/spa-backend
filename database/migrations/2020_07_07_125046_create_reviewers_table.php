@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCustomersTable extends Migration
+class CreateReviewersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,13 @@ class CreateCustomersTable extends Migration
      */
     public function up()
     {
-        Schema::create('customers', function (Blueprint $table) {
+        Schema::create('reviewers', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('phone')->unique();
-            $table->string('name')->nullable();
-            $table->string('email')->nullable();
-            $table->unsignedBigInteger('points')->default(0);
-            $table->string('gender')->default('other');
-
+            $table->string('name');
             $table->timestamps();
         });
 
-        Schema::table('customers', function (Blueprint $table) {
+        Schema::table('reviewers', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->nullable();
 
             $table->foreign('user_id')
@@ -45,6 +40,6 @@ class CreateCustomersTable extends Migration
         Schema::table('customers', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
         });
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('reviewers');
     }
 }

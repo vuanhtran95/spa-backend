@@ -18,9 +18,7 @@ class CreateEmployeesTable extends Migration
             $table->string('name');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
-            $table->float('sale_commission')->default(0);
-            $table->float('working_commission')->default(0);
-            $table->boolean('is_active')->default(true);
+            $table->string('gender')->default('other');
             $table->timestamps();
         });
 

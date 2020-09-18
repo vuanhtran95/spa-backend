@@ -16,6 +16,7 @@ class CreateReviewFormsTable extends Migration
         Schema::create('review_forms', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('facility')->default(0);
+            $table->integer('customer_satisfy')->default(0);
             $table->longText('note')->nullable();
             $table->timestamps();
         });

@@ -17,6 +17,8 @@ class CreateServiceCategoriesTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->longText('descriptions')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
