@@ -18,7 +18,7 @@ class CreateOrderTable extends Migration
             $table->unsignedSmallInteger('amount')->default(1);
             $table->longText('note')->nullable();
             $table->float('price')->default(0);
-            $table->text('gender')->default('both');
+            $table->string('gender')->default('both');
             $table->float('working_commission')->default(0);
             $table->timestamps();
         });

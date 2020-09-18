@@ -18,6 +18,10 @@ class UserTableSeeder extends Seeder
                 'email' => 'admin',
                 'password' => Hash::make('admin'),
             ],
+            [
+                'email' => 'reviewer',
+                'password' => Hash::make('reviewer'),
+            ]
         ];
         foreach ($users as $key => $user) {
             User::create($user);
