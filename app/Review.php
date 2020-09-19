@@ -17,3 +17,4 @@ class Review extends Model
         'skill', 'attitude', 'order_id', 'review_form_id'
     ];
 }
+

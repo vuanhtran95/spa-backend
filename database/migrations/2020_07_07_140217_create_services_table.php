@@ -29,7 +29,7 @@ class CreateServicesTable extends Migration
 
             $table->foreign('service_category_id')
                 ->references('id')
-                ->on('services')
+                ->on('service_categories')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });

@@ -35,7 +35,6 @@ class ServiceRepository implements ServiceRepositoryInterface
 
         $service->save();
         return $service;
-
     }
 
     public function get()
