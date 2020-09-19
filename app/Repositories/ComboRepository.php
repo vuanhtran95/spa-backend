@@ -34,14 +34,14 @@ class ComboRepository implements ComboRepositoryInterface
     {
         if ($is_update) {
             // Activate combo
-            $combo = Combo::with('service')->find($id);
+            $combo = Combo::with(['variant' => function($query) {$query->with('service');}])->find($id);
             if ($combo->is_valid) {
                 throw new \Exception(Translation::$COMBO_ALREADY_VALID);
             }
 
             if (isset($data['is_valid'])) {
                 // Calc price
-                $total_price = ($combo->service->price * $combo->amount) / $combo->service->combo_ratio;
+                $total_price = ($combo->variant->price * $combo->amount) / $combo->variant->service->combo_ratio;
                 $combo->is_valid = $data['is_valid'];
 
                 // Add Expired Date
@@ -49,9 +49,8 @@ class ComboRepository implements ComboRepositoryInterface
                 $combo->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
 
                 // Store Price to combo in case service price change
-                $variant = Variant::with('service')->find($combo->variant_id);
                 $combo->total_price = $total_price;
-                $combo->sale_commission = $total_price * $variant->service->combo_commission / 100;
+                $combo->sale_commission = $total_price * $combo->variant->service->combo_commission / 100;
             } else {
                 throw new \Exception("Please pass is_valid value");
             }

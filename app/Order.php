@@ -31,8 +31,8 @@ class Order extends Model
         return $this->belongsTo('App\Intake');
     }
 
-    public function service() {
-        return $this->belongsTo('App\Service');
+    public function variant() {
+        return $this->belongsTo('App\Variant');
     }
 
     public function customer() {

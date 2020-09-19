@@ -66,7 +66,7 @@ class ReviewFormFormRepository implements ReviewFormRepositoryInterface
 
             foreach ($reviews as $reviewOrder) {
 
-                $order = Order::with('service')->find($reviewOrder['order_id']);
+                $order = Order::with('variant')->find($reviewOrder['order_id']);
                 $employee = Employee::find($order->employee_id);
 
                 $percentCommission = Common::calCommissionPercent($reviewOrder['skill'], $reviewOrder['attitude']);
@@ -77,18 +77,24 @@ class ReviewFormFormRepository implements ReviewFormRepositoryInterface
                     $combo = Combo::find($order->combo_id);
 
                     // Collect commission for employee in combo used case
+                    /* Deprecated : Store commission in order instead of employee entity*
                     $employee->working_commission =
                         $employee->working_commission +
                         ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount) * $percentCommission;
                     $employee->save();
+                     */
+
 
                 } else {
                     // Case order doesn't use combo
                     // Collect commission for employee in money pay case
+                    /* Deprecated : Store commission in order instead of employee entity*
+
                     $employee->working_commission =
                         $employee->working_commission +
                         ($order->service->order_commission / 100) * $order->service->price * $percentCommission;
                     $employee->save();
+                    */
                 }
                 $review = new Review();
                 $review->order_id = $order->id;

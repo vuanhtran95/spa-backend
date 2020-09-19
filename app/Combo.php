@@ -29,8 +29,8 @@ class Combo extends Model
         'price',
     ];
 
-    public function service() {
-        return $this->belongsTo('App\Service');
+    public function variant() {
+        return $this->belongsTo('App\Variant');
     }
 
     public function customer() {

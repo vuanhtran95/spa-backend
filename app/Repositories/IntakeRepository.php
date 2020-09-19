@@ -172,7 +172,7 @@ class IntakeRepository implements IntakeRepositoryInterface
     public function approve($id)
     {
         $intake = Intake::with(['orders' => function ($query) {
-            $query->with('service');
+            $query->with(['variant' => function($subQuery) {$subQuery->with('service');}]);
         }])->find($id);
 
         if ($intake->is_valid) {

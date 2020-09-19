@@ -79,7 +79,7 @@ class CustomerRepository implements CustomerRepositoryInterface
     public function getOneBy($by, $value)
     {
         return Customer::where($by, '=', $value)->with(['combos' => function ($query) {
-            $query->with('service');
+            $query->with('variant');
         }])->first();
     }
 
