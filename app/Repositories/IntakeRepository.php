@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Combo;
 use App\Customer;
 use App\Employee;
+use App\Helper\Translation;
 use App\Intake;
 use App\Order;
 use App\Variant;
@@ -210,27 +211,37 @@ class IntakeRepository implements IntakeRepositoryInterface
                     }
                 }
             }
-
-            // 3. Collect point for customer
-            if ($totalPrice > 0) {
-                $customer = Customer::find($intake->customer_id);
-                $customer->points = $customer->points + (int)($totalPrice / 50);
-                $customer->save();
-            }
-
+            // Get customer
+            $customer = Customer::find($intake->customer_id);
             // If has discount
-            if ($data['discount_price'] > 0) {
-                $intake->discount_price = $data['discount_price'];
-                $intake->final_price = $totalPrice - $data['discount_price'];
+            if ($data['discount_point'] > 0) {
+
+                if ($customer->points < ($data['discount_point'])) {
+                    throw new \Exception(Translation::$CUSTOMER_DO_NOT_HAVE_ENOUGH_POINT);
+                }
+//                $intake->discount_price = $data['discount_point'] * env('MONEY_POINT_RATIO');
+                $intake->discount_price = $data['discount_point'] * 1;
+                $intake->final_price = $totalPrice - $data['discount_point'];
+
+                // Minus customer point
+                $customer->points = $customer->points - $data['discount_point'];
             } else {
                 $intake->final_price = $totalPrice;
             }
+
+            // Collect point for customer
+            if ($totalPrice > 0) {
+                // Plus customer point
+//                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));
+                $customer->points = $customer->points + (int)($totalPrice / 1);
+            }
+            $customer->save();
 
             // Update Status For Intake
             $intake->is_valid = 1;
             $intake->save();
             DB::commit();
-            return Intake::find($id);
+            return Intake::with('orders')->find($id);
         } catch (\Exception $exception) {
             DB::rollBack();
             throw new \Exception($exception->getMessage());
