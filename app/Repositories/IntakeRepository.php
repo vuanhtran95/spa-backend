@@ -22,7 +22,7 @@ class IntakeRepository implements IntakeRepositoryInterface
             return $return;
         } catch (\Exception $exception) {
             DB::rollBack();
-            return false;
+            throw new \Exception($exception->getMessage());
         }
     }
 
@@ -89,6 +89,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $orders[$key]['updated_at'] = Carbon::now();
                     $orders[$key]['combo_id'] = isset($orders[$key]['combo_id']) ? $orders[$key]['combo_id'] : null;
                     $order[$key]['note'] = isset($orders[$key]['note']) ? $orders[$key]['note'] : null;
+                    $order[$key]['gender'] = isset($orders[$key]['gender']) ? $orders[$key]['gender'] : 'both';
                 }
                 Order::insert($orders);
                 // Return Intake with order
@@ -153,7 +154,7 @@ class IntakeRepository implements IntakeRepositoryInterface
     public function getOneBy($by, $value)
     {
         return Intake::with(['orders' => function ($query) {
-            $query->with('employee', 'service', 'combo', 'review');
+            $query->with(['employee', 'variant' => function($vQuery) {$vQuery->with('service');}, 'combo', 'review']);
         }, 'customer', 'employee', 'reviewForm'])->where('id', $value)->first();
     }
 
@@ -165,11 +166,12 @@ class IntakeRepository implements IntakeRepositoryInterface
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
             DB::rollBack();
         }
     }
 
-    public function approve($id)
+    public function approve($id, $data)
     {
         $intake = Intake::with(['orders' => function ($query) {
             $query->with(['variant' => function($subQuery) {$subQuery->with('service');}]);
@@ -188,8 +190,9 @@ class IntakeRepository implements IntakeRepositoryInterface
                 foreach ($intake->orders as $order) {
 
                     if ($order->combo_id) {
-                        // Use combo won't pay money
+                        // Use combo, won't pay money
                         $combo = Combo::find($order->combo_id);
+                        // Minus combo
                         $combo->number_used = (int)$combo->number_used + (int)$order->amount;
                         if ($combo->number_used > $combo->amount) {
                             throw new Exception('You have run out of use this combo');
@@ -201,6 +204,8 @@ class IntakeRepository implements IntakeRepositoryInterface
                         $variant = Variant::find($updateOrder->variant_id);
 
                         $updateOrder->price = $variant->price;
+                        // Store price to order
+                        $updateOrder->save();
                         $totalPrice = $totalPrice + $variant->price * $order->amount;
                     }
                 }
@@ -213,18 +218,22 @@ class IntakeRepository implements IntakeRepositoryInterface
                 $customer->save();
             }
 
-            // 1. Update Status For Intake
+            // If has discount
+            if ($data['discount_price'] > 0) {
+                $intake->discount_price = $data['discount_price'];
+                $intake->final_price = $totalPrice - $data['discount_price'];
+            } else {
+                $intake->final_price = $totalPrice;
+            }
+
+            // Update Status For Intake
             $intake->is_valid = 1;
-            // Deprecated: Add price to orders instead of intake
-            // $intake->total_price = $totalPrice;
             $intake->save();
-
             DB::commit();
-
             return Intake::find($id);
         } catch (\Exception $exception) {
             DB::rollBack();
-            return $exception;
+            throw new \Exception($exception->getMessage());
         }
     }
 

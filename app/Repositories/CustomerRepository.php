@@ -16,15 +16,16 @@ class CustomerRepository implements CustomerRepositoryInterface
             $return = $this->save($attributes, false);
             DB::commit();
             return $return;
+            // TODO: Improve
         } catch (QueryException $e) {
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
                 DB::rollBack();
-                return 1062;
+                throw new QueryException();
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception $e) {
             DB::rollBack();
-            return false;
+            throw new \Exception($e->getMessage());
         }
     }
 
@@ -40,10 +41,11 @@ class CustomerRepository implements CustomerRepositoryInterface
             $customer->$key = $value;
         }
 
-        if ($customer->save()) {
+        try {
+            $customer->save();
             return Customer::find($id ? $id : $customer->id);
-        } else {
-            return false;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
     }
 
@@ -79,7 +81,7 @@ class CustomerRepository implements CustomerRepositoryInterface
     public function getOneBy($by, $value)
     {
         return Customer::where($by, '=', $value)->with(['combos' => function ($query) {
-            $query->with('variant');
+            $query->with(['variant' => function($query) {$query->with('service');}]);
         }])->first();
     }
 

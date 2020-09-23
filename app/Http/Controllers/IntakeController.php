@@ -27,14 +27,9 @@ class IntakeController extends Controller
 
         try {
             $intake = $this->intakeRepository->create($params);
-            if ($intake !== false) {
-                return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$INTAKE_CREATED, $intake);
-            } else {
-                //TODO: Need to improve
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
-            }
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$INTAKE_CREATED, $intake);
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$INPUT_ERROR);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 
@@ -54,10 +49,11 @@ class IntakeController extends Controller
         }
     }
 
-    public function approve($id)
+    public function approve(Request $request, $id)
     {
+        $data = $request->all();
         try {
-            $intake = $this->intakeRepository->approve($id);
+            $intake = $this->intakeRepository->approve($id, $data);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INTAKE_UPDATED, $intake);
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());

@@ -26,36 +26,40 @@ class ComboRepository implements ComboRepositoryInterface
             return $return;
         } catch (\Exception $exception) {
             DB::rollBack();
-            throw $exception;
+            throw new \Exception($exception->getMessage());
         }
     }
 
     public function save($data, $is_update, $id = null)
     {
         if ($is_update) {
-            // Activate combo
-            $combo = Combo::with(['variant' => function($query) {$query->with('service');}])->find($id);
+            // Approve combo
+            $combo = Combo::with(['variant' => function ($query) {
+                $query->with('service');
+            }])->find($id);
             if ($combo->is_valid) {
                 throw new \Exception(Translation::$COMBO_ALREADY_VALID);
             }
 
             if (isset($data['is_valid'])) {
-                // Calc price
+                // Calculate total price
                 $total_price = ($combo->variant->price * $combo->amount) / $combo->variant->service->combo_ratio;
                 $combo->is_valid = $data['is_valid'];
+
+                // Store Price to combo in case service price change
+                $combo->total_price = $total_price;
+                $combo->sale_commission = $total_price * $combo->variant->service->combo_commission / 100;
 
                 // Add Expired Date
                 $now = Carbon::now();
                 $combo->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
 
-                // Store Price to combo in case service price change
-                $combo->total_price = $total_price;
-                $combo->sale_commission = $total_price * $combo->variant->service->combo_commission / 100;
             } else {
                 throw new \Exception("Please pass is_valid value");
             }
 
         } else {
+            // Create combo
             $userId = $data['user_id'];
             $employee = Employee::where('user_id', $userId)->first();
             unset($data['user_id']);
@@ -68,14 +72,11 @@ class ComboRepository implements ComboRepositoryInterface
             $combo->employee_id = $employee->id;
         }
 
-        if ($combo->save()) {
-            if ($id) {
-                return Combo::find($id);
-            } else {
-                return Combo::find($combo->id);
-            }
+        $combo->save();
+        if ($id) {
+            return Combo::find($id);
         } else {
-            return false;
+            return Combo::find($combo->id);
         }
     }
 
@@ -104,7 +105,9 @@ class ComboRepository implements ComboRepositoryInterface
             $query = $query->where('is_valid', '=', $isValid);
         }
 
-        $combos = $query->with(['service', 'customer', 'orders' => function ($query) {
+        $combos = $query->with(['variant' => function ($vQuery) {
+            $vQuery->with('service');
+        }, 'customer', 'orders' => function ($query) {
             $query->whereHas('intake', function ($query) {
                 $query->where('is_valid', 1);
             });
@@ -131,7 +134,7 @@ class ComboRepository implements ComboRepositoryInterface
             $query->whereHas('intake', function ($query) {
                 $query->where('is_valid', 1);
             });
-        }, 'service'])->first();
+        }, 'variant'])->first();
     }
 
     public function update($id, array $attributes = [])

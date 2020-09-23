@@ -12,7 +12,7 @@ interface IntakeRepositoryInterface
 
     public function update($id, array $attributes = []);
 
-    public function approve($id);
+    public function approve($id, $data);
 
     public function delete($id);
 

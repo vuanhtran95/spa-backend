@@ -26,17 +26,9 @@ class CustomerController extends Controller
         $params = $request->all();
         try {
             $customer = $this->customerRepository->create($params);
-            if ($customer === 1062) {
-                return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$PHONE_EXIST);
-
-            } elseif ($customer) {
-                return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$CUSTOMER_CREATED, $customer);
-            } else {
-                //TODO: Need to improve
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
-            }
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$CUSTOMER_CREATED, $customer);
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$INPUT_ERROR);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 

@@ -12,7 +12,7 @@ use App\Review;
 use App\ReviewForm;
 use Illuminate\Support\Facades\DB;
 
-class ReviewFormFormRepository implements ReviewFormRepositoryInterface
+class ReviewFormRepository implements ReviewFormRepositoryInterface
 {
 
     public function create(array $attributes = [])

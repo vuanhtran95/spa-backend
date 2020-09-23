@@ -44,9 +44,9 @@ class VariantController extends Controller
     {
         $variant = $this->variantRepository->getOneBy('id', $id);
         if ($variant) {
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_COMBO_SUCCESS, $variant);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_LIST_SUCCESS, $variant);
         } else {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_INTAKE_FOUND);
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NOT_FOUND);
         }
     }
 

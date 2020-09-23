@@ -27,7 +27,7 @@ class OrderRepository implements OrderRepositoryInterface
             });
         }
 
-        $orders = $query->with(['service', 'intake' => function ($query) {
+        $orders = $query->with(['variant', 'intake' => function ($query) {
             $query->with('customer');
         }])->offset(($page - 1) * $perPage)
             ->limit($perPage)
