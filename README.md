@@ -19,10 +19,14 @@
    * Add point to customer base on total price of intake (formula will be provided)
    * Update status for intake to "is_valid = 1"
 3. Review
-   *
+   * Note: just review for valid intake and intakes which hasn't been reviewed before
+         : Review Form: facility, customer_satisfy, note
+         : Review for each order: skill, attitude
 
 
 
 ###### DEFINE
 - Pay 50k VND  -> 1 points
 - 50 point -> discount 200k VND
+- Money: smallest unit = 1000 VND (price = 1 means 1k VND)
+- Commission: integer value corresponding percent (commission = 50  -> 50%)
