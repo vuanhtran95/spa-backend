@@ -66,11 +66,27 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 
             foreach ($reviews as $reviewOrder) {
 
-                $order = Order::with('variant')->find($reviewOrder['order_id']);
-                $employee = Employee::find($order->employee_id);
-
+                $order = Order::with(['variant' => function($query) {$query->with('service');}])->find($reviewOrder['order_id']);
                 $percentCommission = Common::calCommissionPercent($reviewOrder['skill'], $reviewOrder['attitude']);
 
+                // Depend on order gender then get the commission rate by gender
+                switch ($order->gender) {
+                    case 'male':
+                        $commission = ($order->variant->service->commission_rate_male / 100);
+                        break;
+                    case 'female':
+                        $commission = ($order->variant->service->commission_rate_female / 100);
+                        break;
+                    default:
+                        // for both
+                        $commission = ($order->variant->service->commission_rate_both / 100);
+                        break;
+                }
+
+                // Calculate commission base on review star
+                $commission = $commission * $percentCommission;
+
+                // Calculate commission base on combo used or not
                 if ($order->combo_id) {
                     // Case order use combo
 
@@ -84,6 +100,8 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                     $employee->save();
                      */
 
+                    $commission = $commission * $combo->total_price / $combo->amount;
+
 
                 } else {
                     // Case order doesn't use combo
@@ -95,7 +113,14 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                         ($order->service->order_commission / 100) * $order->service->price * $percentCommission;
                     $employee->save();
                     */
+
+                    $commission = $commission * $order->price;
                 }
+
+                $order->working_commission = $commission;
+                $order->save();
+
+
                 $review = new Review();
                 $review->order_id = $order->id;
                 $review->skill = $reviewOrder['skill'];
@@ -104,7 +129,8 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                 $review->review_form_id = $reviewForm->id;
                 $review->save();
             }
-            return true;
+
+            return ReviewForm::with('review')->find($reviewForm->id);
         }
     }
 }

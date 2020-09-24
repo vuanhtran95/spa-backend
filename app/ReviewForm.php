@@ -16,4 +16,9 @@ class ReviewForm extends Model
     protected $fillable = [
         'facility', 'note', 'intake_id'
     ];
+
+    public function review()
+    {
+        return $this->hasMany('App\Review');
+    }
 }
