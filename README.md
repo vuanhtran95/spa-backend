@@ -19,3 +19,10 @@
    * Add point to customer base on total price of intake (formula will be provided)
    * Update status for intake to "is_valid = 1"
 3. Review
+   *
+
+
+
+###### DEFINE
+- Pay 50k VND  -> 1 points
+- 50 point -> discount 200k VND

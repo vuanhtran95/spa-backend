@@ -32,7 +32,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
     {
         if ($is_update) {
             // TODO: no need to do
-            return false;
+            throw new \Exception("Function has not been implemented");
         } else {
             // Create
             $intake_id = $data['intake_id'];

@@ -220,7 +220,8 @@ class IntakeRepository implements IntakeRepositoryInterface
                     throw new \Exception(Translation::$CUSTOMER_DO_NOT_HAVE_ENOUGH_POINT);
                 }
 //                $intake->discount_price = $data['discount_point'] * env('MONEY_POINT_RATIO');
-                $intake->discount_price = $data['discount_point'] * 1;
+                // Currently 50 points = 200k VND
+                $intake->discount_price = $data['discount_point'] * 4;
                 $intake->final_price = $totalPrice - $data['discount_point'];
 
                 // Minus customer point
@@ -232,8 +233,9 @@ class IntakeRepository implements IntakeRepositoryInterface
             // Collect point for customer
             if ($totalPrice > 0) {
                 // Plus customer point
-//                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));
-                $customer->points = $customer->points + (int)($totalPrice / 1);
+//                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
+                // Currently 50k VND = 1 point
+                $customer->points = $customer->points + (int)($totalPrice / 50);
             }
             $customer->save();
 
