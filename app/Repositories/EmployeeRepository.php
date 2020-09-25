@@ -94,7 +94,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function getOneBy($by, $value, $config)
     {
         $query = Employee::where($by, '=', $value)->with('role');
-        if ($config['show_commission'] == 1) {
+        if (isset($config['show_commission']) && $config['show_commission'] == 1) {
             $query->withCount(['order AS working_commission' => function($query) {
                 $query->whereMonth('updated_at', Carbon::now()->month)
                     ->select(DB::raw("SUM(working_commission)"));
@@ -106,8 +106,17 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             }]);
         }
 
-        if ($config['show_point'] == 1) {
-            //
+        if (isset($config['show_point']) && $config['show_point'] == 1) {
+            $query->withCount(['order AS attitude_point' => function($query){
+                $query->withCount(['review AS attitude_point' => function($subQuery) {
+                    $subQuery->select(DB::raw("SUM(attitude)"));
+                }]);
+            }]);
+            $query->withCount(['order AS skill_point' => function($query){
+                $query->withCount(['review AS skill_point' => function($subQuery) {
+                    $subQuery->select(DB::raw("SUM(skill)"));
+                }]);
+            }]);
         }
         return $query->first();
     }
