@@ -96,11 +96,12 @@ class EmployeeController extends Controller
     {
         // UserId
         $id = $request->user()->id;
+        $params = $request->all();
         try {
-            $employeeInfo = $this->employeeRepository->getOneBy('user_id', $id);
+            $employeeInfo = $this->employeeRepository->getOneBy('user_id', $id, $params);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $employeeInfo);
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_USER_FOUND);
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, $e->getMessage());
         }
     }
 }

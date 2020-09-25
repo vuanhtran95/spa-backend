@@ -17,9 +17,9 @@ class AddCommissionRateToServicesTable extends Migration
             $table->dropColumn('order_commission');
         });
         Schema::table('services', function (Blueprint $table) {
-            $table->integer('commission_rate_male')->default(0);
-            $table->integer('commission_rate_female')->default(0);
-            $table->integer('commission_rate_both')->default(0);
+            $table->integer('commission_rate_male')->nullable();
+            $table->integer('commission_rate_female')->nullable();
+            $table->integer('commission_rate_both')->nullable();
         });
     }
 

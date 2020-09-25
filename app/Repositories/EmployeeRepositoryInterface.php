@@ -8,7 +8,7 @@ interface EmployeeRepositoryInterface
 
     public function get(array $condition = []);
 
-    public function getOneBy($by, $value);
+    public function getOneBy($by, $value, $config);
 
     public function update($id, array $attributes = []);
 

@@ -32,4 +32,8 @@ class Employee extends Model
     {
         return $this->hasMany('App\Combo');
     }
+
+    public function order() {
+        return $this->hasMany('App\Order');
+    }
 }

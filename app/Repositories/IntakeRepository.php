@@ -34,7 +34,9 @@ class IntakeRepository implements IntakeRepositoryInterface
             if (isset($data['orders'])) {
                 $allOrdersOfIntake = Order::where('intake_id', '=', $id)->get()->toArray();
                 $updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $data['orders']));
+
                 foreach ($allOrdersOfIntake as $order) {
+
                     $key = array_search($order['id'], $updateIds);
                     if ($key !== false) {
                         // Need to update
@@ -46,6 +48,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         if (isset($updateData['note'])) $orderData->note = $updateData['note'];
                         if (isset($updateData['combo_id'])) $orderData->combo_id = $updateData['combo_id'];
                         if (isset($updateData['variant_id'])) $orderData->variant_id = $updateData['variant_id'];
+                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
                         $orderData->save();
                     } else {
                         // Need to delete
@@ -61,11 +64,13 @@ class IntakeRepository implements IntakeRepositoryInterface
                         $orderData->employee_id = $order['employee_id'];
                         $orderData->amount = $order['amount'];
                         $orderData->note = $order['note'];
+                        $orderData->gender = $order['gender'];
                         $orderData->intake_id = $id;
                         $orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
                         $orderData->save();
                     }
                 }
+
                 return Intake::with(['orders' => function ($query) {
                     $query->with('combo');
                 }])->find($id);

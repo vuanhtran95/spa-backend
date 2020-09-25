@@ -38,14 +38,9 @@ class IntakeController extends Controller
         $params = $request->all();
         try {
             $intake = $this->intakeRepository->update($id, $params);
-            if ($intake) {
-                return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INTAKE_UPDATED, $intake);
-            } else {
-                //TODO: Need to improve
-                return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
-            }
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INTAKE_UPDATED, $intake);
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$INTAKE_UPDATE_FAILURE);
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
 

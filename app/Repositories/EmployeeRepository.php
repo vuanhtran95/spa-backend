@@ -89,9 +89,13 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     }
 
-    public function getOneBy($by, $value)
+    public function getOneBy($by, $value, $config)
     {
-        return Employee::where($by, '=', $value)->with('role')->first();
+        $query = Employee::where($by, '=', $value)->with('role');
+        if ($config['show_commission'] == 1) {
+            $query->withCount(['order']);
+        }
+        return $query->first();
     }
 
 
