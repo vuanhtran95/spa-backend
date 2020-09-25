@@ -4,7 +4,9 @@ namespace App\Repositories;
 
 use App\Customer;
 use App\Employee;
+use App\Order;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -93,7 +95,19 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     {
         $query = Employee::where($by, '=', $value)->with('role');
         if ($config['show_commission'] == 1) {
-            $query->withCount(['order']);
+            $query->withCount(['order AS working_commission' => function($query) {
+                $query->whereMonth('updated_at', Carbon::now()->month)
+                    ->select(DB::raw("SUM(working_commission)"));
+            }]);
+
+            $query->withCount(['combos AS sale_commission' => function($query) {
+                $query->whereMonth('updated_at', Carbon::now()->month)
+                    ->select(DB::raw("SUM(sale_commission)"));
+            }]);
+        }
+
+        if ($config['show_point'] == 1) {
+            //
         }
         return $query->first();
     }
