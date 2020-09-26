@@ -244,6 +244,8 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $customer->points = $customer->points + (int)($totalPrice / 50);
                 }
                 $customer->save();
+            } else {
+                $intake->final_price = $totalPrice;
             }
 
             // Update Status For Intake
