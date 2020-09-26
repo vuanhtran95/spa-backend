@@ -21,7 +21,7 @@ class CreateIntakeTable extends Migration
         });
 
         Schema::table('intakes', function (Blueprint $table) {
-            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('customer_id')->nullable();
 
             $table->foreign('customer_id')
                 ->references('id')

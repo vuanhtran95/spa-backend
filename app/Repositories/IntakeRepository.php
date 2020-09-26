@@ -216,33 +216,35 @@ class IntakeRepository implements IntakeRepositoryInterface
                     }
                 }
             }
-            // Get customer
-            $customer = Customer::find($intake->customer_id);
-            // If has discount
-            if ($data['discount_point'] > 0) {
+            // If intake has customer
+            if ($intake->customer_id) {
+                $customer = Customer::find($intake->customer_id);
+                // If has discount
+                if ($data['discount_point'] > 0) {
 
-                if ($customer->points < ($data['discount_point'])) {
-                    throw new \Exception(Translation::$CUSTOMER_DO_NOT_HAVE_ENOUGH_POINT);
-                }
+                    if ($customer->points < ($data['discount_point'])) {
+                        throw new \Exception(Translation::$CUSTOMER_DO_NOT_HAVE_ENOUGH_POINT);
+                    }
 //                $intake->discount_price = $data['discount_point'] * env('MONEY_POINT_RATIO');
-                // Currently 50 points = 200k VND
-                $intake->discount_price = $data['discount_point'] * 4;
-                $intake->final_price = $totalPrice - $data['discount_point'];
+                    // Currently 50 points = 200k VND
+                    $intake->discount_price = $data['discount_point'] * 4;
+                    $intake->final_price = $totalPrice - $data['discount_point'];
 
-                // Minus customer point
-                $customer->points = $customer->points - $data['discount_point'];
-            } else {
-                $intake->final_price = $totalPrice;
-            }
+                    // Minus customer point
+                    $customer->points = $customer->points - $data['discount_point'];
+                } else {
+                    $intake->final_price = $totalPrice;
+                }
 
-            // Collect point for customer
-            if ($totalPrice > 0) {
-                // Plus customer point
+                // Collect point for customer
+                if ($totalPrice > 0) {
+                    // Plus customer point
 //                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
-                // Currently 50k VND = 1 point
-                $customer->points = $customer->points + (int)($totalPrice / 50);
+                    // Currently 50k VND = 1 point
+                    $customer->points = $customer->points + (int)($totalPrice / 50);
+                }
+                $customer->save();
             }
-            $customer->save();
 
             // Update Status For Intake
             $intake->is_valid = 1;
