@@ -16,6 +16,9 @@ class OrderRepository implements OrderRepositoryInterface
         $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
+        $fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
+        $toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
+
         $query = new Order();
 
         if ($employeeId) {
@@ -25,6 +28,14 @@ class OrderRepository implements OrderRepositoryInterface
             $query = $query->whereHas('intake', function ($query) use ($isValid) {
                 $query->where('is_valid', $isValid);
             });
+        }
+
+        if ($fromDate) {
+            $query = $query->where('created_at', '>=', $fromDate);
+        }
+
+        if ($toDate) {
+            $query = $query->where('created_at', '<=', $toDate);
         }
 
         $orders = $query->with(['variant' => function($vQuery) {$vQuery->with('service');}, 'intake' => function ($query) {
