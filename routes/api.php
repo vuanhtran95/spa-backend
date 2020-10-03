@@ -79,3 +79,6 @@ Route::delete('v1/combos/{id}', 'ComboController@delete')->middleware('auth:api'
 
 // ReviewForm
 Route::post('/v1/reviews', 'ReviewFormController@create')->middleware('auth:api');
+
+// Statistic
+Route::get('/v1/statistics', 'StatisticController@get')->middleware('auth:api');

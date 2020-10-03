@@ -92,4 +92,5 @@ class Translation
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
 
+    public static $GET_STATISTIC_SUCCESS = "GET_STATISTIC_SUCCESS";
 }

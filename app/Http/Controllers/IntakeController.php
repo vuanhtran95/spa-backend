@@ -77,7 +77,6 @@ class IntakeController extends Controller
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SYSTEM_ERROR);
         }
-
     }
 
     public function getOneById($id)
