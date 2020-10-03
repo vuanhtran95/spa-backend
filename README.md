@@ -15,6 +15,7 @@
             + Calculate price and store to order
    * Calculate Final Price
        - If has discount: $final_price = $total_price - $discount_price, minus $customer->points
+       - If has additional_discount_price, discount_note: $final_price = $final_price - $additional_discount_price
        - Else: $final_price = $total_price
    * Add point to customer base on total price of intake (formula will be provided)
    * Update status for intake to "is_valid = 1"

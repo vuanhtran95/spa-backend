@@ -248,6 +248,18 @@ class IntakeRepository implements IntakeRepositoryInterface
                 $intake->final_price = $totalPrice;
             }
 
+            // Check if has additional discount price
+            if (isset($data['additional_discount_price']) && $data['additional_discount_price'] > 0) {
+                $intake->final_price = $intake->final_price  - $data['additional_discount_price'];
+                $intake->additional_discount_price = $data['additional_discount_price'];
+                $intake->discount_note = $data['discount_note'];
+            }
+
+            // Check price negative
+            if ($intake->final_price < 0) {
+                $intake->final_price = 0;
+            }
+
             // Update Status For Intake
             $intake->is_valid = 1;
             $intake->save();
