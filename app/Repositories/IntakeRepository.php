@@ -228,7 +228,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 //                $intake->discount_price = $data['discount_point'] * env('MONEY_POINT_RATIO');
                     // Currently 50 points = 200k VND
                     $intake->discount_price = $data['discount_point'] * 4;
-                    $intake->final_price = $totalPrice - $data['discount_point'];
+                    $intake->final_price = $totalPrice - $intake->discount_price;
 
                     // Minus customer point
                     $customer->points = $customer->points - $data['discount_point'];
