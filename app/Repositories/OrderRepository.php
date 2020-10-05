@@ -2,8 +2,6 @@
 
 namespace App\Repositories;
 
-use App\Combo;
-use App\Intake;
 use App\Order;
 
 class OrderRepository implements OrderRepositoryInterface
@@ -38,7 +36,11 @@ class OrderRepository implements OrderRepositoryInterface
             $query = $query->where('created_at', '<=', $toDate);
         }
 
-        $orders = $query->with(['variant' => function($vQuery) {$vQuery->with('service');}, 'intake' => function ($query) {
+        $orders = $query->with(['variant' => function ($vQuery) {
+            $vQuery->with(['service' => function ($sQuery) {
+                $sQuery->with('serviceCategory');
+            }]);
+        }, 'intake' => function ($query) {
             $query->with('customer');
         }])->offset(($page - 1) * $perPage)
             ->limit($perPage)
