@@ -160,7 +160,9 @@ class IntakeRepository implements IntakeRepositoryInterface
     public function getOneBy($by, $value)
     {
         return Intake::with(['orders' => function ($query) {
-            $query->with(['employee', 'variant' => function($vQuery) {$vQuery->with('service');}, 'combo', 'review']);
+            $query->with(['employee', 'variant' => function($vQuery) {$vQuery->with(['service' => function($sQuery) {
+                $sQuery->with('serviceCategory');
+            }]);}, 'combo', 'review']);
         }, 'customer', 'employee', 'reviewForm'])->where('id', $value)->first();
     }
 
