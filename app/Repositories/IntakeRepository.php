@@ -234,18 +234,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 
                     // Minus customer point
                     $customer->points = $customer->points - $data['discount_point'];
+                    $customer->save();
                 } else {
                     $intake->final_price = $totalPrice;
                 }
-
-                // Collect point for customer
-                if ($totalPrice > 0) {
-                    // Plus customer point
-//                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
-                    // Currently 50k VND = 1 point
-                    $customer->points = $customer->points + (int)($totalPrice / 50);
-                }
-                $customer->save();
             } else {
                 $intake->final_price = $totalPrice;
             }
@@ -260,6 +252,15 @@ class IntakeRepository implements IntakeRepositoryInterface
             // Check price negative
             if ($intake->final_price < 0) {
                 $intake->final_price = 0;
+            }
+
+            // Collect point for customer
+            if ($totalPrice > 0 && $intake->customer_id) {
+                // Plus customer point
+//                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
+                // Currently 50k VND = 1 point
+                $customer->points = $customer->points + (int)($totalPrice / 50);
+                $customer->save();
             }
 
             // Update Status For Intake
