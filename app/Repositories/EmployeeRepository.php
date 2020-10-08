@@ -127,7 +127,6 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function getOneBy($by, $value, $config)
     {
-        $employee = Employee::where($by, '=', $value)->first();
         $query = Employee::where($by, '=', $value)->with('role');
         if (isset($config['show_commission']) && $config['show_commission'] == 1) {
             $query->withCount(['order AS working_commission' => function($query) {
@@ -150,6 +149,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                     ->select(DB::raw("SUM(sale_commission)"));
             }]);
         }
+        $employee = $query->first();
 
         if (isset($config['show_point']) && $config['show_point'] == 1) {
             // Attitude
@@ -163,7 +163,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             })->avg('skill');
 
         }
-        $employee = $query->first();
+
         $employee->attitude_point = $attitude_point;
         $employee->skill_point = $skill_point;
         return $employee;
