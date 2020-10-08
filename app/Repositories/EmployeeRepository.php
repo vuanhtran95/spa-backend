@@ -127,6 +127,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function getOneBy($by, $value, $config)
     {
+        $employee = Employee::where($by, '=', $value)->first();
         $query = Employee::where($by, '=', $value)->with('role');
         if (isset($config['show_commission']) && $config['show_commission'] == 1) {
             $query->withCount(['order AS working_commission' => function($query) {
@@ -151,27 +152,14 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         }
 
         if (isset($config['show_point']) && $config['show_point'] == 1) {
-//            $query->withCount(['order AS attitude_point' => function($query){
-//                $query->with(['review AS attitude' => function($subQuery) {
-//                    $subQuery->select(DB::raw("SUM(attitude)"));
-//                }]);
-//            }]);
-//            $query->withCount(['order AS skill_point' => function($query){
-//                $query->withCount(['review AS attitude' => function($subQuery) {
-//                    $subQuery->select(DB::raw("SUM(skill)"));
-//                }]);
-//            }]);
-
             // Attitude
-            $employeeId = 9;
-            $attitude_point = Review::whereHas('order', function($q) use ($employeeId) {
-                $q->where('employee_id', $employeeId);
+            $attitude_point = Review::whereHas('order', function($q) use ($employee) {
+                $q->where('employee_id', $employee->id);
             })->avg('attitude');
 
             // Skill
-            $employeeId = 9;
-            $skill_point = Review::whereHas('order', function($q) use ($employeeId) {
-                $q->where('employee_id', $employeeId);
+            $skill_point = Review::whereHas('order', function($q) use ($employee) {
+                $q->where('employee_id', $employee->id);
             })->avg('skill');
 
         }
