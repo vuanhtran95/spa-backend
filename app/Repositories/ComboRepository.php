@@ -106,7 +106,9 @@ class ComboRepository implements ComboRepositoryInterface
         }
 
         $combos = $query->with(['variant' => function ($vQuery) {
-            $vQuery->with('service');
+            $vQuery->with(['service' => function ($sQuery) {
+                $sQuery->with('serviceCategory');
+            }]);
         }, 'customer', 'orders' => function ($query) {
             $query->whereHas('intake', function ($query) {
                 $query->where('is_valid', 1);

@@ -41,7 +41,7 @@ class EmployeeController extends Controller
     public function getOneById(Request $request, $id)
     {
         $params = $request->all();
-        $employee = $this->employeeRepository->getOneBy('user_id', $id, $params);
+        $employee = $this->employeeRepository->getOneBy('id', $id, $params);
         if ($employee) {
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_SINGLE_USER_SUCCESS, $employee);
         } else {

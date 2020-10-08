@@ -16,5 +16,9 @@ class Review extends Model
     protected $fillable = [
         'skill', 'attitude', 'order_id', 'review_form_id'
     ];
+
+    public function order() {
+        return $this->belongsTo('App\Order');
+    }
 }
 

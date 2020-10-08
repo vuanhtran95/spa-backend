@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Customer;
 use App\Employee;
 use App\Order;
+use App\Review;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
@@ -150,18 +151,34 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         }
 
         if (isset($config['show_point']) && $config['show_point'] == 1) {
-            $query->withCount(['order AS attitude_point' => function($query){
-                $query->withCount(['review AS attitude_point' => function($subQuery) {
-                    $subQuery->select(DB::raw("SUM(attitude)"));
-                }]);
-            }]);
-            $query->withCount(['order AS skill_point' => function($query){
-                $query->withCount(['review AS skill_point' => function($subQuery) {
-                    $subQuery->select(DB::raw("SUM(skill)"));
-                }]);
-            }]);
+//            $query->withCount(['order AS attitude_point' => function($query){
+//                $query->with(['review AS attitude' => function($subQuery) {
+//                    $subQuery->select(DB::raw("SUM(attitude)"));
+//                }]);
+//            }]);
+//            $query->withCount(['order AS skill_point' => function($query){
+//                $query->withCount(['review AS attitude' => function($subQuery) {
+//                    $subQuery->select(DB::raw("SUM(skill)"));
+//                }]);
+//            }]);
+
+            // Attitude
+            $employeeId = 9;
+            $attitude_point = Review::whereHas('order', function($q) use ($employeeId) {
+                $q->where('employee_id', $employeeId);
+            })->avg('attitude');
+
+            // Skill
+            $employeeId = 9;
+            $skill_point = Review::whereHas('order', function($q) use ($employeeId) {
+                $q->where('employee_id', $employeeId);
+            })->avg('skill');
+
         }
-        return $query->first();
+        $employee = $query->first();
+        $employee->attitude_point = $attitude_point;
+        $employee->skill_point = $skill_point;
+        return $employee;
     }
 
 
