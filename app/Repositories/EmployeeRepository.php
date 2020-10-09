@@ -161,11 +161,10 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $skill_point = Review::whereHas('order', function($q) use ($employee) {
                 $q->where('employee_id', $employee->id);
             })->avg('skill');
-
+            $employee->attitude_point = $attitude_point;
+            $employee->skill_point = $skill_point;
         }
 
-        $employee->attitude_point = $attitude_point;
-        $employee->skill_point = $skill_point;
         return $employee;
     }
 
