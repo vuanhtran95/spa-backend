@@ -70,7 +70,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                 $percentCommission = Common::calCommissionPercent($reviewOrder['skill'], $reviewOrder['attitude']);
 
                 // Depend on order gender then get the commission rate by gender
-                switch ($order->gender) {
+                switch ($order->variant->gender) {
                     case 'male':
                         $commission = ($order->variant->service->commission_rate_male / 100);
                         break;

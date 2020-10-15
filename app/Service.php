@@ -17,14 +17,12 @@ class Service extends Model
         'name',
         'descriptions',
         'combo_ratio',
-        'gender',
         'price',
         'is_combo_sold',
         'order_commission',
         'combo_commission',
         'service_category_id',
         'duration',
-        'gender'
     ];
 
     /**

@@ -48,7 +48,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         if (isset($updateData['note'])) $orderData->note = $updateData['note'];
                         if (isset($updateData['combo_id'])) $orderData->combo_id = $updateData['combo_id'];
                         if (isset($updateData['variant_id'])) $orderData->variant_id = $updateData['variant_id'];
-                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
+//                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
                         $orderData->save();
                     } else {
                         // Need to delete
@@ -64,7 +64,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         $orderData->employee_id = $order['employee_id'];
                         $orderData->amount = $order['amount'];
                         $orderData->note = $order['note'];
-                        $orderData->gender = $order['gender'];
+//                        $orderData->gender = $order['gender'];
                         $orderData->intake_id = $id;
                         $orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
                         $orderData->save();
@@ -95,7 +95,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $orders[$key]['updated_at'] = Carbon::now();
                     $orders[$key]['combo_id'] = isset($orders[$key]['combo_id']) ? $orders[$key]['combo_id'] : null;
                     $order[$key]['note'] = isset($orders[$key]['note']) ? $orders[$key]['note'] : null;
-                    $order[$key]['gender'] = isset($orders[$key]['gender']) ? $orders[$key]['gender'] : 'both';
+//                    $order[$key]['gender'] = isset($orders[$key]['gender']) ? $orders[$key]['gender'] : 'both';
                 }
                 Order::insert($orders);
                 // Return Intake with order
