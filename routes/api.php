@@ -39,6 +39,7 @@ Route::put('/v1/intakes/{id}', 'IntakeController@update')->middleware('auth:api'
 Route::put('/v1/intakes/{id}/approve', 'IntakeController@approve')->middleware('auth:api');
 Route::get('/v1/intakes', 'IntakeController@get')->middleware('auth:api');
 Route::get('/v1/intakes/{id}', 'IntakeController@getOneById')->middleware('auth:api');
+Route::delete('/v1/intakes/{id}', 'IntakeController@delete')->middleware('auth:api');
 
 // Order
 Route::get('/v1/orders', 'OrderController@get')->middleware('auth:api');

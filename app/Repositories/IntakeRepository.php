@@ -160,9 +160,11 @@ class IntakeRepository implements IntakeRepositoryInterface
     public function getOneBy($by, $value)
     {
         return Intake::with(['orders' => function ($query) {
-            $query->with(['employee', 'variant' => function($vQuery) {$vQuery->with(['service' => function($sQuery) {
-                $sQuery->with('serviceCategory');
-            }]);}, 'combo', 'review']);
+            $query->with(['employee', 'variant' => function ($vQuery) {
+                $vQuery->with(['service' => function ($sQuery) {
+                    $sQuery->with('serviceCategory');
+                }]);
+            }, 'combo', 'review']);
         }, 'customer', 'employee', 'reviewForm'])->where('id', $value)->first();
     }
 
@@ -182,7 +184,9 @@ class IntakeRepository implements IntakeRepositoryInterface
     public function approve($id, $data)
     {
         $intake = Intake::with(['orders' => function ($query) {
-            $query->with(['variant' => function($subQuery) {$subQuery->with('service');}]);
+            $query->with(['variant' => function ($subQuery) {
+                $subQuery->with('service');
+            }]);
         }])->find($id);
 
         if ($intake->is_valid) {
@@ -244,7 +248,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
             // Check if has additional discount price
             if (isset($data['additional_discount_price']) && $data['additional_discount_price'] > 0) {
-                $intake->final_price = $intake->final_price  - $data['additional_discount_price'];
+                $intake->final_price = $intake->final_price - $data['additional_discount_price'];
                 $intake->additional_discount_price = $data['additional_discount_price'];
                 $intake->discount_note = $data['discount_note'];
             }
@@ -276,5 +280,11 @@ class IntakeRepository implements IntakeRepositoryInterface
 
     public function delete($id)
     {
+        $intake = Intake::where('is_valid', false)->find($id);
+        if ($intake) {
+            $intake->delete();
+        } else {
+            throw new \Exception(Translation::$NO_INTAKE_FOUND);
+        }
     }
 }

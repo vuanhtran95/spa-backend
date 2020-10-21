@@ -57,7 +57,12 @@ class IntakeController extends Controller
 
     public function delete($id)
     {
-
+        try {
+            $this->intakeRepository->delete($id);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_INTAKE_SUCCESS);
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
     }
 
     public function get(Request $request)
