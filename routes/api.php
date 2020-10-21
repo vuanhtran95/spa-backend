@@ -46,7 +46,7 @@ Route::get('/v1/orders/{id}', 'OrderController@getOneById')->middleware('auth:ap
 Route::put('/v1/orders/{id}', 'OrderController@update')->middleware('auth:api');
 
 // Service
-Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');
+Route::get('/v1/services', 'ServiceController@get');
 Route::post('/v1/services', 'ServiceController@create')->middleware('auth:api');
 Route::put('/v1/services/{id}', 'ServiceController@update')->middleware('auth:api');
 Route::delete('/v1/services/{id}', 'ServiceController@delete')->middleware('auth:api');
