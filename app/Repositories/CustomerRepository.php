@@ -52,6 +52,7 @@ class CustomerRepository implements CustomerRepositoryInterface
     public function get(array $condition = [])
     {
         $phone = isset($condition['phone']) ? $condition['phone'] : null;
+        $name = isset($condition['name']) ? $condition['name'] : null;
         $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
@@ -59,6 +60,10 @@ class CustomerRepository implements CustomerRepositoryInterface
 
         if ($phone) {
             $query = $query::where('phone', 'LIKE', '%' . $phone . '%');
+        }
+
+        if ($name) {
+            $query = $query::where('name', 'LIKE', '%' . $name . '%');
         }
 
         $customer = $query->offset(($page - 1) * $perPage)

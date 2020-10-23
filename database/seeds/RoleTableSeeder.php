@@ -21,6 +21,9 @@ class RoleTableSeeder extends Seeder
             ],
             [
                 'name' => 'reviewer'
+            ],
+            [
+                'name' => 'cashier'
             ]
         ];
         foreach ($roles as $key => $role) {
