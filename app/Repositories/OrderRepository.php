@@ -11,7 +11,7 @@ class OrderRepository implements OrderRepositoryInterface
         $employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
         $isValid = isset($condition['is_valid']) ? $condition['is_valid'] : null;
 
-        $perPage = isset($condition['perPage']) ? $condition['perPage'] : 10;
+        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
 
         $fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
