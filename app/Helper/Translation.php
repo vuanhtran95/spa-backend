@@ -6,7 +6,7 @@ namespace App\Helper;
 class Translation
 {
     public static $UNAUTHORIZED = "UNAUTHORIZED";
-    public static $HEADER_REQUIRED = "HEADER_REQUIRED";
+    public static $NO_PERMISSION = "NO_PERMISSION";
     public static $USER_TYPE_REQUIRED = "USER_TYPE_REQUIRED";
     public static $UPDATE_SUCCESS = 'UPDATED SUCCESS';
     public static $UPDATE_FAILURE = 'UPDATED FAILURE';
