@@ -21,6 +21,10 @@ class UserTableSeeder extends Seeder
             [
                 'email' => 'reviewer',
                 'password' => Hash::make('reviewer'),
+            ],
+            [
+                'email' => 'cashier',
+                'password' => Hash::make('cashier'),
             ]
         ];
         foreach ($users as $key => $user) {
