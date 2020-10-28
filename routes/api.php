@@ -86,4 +86,4 @@ Route::get('/v1/statistics', 'StatisticController@get')->middleware('auth:api');
 
 
 // Account
-Route::post('/v1/change-password', 'UserController@updatePassword')->middleware('auth:api');
+Route::put('/v1/change-password', 'UserController@updatePassword')->middleware('auth:api');

@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Helper\Translation;
 use App\User;
 use Illuminate\Support\Facades\DB;
-use phpseclib\Crypt\Hash;
+use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserRepositoryInterface
 {
