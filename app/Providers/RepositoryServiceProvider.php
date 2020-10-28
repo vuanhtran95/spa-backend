@@ -22,6 +22,8 @@ use App\Repositories\EmployeeRepository;
 use App\Repositories\EmployeeRepositoryInterface;
 use App\Repositories\StatisticRepository;
 use App\Repositories\StatisticRepositoryInterface;
+use App\Repositories\UserRepository;
+use App\Repositories\UserRepositoryInterface;
 use App\Repositories\VariantRepository;
 use App\Repositories\VariantRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
@@ -56,5 +58,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ReviewFormRepositoryInterface::class, ReviewFormRepository::class);
         $this->app->bind(VariantRepositoryInterface::class, VariantRepository::class);
         $this->app->bind(StatisticRepositoryInterface::class, StatisticRepository::class);
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
     }
 }
