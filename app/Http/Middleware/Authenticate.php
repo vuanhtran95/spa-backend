@@ -18,6 +18,7 @@ class Authenticate extends Middleware
 
             $userId = $request->user()->id;
             $employee = Employee::where('user_id', $userId)->with('role')->first();
+           
             $roleName = $employee->role->name;
 
             $userType = isset($request->header()['user-type']) ? $request->header()['user-type'][0] : null;
