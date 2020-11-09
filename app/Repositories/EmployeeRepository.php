@@ -42,7 +42,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         } else {
             $user = new User();
             $user->email = $data['username'];
-            $user->password = Hash::make($data['password']);
+            $user->password = Hash::make($data['password'], [
+                'rounds' => 12,
+            ]);
 
             if ($user->save()) {
                 $employee = new Employee();
