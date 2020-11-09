@@ -85,37 +85,8 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 
                 // Calculate commission base on review star
                 $commission = $commission * $percentCommission;
-
-                // Calculate commission base on combo used or not
-                if ($order->combo_id) {
-                    // Case order use combo
-
-                    $combo = Combo::find($order->combo_id);
-
-                    // Collect commission for employee in combo used case
-                    /* Deprecated : Store commission in order instead of employee entity*
-                    $employee->working_commission =
-                        $employee->working_commission +
-                        ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount) * $percentCommission;
-                    $employee->save();
-                     */
-
-                    $commission = $commission * $combo->total_price / $combo->amount;
-
-
-                } else {
-                    // Case order doesn't use combo
-                    // Collect commission for employee in money pay case
-                    /* Deprecated : Store commission in order instead of employee entity*
-
-                    $employee->working_commission =
-                        $employee->working_commission +
-                        ($order->service->order_commission / 100) * $order->service->price * $percentCommission;
-                    $employee->save();
-                    */
-
-                    $commission = $commission * $order->price;
-                }
+                // UPDATE: use only one commission formula
+                $commission = $commission * $order->price;
 
                 $order->working_commission = $commission;
                 $order->save();
