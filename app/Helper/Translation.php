@@ -6,7 +6,8 @@ namespace App\Helper;
 class Translation
 {
     public static $UNAUTHORIZED = "UNAUTHORIZED";
-    public static $HEADER_REQUIRED = "HEADER_REQUIRED";
+    public static $NO_PERMISSION = "NO_PERMISSION";
+    public static $USER_TYPE_REQUIRED = "USER_TYPE_REQUIRED";
     public static $UPDATE_SUCCESS = 'UPDATED SUCCESS';
     public static $UPDATE_FAILURE = 'UPDATED FAILURE';
     public static $GET_SINGLE_SUCCESS = 'GET_SINGLE_SUCCESS';
@@ -53,6 +54,7 @@ class Translation
     public static $USERNAME_EXIST = "USERNAME_EXIST";
     public static $DELETE_USER_SUCCESS = "DELETE_USER_SUCCESS";
     public static $DELETE_USER_FAILURE = "DELETE_USER_FAILURE";
+    public static $WRONG_PASSWORD = "WRONG_PASSWORD";
 
     public static $CUSTOMER_CREATED = "CUSTOMER_CREATED";
     public static $CUSTOMER_UPDATED = "CUSTOMER_UPDATED";

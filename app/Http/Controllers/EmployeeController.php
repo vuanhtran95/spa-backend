@@ -79,6 +79,7 @@ class EmployeeController extends Controller
         }
     }
 
+    // Do not work now
     public function delete($id)
     {
         try {
