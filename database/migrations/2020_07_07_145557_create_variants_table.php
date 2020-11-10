@@ -15,7 +15,6 @@ class CreateVariantsTable extends Migration
     {
         Schema::create('variants', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('duration')->default(0);
             $table->float('price')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

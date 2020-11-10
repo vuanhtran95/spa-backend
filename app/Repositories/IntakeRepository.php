@@ -214,11 +214,14 @@ class IntakeRepository implements IntakeRepositoryInterface
                         // Pay money
                         $updateOrder = Order::find($order->id);
                         $variant = Variant::find($updateOrder->variant_id);
-
-                        $updateOrder->price = $variant->price;
-                        // Store price to order
-                        $updateOrder->save();
-                        $totalPrice = $totalPrice + $variant->price * $order->amount;
+                        $is_free_variant = $variant->is_free;
+                        // Not Calculate the free variant
+                        if(!$is_free_variant) {
+                            // Store price to order
+                            $updateOrder->price = $variant->price;
+                            $updateOrder->save();
+                            $totalPrice = $totalPrice + $variant->price * $order->amount;
+                        }
                     }
                 }
             }
