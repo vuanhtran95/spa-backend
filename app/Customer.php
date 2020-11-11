@@ -26,4 +26,9 @@ class Customer extends Model
     public function combos() {
         return $this->hasMany('App\Combo');
     }
+
+    public function invoice() 
+    {
+        return $this->hasMany('App\Invoice');
+    }
 }

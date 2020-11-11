@@ -36,4 +36,9 @@ class Employee extends Model
     public function order() {
         return $this->hasMany('App\Order');
     }
+
+    public function invoice() 
+    {
+        return $this->hasMany('App\Invoice');
+    }
 }
