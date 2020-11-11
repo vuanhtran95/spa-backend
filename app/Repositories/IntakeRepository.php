@@ -67,6 +67,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 //                        $orderData->gender = $order['gender'];
                         $orderData->intake_id = $id;
                         $orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
+                        $orderData->promotion_hash = $order['promotion_hash'];
                         $orderData->save();
                     }
                 }

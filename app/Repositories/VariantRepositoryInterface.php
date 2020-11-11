@@ -8,7 +8,7 @@ interface VariantRepositoryInterface
 
     public function save($data, $is_update, $id = null);
 
-    public function get();
+    public function get(array $condition = []);
 
     public function getOneBy($by, $value);
 

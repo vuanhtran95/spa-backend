@@ -30,10 +30,12 @@ class VariantController extends Controller
         }
     }
 
-    public function get()
+    public function get(Request $request)
     {
+        $params = $request->all();
+
         try {
-            $variant = $this->variantRepository->get();
+            $variant = $this->variantRepository->get($params);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_LIST_SUCCESS, $variant);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
