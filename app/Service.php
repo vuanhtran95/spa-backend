@@ -19,10 +19,8 @@ class Service extends Model
         'combo_ratio',
         'price',
         'is_combo_sold',
-        'order_commission',
         'combo_commission',
         'service_category_id',
-        'duration',
     ];
 
     /**

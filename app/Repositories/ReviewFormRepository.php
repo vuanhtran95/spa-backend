@@ -70,18 +70,20 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                 $percentCommission = Common::calCommissionPercent($reviewOrder['skill'], $reviewOrder['attitude']);
 
                 // Depend on order gender then get the commission rate by gender
-                switch ($order->variant->gender) {
-                    case 'male':
-                        $commission = ($order->variant->service->commission_rate_male / 100);
-                        break;
-                    case 'female':
-                        $commission = ($order->variant->service->commission_rate_female / 100);
-                        break;
-                    default:
-                        // for both
-                        $commission = ($order->variant->service->commission_rate_both / 100);
-                        break;
-                }
+                //TODO: change to variants commission rate
+                $commission = ($order->variant->commission_rate / 100);
+                // switch ($order->variant->gender) {
+                //     case 'male':
+                //         $commission = ($order->variant->service->commission_rate_male / 100);
+                //         break;
+                //     case 'female':
+                //         $commission = ($order->variant->service->commission_rate_female / 100);
+                //         break;
+                //     default:
+                //         // for both
+                //         $commission = ($order->variant->service->commission_rate_both / 100);
+                //         break;
+                // }
 
                 // Calculate commission base on review star
                 $commission = $commission * $percentCommission;
