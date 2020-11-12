@@ -14,7 +14,7 @@ class AddIsFreeToVariantsTable extends Migration
     public function up()
     {
         Schema::table('variants', function (Blueprint $table) {
-            $table->boolean('is_free')->default(true);
+            $table->boolean('is_free')->default(false);
         });
     }
 
