@@ -79,22 +79,22 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
         // With commissions
         $query->withCount(['order AS working_commission' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month)
+            $query->whereMonth('created_at', Carbon::now()->month)
                 ->select(DB::raw("SUM(working_commission)"));
         }]);
 
         $query->withCount(['order AS working_commission_prev' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month - 1)
+            $query->whereMonth('created_at', Carbon::now()->month - 1)
                 ->select(DB::raw("SUM(working_commission)"));
         }]);
 
         $query->withCount(['combos AS sale_commission' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month)
+            $query->whereMonth('created_at', Carbon::now()->month)
                 ->select(DB::raw("SUM(sale_commission)"));
         }]);
 
         $query->withCount(['combos AS sale_commission_prev' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month - 1)
+            $query->whereMonth('created_at', Carbon::now()->month - 1)
                 ->select(DB::raw("SUM(sale_commission)"));
         }]);
 
@@ -132,22 +132,22 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         $query = Employee::where($by, '=', $value)->with('role');
         if (isset($config['show_commission']) && $config['show_commission'] == 1) {
             $query->withCount(['order AS working_commission' => function($query) {
-                $query->whereMonth('updated_at', Carbon::now()->month)
+                $query->whereMonth('created_at', Carbon::now()->month)
                     ->select(DB::raw("SUM(working_commission)"));
             }]);
 
             $query->withCount(['order AS working_commission_prev' => function($query) {
-                $query->whereMonth('updated_at', Carbon::now()->month - 1)
+                $query->whereMonth('created_at', Carbon::now()->month - 1)
                     ->select(DB::raw("SUM(working_commission)"));
             }]);
 
             $query->withCount(['combos AS sale_commission' => function($query) {
-                $query->whereMonth('updated_at', Carbon::now()->month)
+                $query->whereMonth('created_at', Carbon::now()->month)
                     ->select(DB::raw("SUM(sale_commission)"));
             }]);
 
             $query->withCount(['combos AS sale_commission_prev' => function($query) {
-                $query->whereMonth('updated_at', Carbon::now()->month - 1)
+                $query->whereMonth('created_at', Carbon::now()->month - 1)
                     ->select(DB::raw("SUM(sale_commission)"));
             }]);
         }
