@@ -36,7 +36,7 @@ class InvoiceController extends Controller
         }
     }
 
-    public function approve(Request $request, $invoiceId)
+    public function approve(Request $request, $invoice_id)
     {
         $params = $request->all();
 
@@ -44,12 +44,8 @@ class InvoiceController extends Controller
             throw new \Exception('Customer Id cannot be empty');
         }
 
-        $customer = Customer::find($params['customer_id']);
-
         try {
-            $invoice = $this->invoiceRepository->save(['status' => InvoiceConstant::PAID_STATUS], true, $invoiceId);
-            $newBalance = $customer->balance + $invoice->amount;
-            $this->customerRepository->save(['balance' => $newBalance], true, $customer->id);
+            $invoice = $this->invoiceRepository->approve($params['customer_id'], $invoice_id);
 
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INVOICE_UPDATED, $invoice);
         } catch (Exception $e) {

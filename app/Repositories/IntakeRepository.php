@@ -6,11 +6,13 @@ use App\Combo;
 use App\Customer;
 use App\Employee;
 use App\Helper\Translation;
+use App\Constants\PaymentType;
 use App\Intake;
 use App\Order;
 use App\Variant;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Repositories\InvoiceRepository;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
@@ -259,7 +261,33 @@ class IntakeRepository implements IntakeRepositoryInterface
             }
 
             // Collect point for customer
-            if ($intake->final_price > 0 && $intake->customer_id !== null) {
+            if ($intake->final_price > 0 && null !== $intake->customer_id) {
+                // Deduct customer's balance
+                if (!empty($data['payment_type'])) {
+                    $invoiceRepository = app(InvoiceRepository::class);
+
+                    switch($data['payment_type']) {
+                        case PaymentType::CREDIT:
+                            if ($customer->balance >= $intake->final_price) {
+                                $customer->balance -= $intake->final_price;
+                            } else {
+                                $remainingAmount = $intake->final_price - $customer->balance;
+                                $customer->balance = 0;
+                                
+                                // Create invoice
+                                                                
+                            }
+                            break;
+                        case PaymentType::CASH:
+                            $remainingAmount = $intake->final_price;
+                            
+                            // Create invoice
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 // Plus customer point
 //                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
                 // Currently 50k VND = 1 point
