@@ -79,6 +79,11 @@ class Translation
     public static $DELETE_COMBO_FAILURE = "DELETE_COMBO_FAILURE";
     public static $COMBO_ALREADY_VALID = "COMBO_ALREADY_VALID";
 
+    public static $PACKAGE_CREATED = "PACKAGE_CREATED";
+    public static $GET_ALL_PACKAGE_SUCCESS = "GET_ALL_PACKAGE_SUCCESS";
+    public static $PACKAGE_UPDATED = "PACKAGE_UPDATED";
+
+
     public static $INTAKE_CREATED = "INTAKE_CREATED";
     public static $INTAKE_UPDATED = "INTAKE_UPDATED";
     public static $INTAKE_UPDATE_FAILURE = "INTAKE_UPDATE_FAILURE";

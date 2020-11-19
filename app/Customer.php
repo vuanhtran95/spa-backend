@@ -23,7 +23,7 @@ class Customer extends Model
         'name','phone', 'email', 'points', 'is_active', 'gender'
     ];
 
-    public function combos() {
-        return $this->hasMany('App\Combo');
+    public function packages() {
+        return $this->hasMany('App\Package');
     }
 }

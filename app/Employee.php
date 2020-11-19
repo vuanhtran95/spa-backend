@@ -28,9 +28,9 @@ class Employee extends Model
         return $this->belongsTo('App\Role', 'role_id', 'id');
     }
 
-    public function combos()
+    public function package()
     {
-        return $this->hasMany('App\Combo');
+        return $this->hasMany('App\Package');
     }
 
     public function order() {

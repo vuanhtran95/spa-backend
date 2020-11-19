@@ -85,9 +85,10 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        return Customer::where($by, '=', $value)->with(['combos' => function ($query) {
-            $query->with(['variant' => function($query) {$query->with('service');}]);
-        }])->first();
+        // return Customer::where($by, '=', $value)->with(['packages' => function ($query) {
+        //     $query->with(['variant' => function($query) {$query->with('service');}]);
+        // }])->first();
+        return Customer::where($by, '=', $value)->first();
     }
 
     public function update($id, array $attributes = [])
