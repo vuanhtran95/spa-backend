@@ -35,10 +35,6 @@ class InvoiceRepository implements InvoiceRepositoryInterface
             $invoice->status = InvoiceConstant::PENDING_STATUS;
         }
 
-        if (!empty($data['promotion_amount']) && !empty($data['amount'])) {
-            $data['amount'] += $data['promotion_amount'];
-        }
-
         foreach ($data as $property => $value) {
             $invoice->$property = $value;
         }
