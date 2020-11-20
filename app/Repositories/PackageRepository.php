@@ -61,6 +61,14 @@ class PackageRepository implements PackageRepositoryInterface
                 $package->total_price = $total_price;
                 $package->sale_commission = $sale_commission;
                 $package->is_valid = $data['is_valid'];
+                if ($package->total_price > 0 && $package->customer_id !== null) {
+                    $customer = Customer::find($package->customer_id);
+                    // Plus customer point
+    //                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
+                    // Currently 50k VND = 1 point
+                    $customer->points = $customer->points + (int)($package->total_price / 100);
+                    $customer->save();
+                }
             }
             $package->save();
             return $package;
