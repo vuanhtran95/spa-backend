@@ -42,7 +42,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         } else {
             $user = new User();
             $user->email = $data['username'];
-            $user->password = Hash::make($data['password']);
+            $user->password = Hash::make($data['password'], [
+                'rounds' => 12,
+            ]);
 
             if ($user->save()) {
                 $employee = new Employee();
@@ -87,12 +89,12 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         }]);
 
         $query->withCount(['combos AS sale_commission' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month)
+            $query->whereMonth('created_at', Carbon::now()->month)
                 ->select(DB::raw("SUM(sale_commission)"));
         }]);
 
         $query->withCount(['combos AS sale_commission_prev' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month - 1)
+            $query->whereMonth('created_at', Carbon::now()->month - 1)
                 ->select(DB::raw("SUM(sale_commission)"));
         }]);
 
@@ -140,12 +142,12 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             }]);
 
             $query->withCount(['combos AS sale_commission' => function($query) {
-                $query->whereMonth('updated_at', Carbon::now()->month)
+                $query->whereMonth('created_at', Carbon::now()->month)
                     ->select(DB::raw("SUM(sale_commission)"));
             }]);
 
             $query->withCount(['combos AS sale_commission_prev' => function($query) {
-                $query->whereMonth('updated_at', Carbon::now()->month - 1)
+                $query->whereMonth('created_at', Carbon::now()->month - 1)
                     ->select(DB::raw("SUM(sale_commission)"));
             }]);
         }

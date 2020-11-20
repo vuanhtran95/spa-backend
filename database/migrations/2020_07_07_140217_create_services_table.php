@@ -18,7 +18,6 @@ class CreateServicesTable extends Migration
             $table->string('name');
             $table->longText('descriptions')->nullable();
             $table->boolean('is_combo_sold');
-            $table->integer('order_commission');
             $table->integer('combo_commission');
             $table->float('combo_ratio')->default(1.2);
             $table->boolean('is_active')->default(true);

@@ -39,10 +39,19 @@ class VariantRepository implements VariantRepositoryInterface
 
     }
 
-    public function get()
+    public function get(array $condition = [])
     {
-        return Variant::with(['service' => function ($query) {
-            $query->with('serviceCategory');
+        $isActive = isset($condition['is_active']) ? $condition['is_active'] : null;
+        $query = new Variant();
+        if ($isActive !== null) {
+            $query = $query->where('is_active', '=', $isActive);
+            $query = $query->whereHas('service', function ($query) use ($isActive) {
+                $query->where('is_active', $isActive);
+            });
+        }
+
+        return $query->with(['service' => function ($sQuery) {
+            $sQuery->with('serviceCategory');
         }])->get()->toArray();
     }
 
