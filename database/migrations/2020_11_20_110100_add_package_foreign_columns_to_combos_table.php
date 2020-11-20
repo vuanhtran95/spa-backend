@@ -20,7 +20,8 @@ class AddPackageForeignColumnsToCombosTable extends Migration
             $table->foreign('package_id')
                 ->references('id')
                 ->on('packages')
-                ->onUpdate('cascade');
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 

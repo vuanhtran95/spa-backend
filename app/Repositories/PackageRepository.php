@@ -179,24 +179,11 @@ class PackageRepository implements PackageRepositoryInterface
 
     public function delete($id)
     {
-        $combo = Combo::find($id);
-        if ($combo !== null) {
-            if ($combo->is_valid) {
-                throw new \Exception('Can not delete valid combo');
-            } else {
-                DB::beginTransaction();
-                try {
-                    $destroy = Combo::destroy($id);
-                    DB::commit();
-                    return $destroy;
-                } catch (\Exception $exception) {
-                    DB::rollBack();
-                    throw $exception;
-                }
-            }
+        $package = Package::where('is_valid', false)->find($id);
+        if ($package) {
+            $package->delete();
         } else {
-            throw new \Exception('No Combo Found');
+            throw new \Exception(Translation::$NO_INTAKE_FOUND);
         }
-
     }
 }
