@@ -69,6 +69,14 @@ class PackageRepository implements PackageRepositoryInterface
                     $customer->points = $customer->points + (int)($package->total_price / 100);
                     $customer->save();
                 }
+                $combo_amount = count($combos);
+                $now = Carbon::now();
+                if ($combo_amount < 10) {
+                    $package->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
+                } else {
+                    $now = Carbon::now();
+                    $package->expiry_date = date('Y-m-d H:m:s', strtotime("+6 months", strtotime($now)));
+                }
             }
             $package->save();
             return $package;
