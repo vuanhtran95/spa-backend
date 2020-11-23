@@ -75,8 +75,15 @@ Route::put('/v1/customers/{id}', 'CustomerController@update')->middleware('auth:
 Route::post('/v1/combos', 'ComboController@create')->middleware('auth:api');
 Route::get('/v1/combos', 'ComboController@get')->middleware('auth:api');
 Route::get('/v1/combos/{id}', 'ComboController@getOneById')->middleware('auth:api');
-Route::put('/v1/combos/{id}', 'ComboController@update')->middleware('auth:api');
-Route::delete('v1/combos/{id}', 'ComboController@delete')->middleware('auth:api');
+// Route::put('/v1/combos/{id}', 'ComboController@update')->middleware('auth:api');
+// Route::delete('v1/combos/{id}', 'ComboController@delete')->middleware('auth:api');
+
+// Package
+Route::post('/v1/packages', 'PackageController@create')->middleware('auth:api');
+Route::get('/v1/packages', 'PackageController@get')->middleware('auth:api');
+Route::get('/v1/packages/{id}', 'PackageController@getOneById')->middleware('auth:api');
+Route::put('/v1/packages/{id}', 'PackageController@update')->middleware('auth:api');
+Route::delete('v1/packages/{id}', 'PackageController@delete')->middleware('auth:api');
 
 // ReviewForm
 Route::post('/v1/reviews', 'ReviewFormController@create')->middleware('auth:api');

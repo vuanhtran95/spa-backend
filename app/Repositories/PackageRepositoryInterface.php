@@ -1,8 +1,8 @@
-        <!-- <?php -->
+<?php
 
 namespace App\Repositories;
 
-interface ComboRepositoryInterface
+interface PackageRepositoryInterface
 {
     public function create(array $attributes = []);
 

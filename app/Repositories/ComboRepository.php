@@ -83,9 +83,6 @@ class ComboRepository implements ComboRepositoryInterface
     public function get(array $condition = [])
     {
         $variantId = isset($condition['variant_id']) ? $condition['variant_id'] : null;
-        $customerId = isset($condition['customer_id']) ? $condition['customer_id'] : null;
-        $employee_id = isset($condition['employee_id']) ? $condition['employee_id'] : null;
-        $isValid = isset($condition['is_valid']) ? $condition['is_valid'] : null;
 
         $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
         $page = isset($condition['page']) ? $condition['page'] : 1;
@@ -94,15 +91,6 @@ class ComboRepository implements ComboRepositoryInterface
 
         if ($variantId) {
             $query = $query->where('variant_id', '=', $variantId);
-        }
-        if ($customerId) {
-            $query = $query->where('customer_id', '=', $customerId);
-        }
-        if ($employee_id) {
-            $query = $query->where('employee_id', '=', $employee_id);
-        }
-        if ($isValid) {
-            $query = $query->where('is_valid', '=', $isValid);
         }
 
         $combos = $query->with(['variant' => function ($vQuery) {
