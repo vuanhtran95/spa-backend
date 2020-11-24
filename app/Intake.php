@@ -42,4 +42,9 @@ class Intake extends Model
     public function reviewForm() {
         return $this->hasOne('App\ReviewForm');
     }
+
+    public function invoice() 
+    {
+        return $this->hasOne('App\Invoice');
+    }
 }

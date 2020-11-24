@@ -28,6 +28,8 @@ use App\Repositories\UserRepository;
 use App\Repositories\UserRepositoryInterface;
 use App\Repositories\VariantRepository;
 use App\Repositories\VariantRepositoryInterface;
+use App\Repositories\InvoiceRepository;
+use App\Repositories\InvoiceRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -63,5 +65,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(PackageRepositoryInterface::class, PackageRepository::class);
 
+        $this->app->bind(InvoiceRepositoryInterface::class, InvoiceRepository::class);
     }
 }

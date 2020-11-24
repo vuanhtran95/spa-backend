@@ -26,4 +26,9 @@ class Customer extends Model
     public function packages() {
         return $this->hasMany('App\Package');
     }
+
+    public function invoice() 
+    {
+        return $this->hasMany('App\Invoice');
+    }
 }

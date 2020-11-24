@@ -6,11 +6,13 @@ use App\Combo;
 use App\Customer;
 use App\Employee;
 use App\Helper\Translation;
+use App\Constants\PaymentType;
 use App\Intake;
 use App\Order;
 use App\Variant;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Repositories\InvoiceRepository;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
@@ -87,8 +89,29 @@ class IntakeRepository implements IntakeRepositoryInterface
             $intake = new Intake();
             $intake->customer_id = $data['customer_id'];
             $intake->employee_id = $employeeId;
+            $intake->payment_type = $data['payment_type'];
 
             if ($intake->save()) {
+                $invoiceRepository = app(InvoiceRepository::class);
+
+                // Create invoice
+                if (!empty($data['payment_type']) && PaymentType::CREDIT === $data['payment_type']) {
+                    if (empty($data['signature'])) {
+                        throw new \Exception('Signature cannot be empty.');    
+                    }
+
+                    $params = [
+                        'customer_id' => $intake->customer_id,
+                        'employee_id' => $intake->employee_id,
+                        'intake_id' => $intake->id,
+                        'amount' => 0,
+                        'payment_type' => $data['payment_type'],
+                        'type' => 'deduction'
+                    ];
+
+                    $invoice = $invoiceRepository->create($params);
+                }
+
                 $orders = $data['orders'];
                 foreach ($orders as $key => $order) {
                     $orders[$key]['intake_id'] = $intake->id;
@@ -263,7 +286,45 @@ class IntakeRepository implements IntakeRepositoryInterface
             }
 
             // Collect point for customer
-            if ($intake->final_price > 0 && $intake->customer_id !== null) {
+            if ($intake->final_price > 0 && null !== $intake->customer_id) {
+                // Deduct customer's balance
+                if (!empty($data['payment_type'])) {
+                    // Find invoice by intake id
+                    $invoice = Intake::find($intake->id);
+                    $invoiceRepository = app(InvoiceRepository::class);
+                    $attrs = [
+                        'amount' => $intake->final_price,
+                        'status' => InvoiceConstant::PAID_STATUS
+                    ];
+
+                    switch($data['payment_type']) {
+                        case PaymentType::CREDIT:
+                            if ($customer->balance >= $intake->final_price) {
+                                $customer->balance -= $intake->final_price;
+                            } else {
+                                $remainingAmount = $intake->final_price - $customer->balance;
+                                $attrs['remaining_amount'] = $remainingAmount;
+                                $customer->balance = 0;
+                            }
+
+                            // Find invoice by intake id
+                            $invoice = Intake::find($intake->id);
+                                    
+                            // Approve invoice
+                            $invoiceRepository->save($attrs, true, $invoice->id);
+                            break;
+                        case PaymentType::CASH:
+                            $remainingAmount = $intake->final_price;
+                            $attrs['remaining_amount'] = $remainingAmount;
+                            
+                            // Create invoice
+                            $invoiceRepository->save($attrs, true, $invoice->id);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 // Plus customer point
 //                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
                 // Currently 50k VND = 1 point

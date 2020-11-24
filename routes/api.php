@@ -47,7 +47,7 @@ Route::get('/v1/orders/{id}', 'OrderController@getOneById')->middleware('auth:ap
 Route::put('/v1/orders/{id}', 'OrderController@update')->middleware('auth:api');
 
 // Service
-Route::get('/v1/services', 'ServiceController@get');
+Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');
 Route::post('/v1/services', 'ServiceController@create')->middleware('auth:api');
 Route::put('/v1/services/{id}', 'ServiceController@update')->middleware('auth:api');
 Route::delete('/v1/services/{id}', 'ServiceController@delete')->middleware('auth:api');
@@ -94,3 +94,8 @@ Route::get('/v1/statistics', 'StatisticController@get')->middleware('auth:api');
 
 // Account
 Route::put('/v1/change-password', 'UserController@updatePassword')->middleware('auth:api');
+
+// Invoice
+Route::post('/v1/invoice', 'InvoiceController@create')->middleware('auth:api');
+Route::put('/v1/invoice/approve/{id}', 'InvoiceController@approve')->middleware('auth:api');
+Route::get('/v1/invoice/{customerId}', 'InvoiceController@getInvoiceByCustomerId')->middleware('auth:api');

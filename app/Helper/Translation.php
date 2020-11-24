@@ -96,6 +96,10 @@ class Translation
     public static $INTAKE_NOT_APPROVE = "INTAKE_NOT_APPROVE";
     public static $INTAKE_ALREADY_REVIEWED = "INTAKE_ALREADY_REVIEWED";
 
+    public static $INVOICE_CREATED = "INVOICE CREATED";
+    public static $INVOICE_UPDATED = "INVOICE UPDATED";
+    public static $GET_INVOICE_SUCCESS = "GET_INVOICE_SUCCESS";
+
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
 
