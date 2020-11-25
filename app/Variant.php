@@ -3,8 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseModel;
 
-class Variant extends Model
+class Variant extends BaseModel
 {
     protected $table = 'variants';
 

@@ -4,13 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use App\BaseModel;
 
 /**
  * Class Address
  * @package App
  * @mixin Builder
  */
-class Employee extends Model
+class Employee extends BaseModel
 {
     protected $table = 'employees';
 
