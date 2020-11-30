@@ -79,23 +79,36 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
         // With commissions
         $query->withCount(['order AS working_commission' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month)
+            $query->whereYear('updated_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month)
                 ->select(DB::raw("SUM(working_commission)"));
         }]);
-
+        
         $query->withCount(['order AS working_commission_prev' => function($query) {
-            $query->whereMonth('updated_at', Carbon::now()->month - 1)
+            $query->whereYear('updated_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month-1)
                 ->select(DB::raw("SUM(working_commission)"));
         }]);
 
         $query->withCount(['package AS sale_commission' => function($query) {
-            $query->whereMonth('created_at', Carbon::now()->month)
+            $query->whereYear('created_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month)
                 ->select(DB::raw("SUM(sale_commission)"));
         }]);
 
         $query->withCount(['package AS sale_commission_prev' => function($query) {
-            $query->whereMonth('created_at', Carbon::now()->month - 1)
+            $query->whereYear('created_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month-1)
                 ->select(DB::raw("SUM(sale_commission)"));
+        }]);
+
+        // Count Orders
+        $query->withCount(['order AS total_sales' => function($query) {
+            $query->whereYear('updated_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month)->whereHas('intake', function ($iQuery) {
+                $iQuery->where('is_valid', '=', 1);
+            })->select(DB::raw("SUM(price)"));;
+        }]);
+        
+        $query->withCount(['order AS total_sales_prev' => function($query) {
+            $query->whereYear('updated_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month-1)->whereHas('intake', function ($iQuery) {
+                $iQuery->where('is_valid', '=', 1);
+            })->select(DB::raw("SUM(price)"));;
         }]);
 
         // With points
