@@ -89,12 +89,12 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         }]);
 
         $query->withCount(['package AS sale_commission' => function($query) {
-            $query->whereYear('created_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month)
+            $query->whereYear('created_at', Carbon::now()->year)->whereMonth('created_at', Carbon::now()->month)
                 ->select(DB::raw("SUM(sale_commission)"));
         }]);
 
         $query->withCount(['package AS sale_commission_prev' => function($query) {
-            $query->whereYear('created_at', Carbon::now()->year)->whereMonth('updated_at', Carbon::now()->month-1)
+            $query->whereYear('created_at', Carbon::now()->year)->whereMonth('created_at', Carbon::now()->month-1)
                 ->select(DB::raw("SUM(sale_commission)"));
         }]);
 
