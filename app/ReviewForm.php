@@ -3,8 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseModel;
 
-class ReviewForm extends Model
+class ReviewForm extends BaseModel
 {
     protected $table = 'review_forms';
 

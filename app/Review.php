@@ -3,8 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseModel;
 
-class Review extends Model
+class Review extends BaseModel
 {
     protected $table = 'reviews';
 

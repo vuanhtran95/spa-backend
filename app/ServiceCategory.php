@@ -3,8 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseModel;
 
-class ServiceCategory extends Model
+class ServiceCategory extends BaseModel
 {
     protected $table = 'service_categories';
 
