@@ -38,14 +38,8 @@ class InvoiceController extends Controller
 
     public function approve(Request $request, $invoice_id)
     {
-        $params = $request->all();
-
-        if (empty($params['customer_id'])) {
-            throw new \Exception('Customer Id cannot be empty');
-        }
-
         try {
-            $invoice = $this->invoiceRepository->approve($params['customer_id'], $invoice_id);
+            $invoice = $this->invoiceRepository->approve($invoice_id);
 
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INVOICE_UPDATED, $invoice);
         } catch (Exception $e) {
@@ -60,5 +54,27 @@ class InvoiceController extends Controller
 
         return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INVOICE_SUCCESS, $llistOfInvoiceByCustomer);
         
+    }
+    
+    public function get(Request $request)
+    {
+        $params = $request->all();
+
+        try {
+            $invoices = $this->invoiceRepository->get($params);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_LIST_SUCCESS, $invoices);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            $this->invoiceRepository->delete($id);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_INVOICE_SUCCESS);
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
     }
 }

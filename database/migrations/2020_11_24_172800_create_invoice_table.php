@@ -38,7 +38,6 @@ class CreateInvoiceTable extends Migration
             $table->integer('promotion_amount')->nullable();
             $table->text('note')->nullable();
             $table->binary('signature')->nullable();
-            $table->string('payment_type');
             $table->string('status');
             $table->string('type');
             $table->timestamps();

@@ -97,5 +97,7 @@ Route::put('/v1/change-password', 'UserController@updatePassword')->middleware('
 
 // Invoice
 Route::post('/v1/invoice', 'InvoiceController@create')->middleware('auth:api');
+Route::get('/v1/invoice', 'InvoiceController@get')->middleware('auth:api');
+Route::delete('v1/invoice/{id}', 'InvoiceController@delete')->middleware('auth:api');
 Route::put('/v1/invoice/approve/{id}', 'InvoiceController@approve')->middleware('auth:api');
-Route::get('/v1/invoice/{customerId}', 'InvoiceController@getInvoiceByCustomerId')->middleware('auth:api');
+// Route::get('/v1/invoice/{customerId}', 'InvoiceController@getInvoiceByCustomerId')->middleware('auth:api');

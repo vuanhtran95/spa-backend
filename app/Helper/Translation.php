@@ -99,6 +99,9 @@ class Translation
     public static $INVOICE_CREATED = "INVOICE CREATED";
     public static $INVOICE_UPDATED = "INVOICE UPDATED";
     public static $GET_INVOICE_SUCCESS = "GET_INVOICE_SUCCESS";
+    public static $DELETE_INVOICE_SUCCESS = "DELETE_INVOICE_SUCCESS";
+    public static $NO_INVOICE_FOUND = "NO_INVOICE_FOUND";
+
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";

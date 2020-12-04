@@ -44,22 +44,56 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         return $invoice;
     }
 
-    public function approve($customer_id, $invoice_id)
+    public function approve($invoice_id)
     {
+        // 0.Find Invoice by Id
+        $invoice = Invoice::find($invoice_id);
+        if ($invoice->status === InvoiceConstant::PAID_STATUS) {
+            throw new \Exception('Transaction has been verified');
+        } 
         // 1.Find Customer by id
-        $customer = Customer::find($customer_id);
+        $customer = Customer::find($invoice->customer_id);
+        if (empty($customer)) {
+            throw new \Exception('Customer is not existed');
+        }
 
         // 2.Update invoice status to "Paid"
-        $invoice = $this->save(['status' => InvoiceConstant::PAID_STATUS], true, $invoice_id);
+        $invoice->status = InvoiceConstant::PAID_STATUS;
+        $invoice->save();
 
         // 3.Calculate new balance
-        $newBalance = $customer->balance + $invoice->amount;
+        $newBalance = $customer->balance + $invoice->amount + $invoice->promotion_amount;
 
         // 4.Update customer's balance
-        $customerRepository = app(CustomerRepository::class);
-        $customerRepository->save(['balance' => $newBalance], true, $customer_id);
+        $customer->balance = $newBalance;
+        $customer->save();
         
 
         return $invoice;
+    }
+
+    public function get(array $condition = [])
+    {
+        $customer_id = isset($condition['customer_id']) ? $condition['customer_id'] : null;
+        $type = isset($condition['type']) ? $condition['type'] : null;
+        $query = new Invoice();
+        if ($customer_id !== null) {
+            $query = $query->where('customer_id', '=', $customer_id);
+        }
+        if ($type !== null) {
+            $query = $query->where('type', '=', $type);
+        }
+
+        return $query->with(['customer'])->with(['employee'])->get()->toArray();
+    }
+
+    public function delete($id)
+    {
+        $invoice = Invoice::where('status', InvoiceConstant::PENDING_STATUS)->find($id);
+        if ($invoice) {
+            $invoice->delete();
+        } else {
+            throw new \Exception(Translation::$NO_INVOICE_FOUND);
+        }
     }
 }
