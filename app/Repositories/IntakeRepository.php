@@ -96,16 +96,15 @@ class IntakeRepository implements IntakeRepositoryInterface
 
                 // Create invoice
                 if (!empty($data['payment_type']) && PaymentType::CREDIT === $data['payment_type']) {
-                    if (empty($data['signature'])) {
-                        throw new \Exception('Signature cannot be empty.');    
-                    }
+                    // if (empty($data['signature'])) {
+                    //     throw new \Exception('Signature cannot be empty.');    
+                    // }
 
                     $params = [
                         'customer_id' => $intake->customer_id,
                         'employee_id' => $intake->employee_id,
                         'intake_id' => $intake->id,
                         'amount' => 0,
-                        'payment_type' => $data['payment_type'],
                         'type' => 'deduction'
                     ];
 
@@ -303,7 +302,6 @@ class IntakeRepository implements IntakeRepositoryInterface
                                 $customer->balance -= $intake->final_price;
                             } else {
                                 $remainingAmount = $intake->final_price - $customer->balance;
-                                $attrs['remaining_amount'] = $remainingAmount;
                                 $customer->balance = 0;
                             }
 
@@ -315,7 +313,6 @@ class IntakeRepository implements IntakeRepositoryInterface
                             break;
                         case PaymentType::CASH:
                             $remainingAmount = $intake->final_price;
-                            $attrs['remaining_amount'] = $remainingAmount;
                             
                             // Create invoice
                             $invoiceRepository->save($attrs, true, $invoice->id);

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRemainingAmountToInvoiceTable extends Migration
+class AddPaymentTypeToIntakesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddRemainingAmountToInvoiceTable extends Migration
     public function up()
     {
         Schema::table('intakes', function (Blueprint $table) {
-            $table->integer('remaining_amount');
+            $table->string('payment_type');
         });
     }
 
@@ -26,7 +26,7 @@ class AddRemainingAmountToInvoiceTable extends Migration
     public function down()
     {
         Schema::table('intakes', function (Blueprint $table) {
-            $table->dropColumn('remaining_amount');
+            $table->dropColumn('payment_type');
         });
     }
 }

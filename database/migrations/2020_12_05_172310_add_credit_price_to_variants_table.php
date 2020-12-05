@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddPaymentTypeToIntakeTable extends Migration
+class AddCreditPriceToVariantsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddPaymentTypeToIntakeTable extends Migration
      */
     public function up()
     {
-        Schema::table('intake', function (Blueprint $table) {
-            //
+        Schema::table('variants', function (Blueprint $table) {
+            $table->float('credit_price')->default(0);
         });
     }
 
@@ -25,8 +25,8 @@ class AddPaymentTypeToIntakeTable extends Migration
      */
     public function down()
     {
-        Schema::table('intake', function (Blueprint $table) {
-            //
+        Schema::table('variants', function (Blueprint $table) {
+            $table->dropColumn('credit_price');
         });
     }
 }
