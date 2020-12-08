@@ -4,7 +4,6 @@ namespace App\Http;
 
 class HttpResponse
 {
-
     public function __construct()
     {
     }

@@ -2,7 +2,6 @@
 
 namespace App\Helper;
 
-
 class Translation
 {
     public static $UNAUTHORIZED = "UNAUTHORIZED";

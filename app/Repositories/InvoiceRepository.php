@@ -50,7 +50,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         $invoice = Invoice::find($invoice_id);
         if ($invoice->status === InvoiceConstant::PAID_STATUS) {
             throw new \Exception('Transaction has been verified');
-        } 
+        }
         // 1.Find Customer by id
         $customer = Customer::find($invoice->customer_id);
         if (empty($customer)) {

@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\DB;
 
 class PackageRepository implements PackageRepositoryInterface
 {
-
     public function create(array $attributes = [])
     {
         DB::beginTransaction();
@@ -47,12 +46,12 @@ class PackageRepository implements PackageRepositoryInterface
             if ($package->is_valid) {
                 throw new \Exception(Translation::$COMBO_ALREADY_VALID);
             }
-            if(isset($data['is_valid'])) {
+            if (isset($data['is_valid'])) {
                 $total_price = 0;
                 $sale_commission = 0;
                 $combos = $package->combos->toArray();
                 foreach ($combos as $key => $combo) {
-                    if(!$combo['is_promotion_combo']) {
+                    if (!$combo['is_promotion_combo']) {
                         $sale_commission_rate = $combo['variant']['service']['combo_commission'] / 100;
                         $sale_commission += $sale_commission_rate*$combo['total_price'];
                         $total_price +=  $combo['total_price'];
@@ -64,7 +63,7 @@ class PackageRepository implements PackageRepositoryInterface
                 if ($package->total_price > 0 && $package->customer_id !== null) {
                     $customer = Customer::find($package->customer_id);
                     // Plus customer point
-    //                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
+                    //                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
                     // Currently 50k VND = 1 point
                     $customer->points = $customer->points + (int)($package->total_price / 100);
                     $customer->save();

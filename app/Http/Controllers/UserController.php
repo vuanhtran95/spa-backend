@@ -30,5 +30,4 @@ class UserController extends Controller
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
     }
-
 }

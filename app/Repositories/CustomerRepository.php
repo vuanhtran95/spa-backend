@@ -80,7 +80,6 @@ class CustomerRepository implements CustomerRepositoryInterface
                 "TotalItems" => $query->count()
             ]
         ];
-
     }
 
     public function getOneBy($by, $value)

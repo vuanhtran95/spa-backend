@@ -23,11 +23,12 @@ class Customer extends Model
         'name','phone', 'email', 'points', 'is_active', 'gender'
     ];
 
-    public function packages() {
+    public function packages()
+    {
         return $this->hasMany('App\Package');
     }
 
-    public function invoice() 
+    public function invoice()
     {
         return $this->hasMany('App\Invoice');
     }

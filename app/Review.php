@@ -18,8 +18,8 @@ class Review extends BaseModel
         'skill', 'attitude', 'order_id', 'review_form_id'
     ];
 
-    public function order() {
+    public function order()
+    {
         return $this->belongsTo('App\Order');
     }
 }
-

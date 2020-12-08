@@ -10,7 +10,6 @@ use Illuminate\Http\Response as Response;
 use Exception;
 use App\Helper\Translation;
 
-
 class IntakeController extends Controller
 {
     private $intakeRepository;
@@ -78,7 +77,6 @@ class IntakeController extends Controller
                 $intakes['Data'],
                 $intakes['Pagination']
             );
-
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SYSTEM_ERROR);
         }

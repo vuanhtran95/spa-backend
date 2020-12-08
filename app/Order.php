@@ -24,27 +24,33 @@ class Order extends BaseModel
         'variant_id', 'user_id', 'amount', 'note', 'intake_id', 'combo_id'
     ];
 
-    public function combo() {
+    public function combo()
+    {
         return $this->belongsTo('App\Combo');
     }
 
-    public function intake() {
+    public function intake()
+    {
         return $this->belongsTo('App\Intake');
     }
 
-    public function variant() {
+    public function variant()
+    {
         return $this->belongsTo('App\Variant');
     }
 
-    public function customer() {
+    public function customer()
+    {
         return $this->belongsTo('App\Customer');
     }
 
-    public function employee() {
+    public function employee()
+    {
         return $this->belongsTo('App\Employee');
     }
 
-    public function review() {
+    public function review()
+    {
         return $this->hasOne('App\Review');
     }
 }

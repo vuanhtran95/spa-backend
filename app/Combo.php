@@ -30,15 +30,18 @@ class Combo extends BaseModel
         'price',
     ];
 
-    public function variant() {
+    public function variant()
+    {
         return $this->belongsTo('App\Variant');
     }
 
-    public function customer() {
+    public function customer()
+    {
         return $this->belongsTo('App\Customer');
     }
 
-    public function orders() {
+    public function orders()
+    {
         return $this->hasMany('App\Order');
     }
 }

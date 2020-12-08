@@ -12,7 +12,6 @@ use Illuminate\Http\Response as Response;
 use Exception;
 use App\Helper\Translation;
 
-
 class PackageController extends Controller
 {
     private $packageRepository;
@@ -46,7 +45,8 @@ class PackageController extends Controller
 
         try {
             $packages = $this->packageRepository->get($params);
-            return HttpResponse::toJson(true,
+            return HttpResponse::toJson(
+                true,
                 Response::HTTP_OK,
                 Translation::$GET_ALL_PACKAGE_SUCCESS,
                 $packages['Data'],
@@ -55,7 +55,6 @@ class PackageController extends Controller
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
-
     }
 
     public function update(Request $request, $id)

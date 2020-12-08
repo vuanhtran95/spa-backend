@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class VariantRepository implements VariantRepositoryInterface
 {
-
     public function create(array $attributes = [])
     {
         DB::beginTransaction();
@@ -36,7 +35,6 @@ class VariantRepository implements VariantRepositoryInterface
 
         $variant->save();
         return $variant;
-
     }
 
     public function get(array $condition = [])

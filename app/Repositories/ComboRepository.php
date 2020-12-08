@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 
 class ComboRepository implements ComboRepositoryInterface
 {
-
     public function create(array $attributes = [])
     {
         DB::beginTransaction();
@@ -53,11 +52,9 @@ class ComboRepository implements ComboRepositoryInterface
                 // Add Expired Date
                 $now = Carbon::now();
                 $combo->expiry_date = date('Y-m-d H:m:s', strtotime("+3 months", strtotime($now)));
-
             } else {
                 throw new \Exception("Please pass is_valid value");
             }
-
         } else {
             // Create combo
             $userId = $data['user_id'];
@@ -159,6 +156,5 @@ class ComboRepository implements ComboRepositoryInterface
         } else {
             throw new \Exception('No Combo Found');
         }
-
     }
 }

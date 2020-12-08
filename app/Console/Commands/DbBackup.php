@@ -39,8 +39,8 @@ class DbBackup extends Command
     {
         $filename = "backup-" . Carbon::now()->format('Y-m-d') . ".gz";
         $command = "mysqldump --opt --databases " . env('DB_DATABASE') . " -h " . env('DB_HOST') . " -u " . env('DB_USERNAME') . " -p'" . env('DB_PASSWORD') . "' | gzip > " . storage_path() . "/app/" . $filename;
-        $returnVar = NULL;
-        $output = NULL;
+        $returnVar = null;
+        $output = null;
         exec($command, $output, $returnVar);
     }
 }

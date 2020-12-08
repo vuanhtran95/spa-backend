@@ -2,7 +2,8 @@
 
 namespace App\Constants;
 
-class PaymentType {
+class PaymentType
+{
     const CASH = 'cash';
 
     const CREDIT = 'credit';

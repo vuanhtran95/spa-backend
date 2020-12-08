@@ -45,15 +45,13 @@ class InvoiceController extends Controller
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
-
     }
 
-    public function getInvoiceByCustomerId($customerId) 
+    public function getInvoiceByCustomerId($customerId)
     {
         $llistOfInvoiceByCustomer = Invoice::where('customer_id', $customerId)->get();
 
         return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INVOICE_SUCCESS, $llistOfInvoiceByCustomer);
-        
     }
     
     public function get(Request $request)

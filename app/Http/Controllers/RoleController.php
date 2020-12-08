@@ -8,7 +8,6 @@ use App\Repositories\RoleRepositoryInterface;
 use Illuminate\Http\Response as Response;
 use App\Helper\Translation;
 
-
 class RoleController extends Controller
 {
     private $roleRepository;
