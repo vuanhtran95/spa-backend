@@ -36,7 +36,6 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
             // Create
             $intake_id = $data['intake_id'];
             $intake = Intake::find($intake_id);
-
             // Check has intake ?
             if (!$intake) {
                 throw new \Exception(Translation::$NO_INTAKE_FOUND);
@@ -47,6 +46,9 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                 throw new \Exception(Translation::$INTAKE_NOT_APPROVE);
             }
 
+            // Get payment_type of intake
+            $price_field = $intake->payment_type === 'cash' ? 'price' : 'credit_price';
+            
             // Check already reviewed ?
             $hasReviewForm = ReviewForm::where('intake_id', $intake_id)->first();
             if ($hasReviewForm) {
@@ -116,7 +118,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                     $employee->save();
                     */
 
-                    $commission = $commission * $order->price;
+                    $commission = $commission * $order->$price_field;
                 }
 
                 $order->working_commission = $commission;

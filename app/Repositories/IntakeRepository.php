@@ -90,8 +90,19 @@ class IntakeRepository implements IntakeRepositoryInterface
                 }, 'invoice']
             )->find($id);
             // Update payment_type
-            if(!empty($data['payment_type'])) {
+            if (!empty($data['payment_type'])) {
                 $intake->payment_type = $data['payment_type'];
+                if ($intake->payment_type === 'credit' & empty($intake->invoice)) {
+                    $invoiceRepository = app(InvoiceRepository::class);
+                    $params = [
+                        'customer_id' => $intake->customer_id,
+                        'employee_id' => $intake->employee_id,
+                        'intake_id' => $intake->id,
+                        'amount' => 0,
+                        'type' => 'deduction',
+                    ];
+                    $invoice = $invoiceRepository->create($params);
+                }
                 $intake->save();
             }
             return $intake;
@@ -109,9 +120,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 
                 // Create invoice
                 if (!empty($data['payment_type']) && PaymentType::CREDIT === $data['payment_type']) {
-                    if (empty($data['signature'])) {
-                        throw new \Exception('Signature cannot be empty.');
-                    }
+                    // if (empty($data['signature'])) {
+                    //     throw new \Exception('Signature cannot be empty.');
+                    // }
 
                     $params = [
                         'customer_id' => $intake->customer_id,
@@ -119,7 +130,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         'intake_id' => $intake->id,
                         'amount' => 0,
                         'type' => 'deduction',
-                        'signature' => $data['signature']
+                        // 'signature' => $data['signature']
                     ];
 
                     $invoice = $invoiceRepository->create($params);
@@ -136,7 +147,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                 }
                 Order::insert($orders);
                 // Return Intake with order
-                return Intake::with('orders')->find($intake->id);
+                return Intake::with(['orders', 'invoice'])->find($intake->id);
             } else {
                 return false;
             }
