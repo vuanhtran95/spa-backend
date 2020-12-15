@@ -26,10 +26,12 @@ class ServiceCategoryController extends Controller
         try {
             $service = $this->serviceCategoryRepository->create($params);
             if ($service) {
-                return HttpResponse::toJson(true,
+                return HttpResponse::toJson(
+                    true,
                     Response::HTTP_CREATED,
                     Translation::$SERVICE_CATEGORY_CREATED,
-                    $service);
+                    $service
+                );
             } else {
                 //TODO: Need to improve
                 return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
@@ -42,10 +44,12 @@ class ServiceCategoryController extends Controller
     public function get()
     {
         $service_categories = $this->serviceCategoryRepository->get();
-        return HttpResponse::toJson(true,
+        return HttpResponse::toJson(
+            true,
             Response::HTTP_OK,
             Translation::$GET_ALL_SERVICE_CATEGORY_SUCCESS,
-            $service_categories);
+            $service_categories
+        );
     }
 
     // TODO:
@@ -55,19 +59,26 @@ class ServiceCategoryController extends Controller
         try {
             $user = $this->serviceCategoryRepository->update($id, $params);
             if ($user) {
-                return HttpResponse::toJson(true,
+                return HttpResponse::toJson(
+                    true,
                     Response::HTTP_OK,
-                    Translation::$SERVICE_CATEGORY_UPDATED, $user);
+                    Translation::$SERVICE_CATEGORY_UPDATED,
+                    $user
+                );
             } else {
                 //TODO: Need to improve
-                return HttpResponse::toJson(false,
+                return HttpResponse::toJson(
+                    false,
                     Response::HTTP_BAD_REQUEST,
-                    Translation::$SYSTEM_ERROR);
+                    Translation::$SYSTEM_ERROR
+                );
             }
         } catch (Exception $e) {
-            return HttpResponse::toJson(false,
+            return HttpResponse::toJson(
+                false,
                 Response::HTTP_CONFLICT,
-                Translation::$SERVICE_CATEGORY_UPDATED_FAILURE);
+                Translation::$SERVICE_CATEGORY_UPDATED_FAILURE
+            );
         }
     }
 
@@ -77,19 +88,24 @@ class ServiceCategoryController extends Controller
         try {
             $delete = $this->serviceCategoryRepository->delete($id);
             if ($delete) {
-                return HttpResponse::toJson(true,
+                return HttpResponse::toJson(
+                    true,
                     Response::HTTP_OK,
-                    Translation::$DELETE_SERVICE_CATEGORY_SUCCESS);
+                    Translation::$DELETE_SERVICE_CATEGORY_SUCCESS
+                );
             } else {
-                return HttpResponse::toJson(false,
+                return HttpResponse::toJson(
+                    false,
                     Response::HTTP_BAD_REQUEST,
-                    Translation::$DELETE_SERVICE_CATEGORY_FAILURE);
+                    Translation::$DELETE_SERVICE_CATEGORY_FAILURE
+                );
             }
         } catch (Exception $e) {
-            return HttpResponse::toJson(false,
+            return HttpResponse::toJson(
+                false,
                 Response::HTTP_CONFLICT,
-                Translation::$DELETE_SERVICE_CATEGORY_FAILURE);
+                Translation::$DELETE_SERVICE_CATEGORY_FAILURE
+            );
         }
     }
-
 }

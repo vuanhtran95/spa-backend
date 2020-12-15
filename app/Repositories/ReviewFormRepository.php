@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class ReviewFormRepository implements ReviewFormRepositoryInterface
 {
-
     public function create(array $attributes = [])
     {
         DB::beginTransaction();
@@ -37,7 +36,6 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
             // Create
             $intake_id = $data['intake_id'];
             $intake = Intake::find($intake_id);
-
             // Check has intake ?
             if (!$intake) {
                 throw new \Exception(Translation::$NO_INTAKE_FOUND);
@@ -48,6 +46,9 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                 throw new \Exception(Translation::$INTAKE_NOT_APPROVE);
             }
 
+            // Get payment_type of intake
+            $price_field = $intake->payment_type === 'cash' ? 'price' : 'credit_price';
+            
             // Check already reviewed ?
             $hasReviewForm = ReviewForm::where('intake_id', $intake_id)->first();
             if ($hasReviewForm) {
@@ -65,8 +66,9 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
             $reviews = $data['reviews'];
 
             foreach ($reviews as $reviewOrder) {
-
-                $order = Order::with(['variant' => function($query) {$query->with('service');}])->find($reviewOrder['order_id']);
+                $order = Order::with(['variant' => function ($query) {
+                    $query->with('service');
+                }])->find($reviewOrder['order_id']);
                 $percentCommission = Common::calCommissionPercent($reviewOrder['skill'], $reviewOrder['attitude']);
 
                 // Depend on order gender then get the commission rate by gender
@@ -103,10 +105,8 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                      */
                     // $commission = $commission * $combo->total_price / $combo->amount;
 
-                    // Update commission for combo 
+                    // Update commission for combo
                     $commission = $commission * $order->variant->price;
-
-
                 } else {
                     // Case order doesn't use combo
                     // Collect commission for employee in money pay case
@@ -118,7 +118,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
                     $employee->save();
                     */
 
-                    $commission = $commission * $order->price;
+                    $commission = $commission * $order->$price_field;
                 }
 
                 $order->working_commission = $commission;

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldToCustomersTable extends Migration
+class AddBalanceToCustomersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,7 @@ class AddFieldToCustomersTable extends Migration
     public function up()
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->date('birthday')->nullable();
-            $table->string('district')->nullable();
-            $table->string('province')->nullable();
+            $table->integer('balance')->default(0);
         });
     }
 
@@ -28,7 +26,7 @@ class AddFieldToCustomersTable extends Migration
     public function down()
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->dropColumn(['province', 'district', 'birthday']);
+            $table->dropColumn('balance');
         });
     }
 }

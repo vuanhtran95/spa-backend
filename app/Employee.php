@@ -34,7 +34,13 @@ class Employee extends BaseModel
         return $this->hasMany('App\Package');
     }
 
-    public function order() {
+    public function order()
+    {
         return $this->hasMany('App\Order');
+    }
+
+    public function invoice()
+    {
+        return $this->hasMany('App\Invoice');
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Helper;
 
-
 class Translation
 {
     public static $UNAUTHORIZED = "UNAUTHORIZED";
@@ -95,6 +94,13 @@ class Translation
     public static $DELETE_INTAKE_FAILURE = "DELETE_INTAKE_FAILURE";
     public static $INTAKE_NOT_APPROVE = "INTAKE_NOT_APPROVE";
     public static $INTAKE_ALREADY_REVIEWED = "INTAKE_ALREADY_REVIEWED";
+
+    public static $INVOICE_CREATED = "INVOICE CREATED";
+    public static $INVOICE_UPDATED = "INVOICE UPDATED";
+    public static $GET_INVOICE_SUCCESS = "GET_INVOICE_SUCCESS";
+    public static $DELETE_INVOICE_SUCCESS = "DELETE_INVOICE_SUCCESS";
+    public static $NO_INVOICE_FOUND = "NO_INVOICE_FOUND";
+
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";

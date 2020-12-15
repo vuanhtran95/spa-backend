@@ -11,7 +11,6 @@ use Illuminate\Http\Response as Response;
 use Exception;
 use App\Helper\Translation;
 
-
 class CustomerController extends Controller
 {
     private $customerRepository;
@@ -53,11 +52,11 @@ class CustomerController extends Controller
                 Response::HTTP_OK,
                 Translation::$GET_ALL_CUSTOMER_SUCCESS,
                 $customers['Data'],
-                $customers['Pagination']);
+                $customers['Pagination']
+            );
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SYSTEM_ERROR);
         }
-
     }
 
     public function update(Request $request, $id)
@@ -67,8 +66,7 @@ class CustomerController extends Controller
             $customer = $this->customerRepository->update($id, $params);
             if ($customer === 1062) {
                 return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$PHONE_EXIST);
-
-            } else if ($customer) {
+            } elseif ($customer) {
                 return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $customer);
             } else {
                 //TODO: Need to improve

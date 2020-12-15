@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class ServiceRepository implements ServiceRepositoryInterface
 {
-
     public function create(array $attributes = [])
     {
         DB::beginTransaction();
@@ -32,7 +31,7 @@ class ServiceRepository implements ServiceRepositoryInterface
             $service = new Service();
         }
         foreach ($data as $key => $value) {
-            if($key !== 'variants') {
+            if ($key !== 'variants') {
                 $service->$key = $value;
             }
         }
@@ -52,12 +51,14 @@ class ServiceRepository implements ServiceRepositoryInterface
                 $variants[$key]['is_active'] = 1;
                 $category = ServiceCategory::find($service->service_category_id);
                 $variant_category = 'other';
-                if ($category) $variant_category = $category->name;
+                if ($category) {
+                    $variant_category = $category->name;
+                }
                 $variants[$key]['variant_category'] = isset($variants[$key]['variant_category']) ? $variants[$key]['variant_category'] : $variant_category;
             }
             $variants_inserted = Variant::insert($variants);
             // Return Intake with order
-            if($variants_inserted ) {
+            if ($variants_inserted) {
                 $query= new Variant();
                 $created_variants = $query->where('service_id', $service->id)->get()->toArray();
                 $service->variants = $created_variants;

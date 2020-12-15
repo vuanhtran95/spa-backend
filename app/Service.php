@@ -33,7 +33,8 @@ class Service extends BaseModel
         'service_category_id',
     ];
 
-    public function serviceCategory() {
+    public function serviceCategory()
+    {
         return $this->belongsTo('App\ServiceCategory', 'service_category_id', 'id');
     }
 }

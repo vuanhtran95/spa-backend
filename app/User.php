@@ -65,12 +65,12 @@ class User extends Authenticatable
 //     */
 //    public function validateForPassportPasswordGrant($password)
 //    {
-////        var_dump(Hash::make($password, [
-////            'rounds' => 12,
-////        ]));
-////        die(var_dump($this->password));
+    ////        var_dump(Hash::make($password, [
+    ////            'rounds' => 12,
+    ////        ]));
+    ////        die(var_dump($this->password));
 //
-////        die(var_dump(Hash::needsRehash($this->password)));
+    ////        die(var_dump(Hash::needsRehash($this->password)));
 //
 //        return Hash::check($password, $this->password);
 //
@@ -78,7 +78,8 @@ class User extends Authenticatable
 //        return $hashedPassword == $this->password;
 //    }
 
-    public function employee() {
+    public function employee()
+    {
         return $this->hasOne('App\Employee');
     }
 }
