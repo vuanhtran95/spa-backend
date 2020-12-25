@@ -6,13 +6,34 @@ use App\Package;
 use App\Intake;
 use App\ReviewForm;
 use Carbon\Carbon;
+use App\Employee;
+use Illuminate\Support\Facades\DB;
 
 class StatisticRepository implements StatisticRepositoryInterface
 {
-    public function get($params)
+    public function summary_details(array $query_params = [])
+    {
+        if (empty($query_params['from']) || empty($query_params['to'])) {
+            throw new \Exception("please select start date and end date");
+        }
+        $from =  Carbon::createFromFormat('Y-m-d H:i:s', $query_params['from'], 'Asia/Ho_Chi_Minh')->setTimezone('UTC')->toDateTimeString();
+        $to =  Carbon::createFromFormat('Y-m-d H:i:s', $query_params['to'], 'Asia/Ho_Chi_Minh')->setTimezone('UTC')->toDateTimeString();
+        // $intakes = Intake::->whereBetween(DB::raw('DATE(updated_at)'), array($from, $to))->get();
+        $intakes = Intake::where('is_valid', '=', 1)->whereBetween('updated_at', [$from, $to])->get();
+        $combos = Package::where('is_valid', '=', 1)->whereBetween('created_at', [$from, $to])->get();
+        $employees = $this->getEmployeeCommission($from, $to);
+        return [
+            "intakes" => $intakes,
+            "combos" => $combos,
+            "employees" => $employees,
+        ];
+        die(var_dump($to));
+        return $intakes->toArray();
+    }
+
+    public function get()
     {
         $current_date = Carbon::now();
-
         $total_revenue = Intake::where('is_valid', '=', 1)
                                 ->get()
                                 ->sum('final_price')
@@ -122,5 +143,27 @@ class StatisticRepository implements StatisticRepositoryInterface
             "customer_satisfy" => $customerSatisfy,
             "facility" => $facility
         ];
+    }
+
+    public function getEmployeeCommission($from, $to)
+    {
+        $query = new Employee();
+
+        $query = $query::where('role_id', 2);
+        // With commissions
+        $query->withCount(['order AS working_commission' => function ($query) use ($from, $to) {
+            $query->whereBetween('updated_at', [$from, $to])
+                ->select(DB::raw("SUM(working_commission)"));
+        }]);
+
+        $query->withCount(['package AS sale_commission' => function ($query) use ($from, $to) {
+            $query->whereBetween('created_at', [$from, $to])
+                ->select(DB::raw("SUM(sale_commission)"));
+        }]);
+
+        $employees = $query->orderBy('id', 'desc')
+                ->get()
+                ->toArray();
+        return $employees;
     }
 }
