@@ -86,7 +86,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         $last_month_from =  $date->copy()->startOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
         $last_month_to = $date->copy()->endOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
 
-        // With commissions
+        // Working commissions
         $query->withCount(['order AS working_commission' => function ($query) use ($this_month_from, $this_month_to) {
             $query->whereBetween('updated_at', [$this_month_from, $this_month_to])
                 ->select(DB::raw("SUM(working_commission)"));
@@ -97,6 +97,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 ->select(DB::raw("SUM(working_commission)"));
         }]);
 
+        // Sale commissions
         $query->withCount(['package AS sale_commission' => function ($query) use ($this_month_from, $this_month_to) {
             $query->whereBetween('created_at', [$this_month_from, $this_month_to])
                 ->select(DB::raw("SUM(sale_commission)"));
@@ -105,6 +106,17 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         $query->withCount(['package AS sale_commission_prev' => function ($query) use ($last_month_from, $last_month_to) {
             $query->whereBetween('created_at', [$last_month_from, $last_month_to])
                 ->select(DB::raw("SUM(sale_commission)"));
+        }]);
+
+        // Topup commissions
+        $query->withCount(['invoice AS topup_commission' => function ($query) use ($this_month_from, $this_month_to) {
+            $query->whereBetween('created_at', [$this_month_from, $this_month_to])
+                ->select(DB::raw("SUM(topup_commission)"));
+        }]);
+
+        $query->withCount(['invoice AS topup_commission_prev' => function ($query) use ($last_month_from, $last_month_to) {
+            $query->whereBetween('created_at', [$last_month_from, $last_month_to])
+                ->select(DB::raw("SUM(topup_commission)"));
         }]);
 
         // Count Orders
@@ -164,6 +176,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $last_month_from =  $date->copy()->startOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
             $last_month_to = $date->copy()->endOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
 
+                // Working commission
             $query->withCount(['order AS working_commission' => function ($query) use ($this_month_from, $this_month_to) {
                 $query->whereBetween('updated_at', [$this_month_from, $this_month_to])
                     ->select(DB::raw("SUM(working_commission)"));
@@ -173,7 +186,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 $query->whereBetween('updated_at', [$last_month_from, $last_month_to])
                     ->select(DB::raw("SUM(working_commission)"));
             }]);
-
+                // Sale commission
             $query->withCount(['package AS sale_commission' => function ($query) use ($this_month_from, $this_month_to) {
                 $query->whereBetween('created_at', [$this_month_from, $this_month_to])
                     ->select(DB::raw("SUM(sale_commission)"));
@@ -182,6 +195,17 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $query->withCount(['package AS sale_commission_prev' => function ($query) use ($last_month_from, $last_month_to) {
                 $query->whereBetween('created_at', [$last_month_from, $last_month_to])
                     ->select(DB::raw("SUM(sale_commission)"));
+            }]);
+
+                // Topup commission
+            $query->withCount(['invoice AS topup_commission' => function ($query) use ($this_month_from, $this_month_to) {
+                $query->whereBetween('updated_at', [$this_month_from, $this_month_to])
+                    ->select(DB::raw("SUM(`topup_commission`)"));
+            }]);
+
+            $query->withCount(['invoice AS topup_commission_prev' => function ($query) use ($last_month_from, $last_month_to) {
+                $query->whereBetween('updated_at', [$last_month_from, $last_month_to])
+                    ->select(DB::raw("SUM(topup_commission)"));
             }]);
         }
         $employee = $query->first();
