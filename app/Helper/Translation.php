@@ -101,6 +101,15 @@ class Translation
     public static $DELETE_INVOICE_SUCCESS = "DELETE_INVOICE_SUCCESS";
     public static $NO_INVOICE_FOUND = "NO_INVOICE_FOUND";
 
+    public static $TASK_CREATED = "TASK_CREATED";
+    public static $TASK_UPDATED = "TASK_UPDATED";
+
+    public static $TASK_ASSIGNMENT_UPDATED = "TASK_ASSIGNMENT_UPDATED";
+    public static $TASK_ASSIGNMENT_DELETED = "TASK_ASSIGNMENT_DELETED";
+
+    public static $TASK_HISTORY_CREATED = "TASK_HISTORY_CREATED";
+    public static $TASK_HISTORY_UPDATED = "TASK_HISTORY_UPDATED";
+    public static $TASK_HISTORY_DELETED = "TASK_HISTORY_DELETED";
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";

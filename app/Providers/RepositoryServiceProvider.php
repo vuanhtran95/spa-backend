@@ -30,6 +30,12 @@ use App\Repositories\VariantRepository;
 use App\Repositories\VariantRepositoryInterface;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\InvoiceRepositoryInterface;
+use App\Repositories\TaskRepository;
+use App\Repositories\TaskRepositoryInterface;
+use App\Repositories\TaskAssignmentRepository;
+use App\Repositories\TaskAssignmentRepositoryInterface;
+use App\Repositories\TaskHistoryRepository;
+use App\Repositories\TaskHistoryRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -66,5 +72,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(PackageRepositoryInterface::class, PackageRepository::class);
 
         $this->app->bind(InvoiceRepositoryInterface::class, InvoiceRepository::class);
+        $this->app->bind(TaskRepositoryInterface::class, TaskRepository::class);
+        $this->app->bind(TaskAssignmentRepositoryInterface::class, TaskAssignmentRepository::class);
+        $this->app->bind(TaskHistoryRepositoryInterface::class, TaskHistoryRepository::class);
     }
 }

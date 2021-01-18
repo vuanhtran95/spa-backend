@@ -49,9 +49,9 @@ class InvoiceController extends Controller
 
     public function getInvoiceByCustomerId($customerId)
     {
-        $llistOfInvoiceByCustomer = Invoice::where('customer_id', $customerId)->get();
+        $listOfInvoiceByCustomer = Invoice::where('customer_id', $customerId)->get();
 
-        return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INVOICE_SUCCESS, $llistOfInvoiceByCustomer);
+        return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INVOICE_SUCCESS, $listOfInvoiceByCustomer);
     }
     
     public function get(Request $request)

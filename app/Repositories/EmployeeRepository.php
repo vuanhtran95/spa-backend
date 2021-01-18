@@ -7,6 +7,7 @@ use App\Employee;
 use App\Order;
 use App\Review;
 use App\User;
+use App\TaskHistory;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -124,6 +125,35 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             }]);
         }]);
 
+        $query->withCount(['taskHistories AS task_history' => function ($query) {
+            $query->select(DB::raw("SUM(point) as total_point"))
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereBetween('created_at', [
+                    Carbon::now()->startOfYear(),
+                    Carbon::now()->endOfYear(),
+                ]);
+        }]);
+
+        // $prev_month = Carbon::now()->month - 1;
+
+        // if ($prev_month <= 0) {
+        //     $prev_month = 12;
+        //     $start = Carbon::now()->year - 1;
+        //     $end = Carbon::now()->year - 1;
+        // } else {
+        //     $start = Carbon::now()->startOfYear();
+        //     $end = Carbon::now()->endOfYear();
+        // }
+
+        // $query->withCount(['taskHistories AS task_history' => function ($query) {
+        //     $query->select(DB::raw("SUM(point) as total_point"))
+        //         ->whereMonth('created_at', $prev_month)
+        //         ->whereBetween('created_at', [
+        //             $start,
+        //             $end,
+        //         ]);
+        // }]);
+
         $users = $query->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->orderBy('id', 'desc')
@@ -179,6 +209,41 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $employee->attitude_point = $attitude_point;
             $employee->skill_point = $skill_point;
         }
+
+        // Current month task point
+        $current_task_point = TaskHistory::select(DB::raw("SUM(point) as total_point"))
+            ->where('employee_id', $employee->id)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereBetween('created_at', [
+                Carbon::now()->startOfYear(),
+                Carbon::now()->endOfYear(),
+            ])
+            ->get();
+        
+        $employee->current_month_task_point = $current_task_point ?? null;
+
+        // Previous month task point
+        $prev_month = Carbon::now()->month - 1;
+
+        if ($prev_month <= 0) {
+            $prev_month = 12;
+            $start = Carbon::now()->year - 1;
+            $end = Carbon::now()->year - 1;
+        } else {
+            $start = Carbon::now()->startOfYear();
+            $end = Carbon::now()->endOfYear();
+        }
+
+        $current_task_point = TaskHistory::select(DB::raw("SUM(point) AS total_point"))
+            ->where('employee_id', $employee->id)
+            ->whereMonth('created_at', $prev_month)
+            ->whereBetween('created_at', [
+                $start,
+                $end,
+            ])
+            ->get();
+        
+        $employee->prev_month_task_point = $prev_task_point ?? null;
 
         return $employee;
     }
