@@ -125,14 +125,16 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             }]);
         }]);
 
-        $query->withCount(['taskHistories AS task_history' => function ($query) {
-            $query->select(DB::raw("SUM(point) as total_point"))
-                ->whereMonth('created_at', Carbon::now()->month)
-                ->whereBetween('created_at', [
-                    Carbon::now()->startOfYear(),
-                    Carbon::now()->endOfYear(),
-                ]);
-        }]);
+        // $query->select(DB::raw("SUM(point) as total_point"))
+        //     ->withCount(['taskHistories AS task_history' => function ($query) {
+        //         $query->whereMonth('created_at', Carbon::now()->month)
+        //             ->whereBetween('created_at', [
+        //                 Carbon::now()->startOfYear(),
+        //                 Carbon::now()->endOfYear()
+        //             ]);
+        //         }
+        //     ]
+        // );
 
         // $prev_month = Carbon::now()->month - 1;
 

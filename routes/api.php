@@ -29,7 +29,7 @@ Route::get('/v1/roles', 'RoleController@get')->middleware('auth:api');
 Route::get('/v1/employeeinfo', 'EmployeeController@getEmployeeInfo')->middleware('auth:api');
 Route::post('/v1/employees', 'EmployeeController@create')->middleware('auth:api');
 Route::get('/v1/employees', 'EmployeeController@get');
-Route::get('/v1/employees/{id}', 'EmployeeController@getOneById');
+Route::get('/v1/employees/{id}', 'EmployeeController@getOneById')->middleware('auth:api');
 Route::put('/v1/employees/{id}', 'EmployeeController@update')->middleware('auth:api');
 Route::delete('/v1/employees/{id}', 'EmployeeController@delete')->middleware('auth:api');
 
@@ -103,14 +103,14 @@ Route::put('/v1/invoice/approve/{id}', 'InvoiceController@approve')->middleware(
 // Route::get('/v1/invoice/{customerId}', 'InvoiceController@getInvoiceByCustomerId')->middleware('auth:api');
 
 // Task
-Route::post('/v1/task', 'TaskController@create');
-Route::put('/v1/task/{id}', 'TaskController@update');
+Route::post('/v1/task', 'TaskController@create')->middleware('auth:api');
+Route::put('/v1/task/{id}', 'TaskController@update')->middleware('auth:api');
 
 // Task Assignment
-Route::put('/v1/task-assignment/{id}', 'TaskController@updateTaskAssignment');
-Route::delete('/v1/task-assignment/{id}', 'TaskController@deleteTaskAssignment');
+Route::put('/v1/task-assignment/{id}', 'TaskController@updateTaskAssignment')->middleware('auth:api');
+Route::delete('/v1/task-assignment/{id}', 'TaskController@deleteTaskAssignment')->middleware('auth:api');
 
 // Task History
-Route::post('/v1/task-history', 'TaskHistoryController@create');
-Route::put('/v1/task-history/{id}', 'TaskHistoryController@update');
-Route::delete('/v1/task-history/{id}', 'TaskHistoryController@remove');
+Route::post('/v1/task-history', 'TaskHistoryController@create')->middleware('auth:api');
+Route::put('/v1/task-history/{id}', 'TaskHistoryController@update')->middleware('auth:api');
+Route::delete('/v1/task-history/{id}', 'TaskHistoryController@remove')->middleware('auth:api');
