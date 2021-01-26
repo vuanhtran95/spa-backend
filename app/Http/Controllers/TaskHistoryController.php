@@ -61,7 +61,7 @@ class TaskHistoryController extends Controller
         $params = $request->all();
 
         try {
-            $this->taskHistoryRepository->delete($task_history_id);
+            $this->taskHistoryRepository->remove($task_history_id);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$TASK_HISTORY_DELETED);
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
