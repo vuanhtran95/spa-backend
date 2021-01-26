@@ -22,8 +22,8 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
             $taskAssignment = new TaskAssignment();
 
             foreach ($schedule as $scheduleData) {
-                $taskAssignment->title = $data['name'];
-                $taskAssignment->task_id = $data['task_id'];
+                $taskAssignment->title = $attributes['name'];
+                $taskAssignment->task_id = $attributes['task_id'];
                 $day = strtolower($scheduleData['day']);
                 $taskAssignment->{$day} = true;
                 $taskAssignment->employee_id = $scheduleData['employee_id'];
