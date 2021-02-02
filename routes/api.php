@@ -103,10 +103,14 @@ Route::put('/v1/invoice/approve/{id}', 'InvoiceController@approve')->middleware(
 // Route::get('/v1/invoice/{customerId}', 'InvoiceController@getInvoiceByCustomerId')->middleware('auth:api');
 
 // Task
-Route::post('/v1/task', 'TaskController@create')->middleware('auth:api');
+Route::get('/v1/task', 'TaskController@getTasks')->middleware('auth:api');
+Route::post('/v1/task', 'TaskController@create');
 Route::put('/v1/task/{id}', 'TaskController@update')->middleware('auth:api');
+Route::delete('/v1/task/{id}', 'TaskController@deleteTask')->middleware('auth:api');
+
 
 // Task Assignment
+Route::get('/v1/task-assignment', 'TaskController@getTaskAssignments');
 Route::put('/v1/task-assignment/{id}', 'TaskController@updateTaskAssignment')->middleware('auth:api');
 Route::delete('/v1/task-assignment/{id}', 'TaskController@deleteTaskAssignment')->middleware('auth:api');
 

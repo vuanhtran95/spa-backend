@@ -63,6 +63,6 @@ class TaskHistoryRepository implements TaskHistoryRepositoryInterface
             throw new \Exception('Unable to find the task history.');
         }
 
-        $task_history->delete();
+        return $task_history->delete();
     }
 }

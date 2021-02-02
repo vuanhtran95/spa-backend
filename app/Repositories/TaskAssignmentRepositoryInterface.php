@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 interface TaskAssignmentRepositoryInterface
 {
+    public function get($params);
+
     public function create(array $attributes = []);
 
     public function save($data, $task_assignment_id);

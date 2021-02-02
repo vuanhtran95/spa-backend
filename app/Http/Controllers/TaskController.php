@@ -8,6 +8,7 @@ use App\Helper\Translation;
 use App\Repositories\TaskRepository;
 use App\Repositories\TaskAssignmentRepository;
 use App\Http\HttpResponse;
+use App\Task;
 use Illuminate\Http\Response as Response;
 
 class TaskController extends Controller
@@ -22,6 +23,42 @@ class TaskController extends Controller
     {
         $this->taskRepository = $taskRepository;
         $this->taskAssignmentRepository = $taskAssignmentRepository;
+    }
+
+    public function getTasks(Request $request)
+    {
+        $params = $request->all();
+        if (empty($params['page'])) {
+            throw new \Exception('Page cannot be empty.');
+        }
+
+        $per_page = !empty($params['perPage']) ? $params['perPage'] : 10;
+
+        try {
+            $tasks = Task::paginate($per_page);
+        
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$GET_TASK_SUCCESSFULLY, $tasks);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
+    public function getTaskAssignments(Request $request)
+    {
+        $params = $request->all();
+
+        $validated_data = $request->validate([
+            'from' => 'required',
+            'to' => 'required'
+        ]);
+
+        try {
+            $task_assignments = $this->taskAssignmentRepository->get($validated_data);
+        
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$GET_TASK_ASSIGNMENTS_SUCCESSFULLY, $task_assignments);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
     }
 
     public function create(Request $request)
@@ -45,7 +82,7 @@ class TaskController extends Controller
             $task = $this->taskRepository->create($params);
             // 2. Create task assignments
             $params['task_id'] = $task->id;
-            $taskAssignment = $this->taskAssignmentRepository->create($params);
+            $taskAssignmentCreated = $this->taskAssignmentRepository->create($params);
 
             return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$TASK_CREATED, $task);
         } catch (\Exception $e) {
@@ -87,6 +124,22 @@ class TaskController extends Controller
             $taskAssignment = $this->taskAssignmentRepository->save($validatedData, $task_assignment_id);
 
             return HttpResponse::toJson(true, Response::HTTP_UPDATED, Translation::$TASK_ASSIGNMENT_UPDATED, $task);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
+    public function deleteTask($id)
+    {
+        if (empty($id)) {
+            throw new \Exception('Task ID cannot be empty.');
+        }
+
+        try {
+            $deleted = Task::destroy($id);
+            $message = $deleted ? Translation::$DELETE_SUCCESS : Translation::$DELETE_NOTHING;
+
+            return HttpResponse::toJson(true, Response::HTTP_OK, $message);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }

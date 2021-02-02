@@ -6,9 +6,23 @@ use App\Helper\Translation;
 use Illuminate\Support\Facades\DB;
 use App\Employee;
 use App\TaskAssignment;
+use Carbon\Carbon;
 
 class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
 {
+    public function get($params)
+    {
+        $from = Carbon::createFromFormat('Y-m-d',  $params['from']);
+        $to = Carbon::createFromFormat('Y-m-d',  $params['to']);
+
+        $period = [
+            $from->startOfDay()->toDateString(),
+            $to->endOfDay()->toDateString()
+        ];
+
+        return TaskAssignment::whereBetween('updated_at', $period)->get();
+    }
+
     public function create(array $attributes = [])
     {
         DB::beginTransaction();
@@ -19,21 +33,35 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
                 throw new \Exception('Schedule cannot be empty');
             }
 
-            $taskAssignment = new TaskAssignment();
+            if (!empty($schedule)) {
+                foreach ($schedule as $scheduleData) {
+                    $condition = [
+                        ${strtolower($scheduleData['day'])} => true,
+                        'begin_time' => $scheduleData['begin_time'],
+                        'end_time' => $scheduleData['end_time'],
+                        'employee_id' => $scheduleData['employee_id']
+                    ];
+                    
+                    if (!TaskAssignment::where($condition)->exists()) {
+                        $taskAssignment = new TaskAssignment();
+                        $taskAssignment->title = $attributes['name'];
+                        $taskAssignment->task_id = $attributes['task_id'];
+                        $day = strtolower($scheduleData['day']);
+                        $taskAssignment->{$day} = true;
+                        $taskAssignment->employee_id = $scheduleData['employee_id'];
+                        $taskAssignment->begin_time = $scheduleData['begin_time'];
+                        $taskAssignment->end_time = $scheduleData['end_time'];
+                        $taskAssignment->save();
+                    } else {
+                        continue;
+                    }
+                }
+                DB::commit();
 
-            foreach ($schedule as $scheduleData) {
-                $taskAssignment->title = $data['name'];
-                $taskAssignment->task_id = $data['task_id'];
-                $day = strtolower($scheduleData['day']);
-                $taskAssignment->{$day} = true;
-                $taskAssignment->employee_id = $scheduleData['employee_id'];
-                $taskAssignment->begin_time = $scheduleData['begin_time'];
-                $taskAssignment->end_time = $scheduleData['end_time'];
-                $taskAssignment->save();
+                return true;
             }
 
-            DB::commit();
-            return $taskAssignment;
+            return false;
         } catch (\Exception $exception) {
             DB::rollBack();
             throw new \Exception($exception->getMessage());
