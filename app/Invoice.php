@@ -3,8 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\BaseModel;
 
-class Invoice extends Model
+class Invoice extends BaseModel
 {
     public function customer()
     {

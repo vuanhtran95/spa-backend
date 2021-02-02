@@ -67,7 +67,10 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         // 4.Update customer's balance
         $customer->balance = $newBalance;
         $customer->save();
-        
+
+        // 5. Update commission for employee
+        $invoice->topup_commission = $invoice->amount * (3 / 100);
+        $invoice->save();
 
         return $invoice;
     }

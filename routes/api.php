@@ -90,6 +90,7 @@ Route::post('/v1/reviews', 'ReviewFormController@create')->middleware('auth:api'
 
 // Statistic
 Route::get('/v1/statistics', 'StatisticController@get')->middleware('auth:api');
+Route::get('/v1/statistics/summary-details', 'StatisticController@summary_details')->middleware('auth:api');
 
 
 // Account
