@@ -34,6 +34,14 @@ class IntakeRepository implements IntakeRepositoryInterface
     {
         if ($is_update) {
             // Change Orders
+            $intake = Intake::with(
+                ['orders' => function ($query) {
+                    $query->with('combo');
+                }, 'invoice']
+            )->find($id);
+            if ($intake->is_valid) {
+                throw new \Exception("Intake already approved");
+            }
             if (isset($data['orders'])) {
                 $allOrdersOfIntake = Order::where('intake_id', '=', $id)->get()->toArray();
                 $updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $data['orders']));
@@ -84,11 +92,6 @@ class IntakeRepository implements IntakeRepositoryInterface
                     }
                 }
             }
-            $intake = Intake::with(
-                ['orders' => function ($query) {
-                    $query->with('combo');
-                }, 'invoice']
-            )->find($id);
             // Update payment_type
             if (!empty($data['payment_type'])) {
                 $intake->payment_type = $data['payment_type'];

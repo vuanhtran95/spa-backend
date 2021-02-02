@@ -79,12 +79,26 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
 
         // Get this month commissions
-        $this_month_from =  $date->copy()->startOfMonth()->setTimezone('UTC')->toDateTimeString();
-        $this_month_to = $date->copy()->endOfMonth()->setTimezone('UTC')->toDateTimeString();
+        $this_month_from =  $date->copy()
+                                ->startOfMonth()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $this_month_to = $date->copy()
+                                ->endOfMonth()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
 
         // Get last month commissions
-        $last_month_from =  $date->copy()->startOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
-        $last_month_to = $date->copy()->endOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
+        $last_month_from =  $date->copy()
+                                ->subMonths(1)
+                                ->startOfMonth()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $last_month_to = $date->copy()
+                                ->subMonths(1)
+                                ->endOfMonth()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
 
         // Working commissions
         $query->withCount(['order AS working_commission' => function ($query) use ($this_month_from, $this_month_to) {
@@ -96,6 +110,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $query->whereBetween('updated_at', [$last_month_from, $last_month_to])
                 ->select(DB::raw("SUM(working_commission)"));
         }]);
+
 
         // Sale commissions
         $query->withCount(['package AS sale_commission' => function ($query) use ($this_month_from, $this_month_to) {
@@ -169,12 +184,26 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
 
             // Get this month commissions
-            $this_month_from =  $date->copy()->startOfMonth()->setTimezone('UTC')->toDateTimeString();
-            $this_month_to = $date->copy()->endOfMonth()->setTimezone('UTC')->toDateTimeString();
+            $this_month_from =  $date->copy()
+                                    ->startOfMonth()
+                                    ->setTimezone('UTC')
+                                    ->toDateTimeString();
+            $this_month_to = $date->copy()
+                                    ->endOfMonth()
+                                    ->setTimezone('UTC')
+                                    ->toDateTimeString();
 
             // Get last month commissions
-            $last_month_from =  $date->copy()->startOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
-            $last_month_to = $date->copy()->endOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
+            $last_month_from =  $date->copy()
+                                    ->subMonths(1)
+                                    ->startOfMonth()
+                                    ->setTimezone('UTC')
+                                    ->toDateTimeString();
+            $last_month_to = $date->copy()
+                                    ->subMonths(1)
+                                    ->endOfMonth()
+                                    ->setTimezone('UTC')
+                                    ->toDateTimeString();
 
                 // Working commission
             $query->withCount(['order AS working_commission' => function ($query) use ($this_month_from, $this_month_to) {

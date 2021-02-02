@@ -62,44 +62,102 @@ class StatisticRepository implements StatisticRepositoryInterface
                                 ->get()
                                 ->sum('total_price');
         // Get today revenue
-        $today_from = $date->copy()->startOfDay()->setTimezone('UTC')->toDateTimeString();
-        $today_to = $date->copy()->endOfDay()->setTimezone('UTC')->toDateTimeString();
+        $today_from = $date->copy()
+                            ->startOfDay()
+                            ->setTimezone('UTC')
+                            ->toDateTimeString();
+        $today_to = $date->copy()
+                        ->endOfDay()
+                        ->setTimezone('UTC')
+                        ->toDateTimeString();
         $today_revenue = $this->get_revenue_between_date($today_from, $today_to);
         
         // Get yesterday revenue
-        $yesterday_from =  $date->copy()->startOfDay()->subDays(1)->setTimezone('UTC')->toDateTimeString();
-        $yesterday_to = $date->copy()->endOfDay()->subDays(1)->setTimezone('UTC')->toDateTimeString();
+        $yesterday_from =  $date->copy()
+                                ->subDays(1)
+                                ->startOfDay()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $yesterday_to = $date->copy()
+                            ->subDays(1)
+                            ->endOfDay()
+                            ->setTimezone('UTC')
+                            ->toDateTimeString();
         $yesterday_revenue = $this->get_revenue_between_date($yesterday_from, $yesterday_to);
         
         // Get previous day revenue
-        $previous_from =  $date->copy()->startOfDay()->subDays(2)->setTimezone('UTC')->toDateTimeString();
-        $previous_to = $date->copy()->endOfDay()->subDays(2)->setTimezone('UTC')->toDateTimeString();
+        $previous_from =  $date->copy()
+                                ->subDays(2)
+                                ->startOfDay()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $previous_to = $date->copy()
+                            ->subDays(2)
+                            ->endOfDay()
+                            ->setTimezone('UTC')
+                            ->toDateTimeString();
         $previous_day_revenue = $this->get_revenue_between_date($previous_from, $previous_to);
 
         // Get this month revenue
-        $this_month_from =  $date->copy()->startOfMonth()->setTimezone('UTC')->toDateTimeString();
-        $this_month_to = $date->copy()->endOfMonth()->setTimezone('UTC')->toDateTimeString();
+        $this_month_from =  $date->copy()
+                                ->startOfMonth()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $this_month_to = $date->copy()
+                                ->endOfMonth()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
         $this_month_revenue = $this->get_revenue_between_date($this_month_from, $this_month_to);
 
         // Get last month revenue
-        $last_month_from =  $date->copy()->startOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
-        $last_month_to = $date->copy()->endOfMonth()->subMonths(1)->setTimezone('UTC')->toDateTimeString();
+        $last_month_from =  $date->copy()
+                                ->subMonths(1)
+                                ->startOfMonth()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $last_month_to = $date->copy()
+                            ->subMonths(1)
+                            ->endOfMonth()
+                            ->setTimezone('UTC')
+                            ->toDateTimeString();
         $last_month_revenue = $this->get_revenue_between_date($last_month_from, $last_month_to);
 
         // Get previous month revenue
-        $previous_month_from =  $date->copy()->startOfMonth()->subMonths(2)->setTimezone('UTC')->toDateTimeString();
-        $previous_month_to = $date->copy()->endOfMonth()->subMonths(2)->setTimezone('UTC')->toDateTimeString();
+        $previous_month_from =  $date->copy()
+                                    ->subMonths(2)
+                                    ->startOfMonth()
+                                    ->setTimezone('UTC')
+                                    ->toDateTimeString();
+        $previous_month_to = $date->copy()
+                                    ->subMonths(2)
+                                    ->endOfMonth()
+                                    ->setTimezone('UTC')
+                                    ->toDateTimeString();
         $previous_month_revenue = $this->get_revenue_between_date($previous_month_from, $previous_month_to);
 
         // Get this year revenue
-        $this_year_from=  $date->copy()->startOfYear()->setTimezone('UTC')->toDateTimeString();
-        $this_year_to = $date->copy()->endOfYear()->setTimezone('UTC')->toDateTimeString();
+        $this_year_from=  $date->copy()
+                                ->startOfYear()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $this_year_to = $date->copy()
+                                ->endOfYear()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
         $this_year_revenue = $this->get_revenue_between_date($this_year_from, $this_year_to);
         
 
         // Get last year revenue
-        $last_year_from=  $date->copy()->startOfYear()->subYears(1)->setTimezone('UTC')->toDateTimeString();
-        $last_year_to = $date->copy()->endOfYear()->subYears(1)->setTimezone('UTC')->toDateTimeString();
+        $last_year_from=  $date->copy()
+                                ->subYears(1)
+                                ->startOfYear()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
+        $last_year_to = $date->copy()
+                                ->subYears(1)
+                                ->endOfYear()
+                                ->setTimezone('UTC')
+                                ->toDateTimeString();
         $last_year_revenue = $this->get_revenue_between_date($last_year_from, $last_year_to);
 
         // Summary Points
