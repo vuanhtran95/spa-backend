@@ -4,5 +4,6 @@ namespace App\Repositories;
 
 interface StatisticRepositoryInterface
 {
-    public function get($params);
+    public function get();
+    public function summary_details(array $query_params = []);
 }
