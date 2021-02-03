@@ -32,7 +32,7 @@ class TaskController extends Controller
             throw new \Exception('Page cannot be empty.');
         }
 
-        $per_page = !empty($params['perPage']) ? $params['perPage'] : 10;
+        $per_page = !empty($params['per_page']) ? $params['per_page'] : 10;
 
         try {
             // Get Tasks
