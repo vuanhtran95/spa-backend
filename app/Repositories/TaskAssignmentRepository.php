@@ -20,7 +20,37 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
             $to->endOfDay()->toDateString()
         ];
 
-        return TaskAssignment::whereBetween('updated_at', $period)->get();
+        $task_assignments = TaskAssignment::whereBetween('updated_at', $period)->get();
+        $days_of_week = [
+            'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'
+        ];
+
+        $result = [
+            'mon' => [], 
+            'tue' => [], 
+            'wed' => [], 
+            'thu' => [], 
+            'fri' => [], 
+            'sat' => [], 
+            'sun' => []
+        ];
+
+        foreach ($task_assignments as $task_assignment) {
+            foreach ($days_of_week as $day) {
+                if ($task_assignment->$day) {
+                    $result[$day][] = [
+                        'id' => $task_assignment->id,
+                        'title' => $task_assignment->title,
+                        'begin_time' => $task_assignment->begin_time,
+                        'end_time' => $task_assignment->end_time,
+                        'task_id' => $task_assignment->task_id,
+                        'employee_id' => $task_assignment->employee_id
+                    ];
+                }
+            }
+        }
+
+        return $result;
     }
 
     public function create(array $attributes = [])

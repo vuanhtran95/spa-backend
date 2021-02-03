@@ -35,6 +35,7 @@ class TaskController extends Controller
         $per_page = !empty($params['perPage']) ? $params['perPage'] : 10;
 
         try {
+            // Get Tasks
             $tasks = Task::paginate($per_page);
         
             return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$GET_TASK_SUCCESSFULLY, $tasks);
@@ -53,6 +54,7 @@ class TaskController extends Controller
         ]);
 
         try {
+            // Get Task Assignments
             $task_assignments = $this->taskAssignmentRepository->get($validated_data);
         
             return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$GET_TASK_ASSIGNMENTS_SUCCESSFULLY, $task_assignments);
