@@ -24,8 +24,6 @@ class CreateTaskAssignmentTable extends Migration
             $table->boolean('fri')->default(0);
             $table->boolean('sat')->default(0);
             $table->boolean('sun')->default(0);
-            $table->dateTime('begin_time');
-            $table->dateTime('end_time');
 
             $table->unsignedBigInteger('task_id');
             $table->foreign('task_id')

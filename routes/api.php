@@ -111,6 +111,7 @@ Route::delete('/v1/task/{id}', 'TaskController@deleteTask')->middleware('auth:ap
 
 // Task Assignment
 Route::get('/v1/task-assignment', 'TaskController@getTaskAssignments')->middleware('auth:api');
+Route::post('/v1/task-assignment', 'TaskController@createAssignments')->middleware('auth:api');
 Route::put('/v1/task-assignment/{id}', 'TaskController@updateTaskAssignment')->middleware('auth:api');
 Route::delete('/v1/task-assignment/{id}', 'TaskController@deleteTaskAssignment')->middleware('auth:api');
 

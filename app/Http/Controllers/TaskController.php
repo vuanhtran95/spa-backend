@@ -48,14 +48,9 @@ class TaskController extends Controller
     {
         $params = $request->all();
 
-        $validated_data = $request->validate([
-            'from' => 'required',
-            'to' => 'required'
-        ]);
-
         try {
             // Get Task Assignments
-            $task_assignments = $this->taskAssignmentRepository->get($validated_data);
+            $task_assignments = $this->taskAssignmentRepository->get();
         
             return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$GET_TASK_ASSIGNMENTS_SUCCESSFULLY, $task_assignments);
         } catch (\Exception $e) {
@@ -92,6 +87,18 @@ class TaskController extends Controller
         }
     }
 
+    public function createAssignments(Request $request)
+    {
+        $params = $request->all();
+        try {
+            $taskAssignmentCreated = $this->taskAssignmentRepository->create($params);
+
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$TASK_CREATED, $task);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
     public function update(Request $request, $task_id)
     {
         $params = $request->all();
@@ -117,8 +124,6 @@ class TaskController extends Controller
         $validatedData = $request->validate([
             'emp_id' => 'required|integer',
             'day' => 'required',
-            'begin_time' => 'required',
-            'end_time' => 'required'
         ]);
 
         try {
