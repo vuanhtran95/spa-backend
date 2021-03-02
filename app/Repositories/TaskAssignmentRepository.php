@@ -20,7 +20,7 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
         foreach ($task_assignments as $task_assignment) {
             if (empty($result[$task_assignment['task_id']])) {
                 $result[$task_assignment['task_id']]['name'] =  $task_assignment->title;
-                $result[$task_assignment['task_id']]['id'] =  $task_assignment->id;
+                $result[$task_assignment['task_id']]['id'] =  $task_assignment->task_id;
                 foreach ($days_of_week as $day) {
                     $result[$task_assignment['task_id']][$day] = [];
                 }
@@ -30,6 +30,7 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
                     $result[$task_assignment['task_id']][$day][] = [
                                 'employee' => $task_assignment->employee,
                                 'employee_id' => $task_assignment->employee_id,
+                                'id' => $task_assignment->id
                             ];
                 }
             }
@@ -63,6 +64,7 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
             if (!empty($schedule)) {
                 foreach ($schedule as $scheduleData) {
                     $condition = [
+                        'task_id'=> $attributes['task_id'],
                         strtolower($scheduleData['day']) => true,
                         'employee_id' => $scheduleData['employee_id']
                     ];
@@ -124,16 +126,9 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
         }
     }
 
-    public function delete($task_assignment_id, $emp_id = null)
+    public function delete($task_assignment_id)
     {
-        $taskAssignment = null;
-        $emp_id = !empty($data['emp_id']) ? $data['emp_id'] : null;
-
-        if (!empty($emp_id)) {
-            $taskAssignment = TaskAssignment::where('employee_id', $emp_id)->get();
-        } else {
-            $taskAssignment = TaskAssignment::find($task_assignment_id);
-        }
+        $taskAssignment = TaskAssignment::find($task_assignment_id);
 
         if (empty($taskAssignment)) {
             throw new \Exception('Unable to find the task assignment.');

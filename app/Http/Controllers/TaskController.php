@@ -80,8 +80,8 @@ class TaskController extends Controller
             // 2. Create task assignments
             $params['task_id'] = $task->id;
             $taskAssignmentCreated = $this->taskAssignmentRepository->create($params);
-
-            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$TASK_CREATED, $task);
+            $task_assignments = $this->taskAssignmentRepository->get();
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$TASK_CREATED, $task_assignments);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
@@ -92,8 +92,8 @@ class TaskController extends Controller
         $params = $request->all();
         try {
             $taskAssignmentCreated = $this->taskAssignmentRepository->create($params);
-
-            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$TASK_CREATED, $task);
+            $task_assignments = $this->taskAssignmentRepository->get();
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$TASK_CREATED,$task_assignments);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
@@ -145,8 +145,8 @@ class TaskController extends Controller
         try {
             $deleted = Task::destroy($id);
             $message = $deleted ? Translation::$DELETE_SUCCESS : Translation::$DELETE_NOTHING;
-
-            return HttpResponse::toJson(true, Response::HTTP_OK, $message);
+            $task_assignments = $this->taskAssignmentRepository->get();
+            return HttpResponse::toJson(true, Response::HTTP_OK, $message, $task_assignments);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
@@ -155,14 +155,10 @@ class TaskController extends Controller
     public function deleteTaskAssignment(Request $request, $task_assignment_id)
     {
         $params = $request->all();
-
-        $validatedData = $request->validate([
-            'emp_id' => 'required|integer'
-        ]);
-
         try {
-            $this->taskAssignmentRepository->delete($id, $validatedData['emp_id'] ?? null);
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$TASK_ASSIGNMENT_DELETED);
+            $this->taskAssignmentRepository->delete($task_assignment_id);
+            $task_assignments = $this->taskAssignmentRepository->get();
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$TASK_ASSIGNMENT_DELETED, $task_assignments);
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
