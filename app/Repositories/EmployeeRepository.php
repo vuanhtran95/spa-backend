@@ -211,9 +211,13 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
     public function getOneBy($by, $value, $config)
     {
-        $query = Employee::where($by, '=', $value)->with('role');
+        $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
+        $day = $date->shortEnglishDayOfWeek;
+        $query = Employee::where($by, '=', $value)->with('role')->with(['TaskAssignments' => function ($taskQuery) use ($day){
+            $taskQuery->where(strtolower($day), 1);
+        }]);
         if (isset($config['show_commission']) && $config['show_commission'] == 1) {
-            $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
+           
 
             // Get this month commissions
             $this_month_from =  $date->copy()
