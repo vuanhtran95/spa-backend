@@ -119,3 +119,15 @@ Route::delete('/v1/task-assignment/{id}', 'TaskController@deleteTaskAssignment')
 Route::post('/v1/task-history', 'TaskHistoryController@create')->middleware('auth:api');
 Route::put('/v1/task-history/{id}', 'TaskHistoryController@update')->middleware('auth:api');
 Route::delete('/v1/task-history/{id}', 'TaskHistoryController@remove')->middleware('auth:api');
+
+// Judgement
+Route::post('/v1/judgement', 'JudgementController@create')->middleware('auth:api');
+Route::get('/v1/judgement', 'JudgementController@get')->middleware('auth:api');
+Route::put('/v1/judgement/{id}', 'JudgementController@update')->middleware('auth:api');
+Route::delete('/v1/judgement/{id}', 'JudgementController@remove')->middleware('auth:api');
+
+// Config
+Route::post('/v1/config', 'ConfigController@create')->middleware('auth:api');
+Route::get('/v1/config', 'ConfigController@get')->middleware('auth:api');
+Route::put('/v1/config/{id}', 'ConfigController@update')->middleware('auth:api');
+Route::delete('/v1/config/{id}', 'ConfigController@remove')->middleware('auth:api');

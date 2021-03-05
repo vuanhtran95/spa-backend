@@ -16,6 +16,7 @@ class Translation
     public static $CREATED = 'CREATED';
     public static $UPDATED = 'UPDATED';
     public static $DELETED = 'DELETED';
+    public static $GET = 'GET';
 
     public static $NOT_FOUND = 'NOT_FOUND';
 
@@ -109,9 +110,10 @@ class Translation
     public static $TASK_ASSIGNMENT_UPDATED = "TASK_ASSIGNMENT_UPDATED";
     public static $TASK_ASSIGNMENT_DELETED = "TASK_ASSIGNMENT_DELETED";
 
-    public static $TASK_HISTORY_CREATED = "TASK_HISTORY_CREATED";
-    public static $TASK_HISTORY_UPDATED = "TASK_HISTORY_UPDATED";
-    public static $TASK_HISTORY_DELETED = "TASK_HISTORY_DELETED";
+    public static $JUDGEMENT_CREATED = "JUDGEMENT_CREATED";
+    public static $JUDGEMENT_GET = "JUDGEMENT_GET_SUCCESS";
+    public static $JUDGEMENT_UPDATED = "JUDGEMENT_UPDATED";
+    public static $JUDGEMENT_DELETED = "JUDGEMENT_DELETED";
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
