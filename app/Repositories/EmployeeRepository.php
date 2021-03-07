@@ -290,14 +290,14 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         }
 
         // Current month task point
-        $current_task_point = TaskHistory::select(DB::raw("SUM(point) as total_point"))
-            ->where('employee_id', $employee->id)
-            ->whereMonth('created_at', Carbon::now()->month)
-            ->whereBetween('created_at', [
-                Carbon::now()->startOfYear(),
-                Carbon::now()->endOfYear(),
-            ])
-            ->get();
+        // $current_task_point = TaskHistory::select(DB::raw("SUM(point) as total_point"))
+        //     ->where('employee_id', $employee->id)
+        //     ->whereMonth('created_at', Carbon::now()->month)
+        //     ->whereBetween('created_at', [
+        //         Carbon::now()->startOfYear(),
+        //         Carbon::now()->endOfYear(),
+        //     ])
+        //     ->get();
         
         $employee->current_month_task_point = $current_task_point ?? null;
 
@@ -313,14 +313,14 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             $end = Carbon::now()->endOfYear();
         }
 
-        $current_task_point = TaskHistory::select(DB::raw("SUM(point) AS total_point"))
-            ->where('employee_id', $employee->id)
-            ->whereMonth('created_at', $prev_month)
-            ->whereBetween('created_at', [
-                $start,
-                $end,
-            ])
-            ->get();
+        // $current_task_point = TaskHistory::select(DB::raw("SUM(point) AS total_point"))
+        //     ->where('employee_id', $employee->id)
+        //     ->whereMonth('created_at', $prev_month)
+        //     ->whereBetween('created_at', [
+        //         $start,
+        //         $end,
+        //     ])
+        //     ->get();
         
         $employee->prev_month_task_point = $prev_task_point ?? null;
 
