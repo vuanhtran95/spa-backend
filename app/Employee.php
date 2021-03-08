@@ -43,4 +43,14 @@ class Employee extends BaseModel
     {
         return $this->hasMany('App\Invoice');
     }
+
+    public function TaskAssignments()
+    {
+        return $this->hasMany('App\TaskAssignment', 'employee_id');
+    }
+
+    public function taskHistories()
+    {
+        return $this->hasMany('App\TaskHistory', 'employee_id');
+    }
 }

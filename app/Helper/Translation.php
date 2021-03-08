@@ -16,6 +16,7 @@ class Translation
     public static $CREATED = 'CREATED';
     public static $UPDATED = 'UPDATED';
     public static $DELETED = 'DELETED';
+    public static $GET = 'GET';
 
     public static $NOT_FOUND = 'NOT_FOUND';
 
@@ -101,6 +102,18 @@ class Translation
     public static $DELETE_INVOICE_SUCCESS = "DELETE_INVOICE_SUCCESS";
     public static $NO_INVOICE_FOUND = "NO_INVOICE_FOUND";
 
+    public static $TASK_CREATED = "TASK_CREATED";
+    public static $GET_TASK_SUCCESSFULLY = "GET_TASK_SUCCESSFULLY";
+    public static $TASK_UPDATED = "TASK_UPDATED";
+
+    public static $GET_TASK_ASSIGNMENTS_SUCCESSFULLY = "GET_TASK_ASSIGNMENTS_SUCCESSFULLY";
+    public static $TASK_ASSIGNMENT_UPDATED = "TASK_ASSIGNMENT_UPDATED";
+    public static $TASK_ASSIGNMENT_DELETED = "TASK_ASSIGNMENT_DELETED";
+
+    public static $JUDGEMENT_CREATED = "JUDGEMENT_CREATED";
+    public static $JUDGEMENT_GET = "JUDGEMENT_GET_SUCCESS";
+    public static $JUDGEMENT_UPDATED = "JUDGEMENT_UPDATED";
+    public static $JUDGEMENT_DELETED = "JUDGEMENT_DELETED";
 
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
