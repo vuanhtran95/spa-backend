@@ -22,6 +22,7 @@ class StatisticRepository implements StatisticRepositoryInterface
         // $intakes = Intake::->whereBetween(DB::raw('DATE(updated_at)'), array($from, $to))->get();
         $intakes = Intake::where('is_valid', '=', 1)->whereBetween('updated_at', [$from, $to])->get();
         $combos = Package::where('is_valid', '=', 1)->whereBetween('created_at', [$from, $to])->get();
+        $invoices = Invoice::where('status', '=', 'paid')->where('type', '=', 'topup')->whereBetween('created_at', [$from, $to])->get();
         $employees = $this->getEmployeeCommission($from, $to);
         return [
             "intakes" => $intakes,
@@ -56,8 +57,13 @@ class StatisticRepository implements StatisticRepositoryInterface
         $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
         
         $total_revenue = Intake::where('is_valid', '=', 1)
+                                ->where('payment_type', '=', 'cash')
                                 ->get()
                                 ->sum('final_price')
+                    + Invoice::where('status', '=', 'paid')
+                                ->where('type', '=', 'topup')
+                                ->get()
+                                ->sum('amount')
                     +   Package::where('is_valid', '=', 1)
                                 ->get()
                                 ->sum('total_price');
@@ -199,6 +205,11 @@ class StatisticRepository implements StatisticRepositoryInterface
         $query->withCount(['package AS sale_commission' => function ($query) use ($from, $to) {
             $query->whereBetween('created_at', [$from, $to])
                 ->select(DB::raw("SUM(sale_commission)"));
+        }]);
+
+        $query->withCount(['invoice AS topup_commission' =>  function ($query) use ($from, $to) {
+            $query->whereBetween('updated_at', [$from, $to])
+                ->select(DB::raw("SUM(topup_commission)"));
         }]);
 
         $employees = $query->orderBy('id', 'desc')
