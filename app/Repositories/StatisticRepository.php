@@ -27,6 +27,7 @@ class StatisticRepository implements StatisticRepositoryInterface
         return [
             "intakes" => $intakes,
             "combos" => $combos,
+            "invoices" => $invoices,
             "employees" => $employees,
         ];
         die(var_dump($to));
