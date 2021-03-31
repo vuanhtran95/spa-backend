@@ -78,7 +78,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         }
 
         $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
-
+        $date->settings([
+            'monthOverflow' => false,
+        ]);
         // Get this month commissions
         $this_month_from =  $date->copy()
                                 ->startOfMonth()
@@ -212,6 +214,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
     public function getOneBy($by, $value, $config)
     {
         $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
+        $date->settings([
+            'monthOverflow' => false,
+        ]);
         $day = $date->shortEnglishDayOfWeek;
         $query = Employee::where($by, '=', $value)->with('role')->with(['TaskAssignments' => function ($taskQuery) use ($day){
             $taskQuery->where(strtolower($day), 1);

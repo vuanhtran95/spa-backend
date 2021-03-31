@@ -56,7 +56,9 @@ class StatisticRepository implements StatisticRepositoryInterface
     public function get()
     {
         $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
-        
+        $date->settings([
+            'monthOverflow' => false,
+        ]);
         $total_revenue = Intake::where('is_valid', '=', 1)
                                 ->where('payment_type', '=', 'cash')
                                 ->get()
