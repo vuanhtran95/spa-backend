@@ -107,6 +107,10 @@ class CustomerRepository implements CustomerRepositoryInterface
                 },])
             ->orderBy('id', 'desc')
             ->get()
+            ->map(function ($item) {
+                $item['total_spend'] =  $item['intakes_spend'] + $item['packages_spend'] + $item['coin_spend'];
+                return $item;
+            })
             ->toArray();
         
         return [
@@ -124,7 +128,7 @@ class CustomerRepository implements CustomerRepositoryInterface
         // return Customer::where($by, '=', $value)->with(['packages' => function ($query) {
         //     $query->with(['variant' => function($query) {$query->with('service');}]);
         // }])->first();
-        return Customer::where($by, '=', $value)
+        $customer = Customer::where($by, '=', $value)
                 ->withCount([
                     'package AS packages_spend'=> function ($query) {
                         $query->where('is_valid', '=', 1)
@@ -143,6 +147,8 @@ class CustomerRepository implements CustomerRepositoryInterface
                             ->select(DB::raw("SUM(final_price)"));
                     },])
                 ->first();
+        $customer['total_spend'] =  $customer['intakes_spend'] + $customer['packages_spend'] + $customer['coin_spend'];
+        return $customer;
     }
 
     public function update($id, array $attributes = [])

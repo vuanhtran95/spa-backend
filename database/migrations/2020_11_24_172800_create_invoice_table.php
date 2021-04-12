@@ -34,7 +34,7 @@ class CreateInvoiceTable extends Migration
             ->on('intakes')
             ->onUpdate('cascade');
 
-            $table->integer('amount');
+            $table->double('amount',10,2);
             $table->integer('promotion_amount')->nullable();
             $table->text('note')->nullable();
             $table->binary('signature')->nullable();

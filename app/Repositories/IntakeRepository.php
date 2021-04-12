@@ -369,7 +369,6 @@ class IntakeRepository implements IntakeRepositoryInterface
             $intake->save();
             DB::commit();
             //TODO: CALCULATE TOTAL SPEND
-            // $total_spend = $customer->calculate_spending($intake->customer_id);
             return Intake::with(['orders', 'invoice'])->find($id);
         } catch (\Exception $exception) {
             DB::rollBack();
