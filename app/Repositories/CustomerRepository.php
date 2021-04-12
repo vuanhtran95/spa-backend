@@ -58,6 +58,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
         $query = new Customer();
 
+
         if ($phone) {
             $query = $query::where('phone', 'LIKE', '%' . $phone . '%');
         }
@@ -66,12 +67,48 @@ class CustomerRepository implements CustomerRepositoryInterface
             $query = $query::where('name', 'LIKE', '%' . $name . '%');
         }
 
+        
+        // $query->withCount([
+        //     'package AS packages_spend'=> function ($query) {
+        //         $query->where('is_valid', '=', 1)
+        //             ->select(DB::raw("SUM(total_price)"));
+        //     }]);
+
+        // $query->withCount([
+        //     'invoice AS coin_spend'=> function ($query) {
+        //         $query->where('type', '=', 'topup')->where('status', '=', 'paid')
+        //             ->select(DB::raw("SUM(amount)"));
+        //     }]);
+
+        // $query->withCount([
+        //     'intakes AS intakes_spend'=> function ($query) {
+        //         $query->where('is_valid', '=', 1)->where('payment_type', '=', 'cash')
+        //             ->select(DB::raw("SUM(final_price)"));
+        //     },]);
+
         $customer = $query->offset(($page - 1) * $perPage)
             ->limit($perPage)
+            ->withCount([
+                'package AS packages_spend'=> function ($query) {
+                    $query->where('is_valid', '=', 1)
+                        ->select(DB::raw("SUM(total_price)"));
+                }])
+    
+            ->withCount([
+                'invoice AS coin_spend'=> function ($query) {
+                    $query->where('type', '=', 'topup')->where('status', '=', 'paid')
+                        ->select(DB::raw("SUM(amount)"));
+                }])
+    
+            ->withCount([
+                'intakes AS intakes_spend'=> function ($query) {
+                    $query->where('is_valid', '=', 1)->where('payment_type', '=', 'cash')
+                        ->select(DB::raw("SUM(final_price)"));
+                },])
             ->orderBy('id', 'desc')
             ->get()
             ->toArray();
-
+        
         return [
             "Data" => $customer,
             "Pagination" => [
@@ -87,7 +124,25 @@ class CustomerRepository implements CustomerRepositoryInterface
         // return Customer::where($by, '=', $value)->with(['packages' => function ($query) {
         //     $query->with(['variant' => function($query) {$query->with('service');}]);
         // }])->first();
-        return Customer::where($by, '=', $value)->first();
+        return Customer::where($by, '=', $value)
+                ->withCount([
+                    'package AS packages_spend'=> function ($query) {
+                        $query->where('is_valid', '=', 1)
+                            ->select(DB::raw("SUM(total_price)"));
+                    }])
+
+                ->withCount([
+                    'invoice AS coin_spend'=> function ($query) {
+                        $query->where('type', '=', 'topup')->where('status', '=', 'paid')
+                            ->select(DB::raw("SUM(amount)"));
+                    }])
+
+                ->withCount([
+                    'intakes AS intakes_spend'=> function ($query) {
+                        $query->where('is_valid', '=', 1)->where('payment_type', '=', 'cash')
+                            ->select(DB::raw("SUM(final_price)"));
+                    },])
+                ->first();
     }
 
     public function update($id, array $attributes = [])

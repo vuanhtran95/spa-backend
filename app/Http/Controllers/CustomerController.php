@@ -55,7 +55,7 @@ class CustomerController extends Controller
                 $customers['Pagination']
             );
         } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$SYSTEM_ERROR);
+            return HttpResponse::toJson(false, $e->getMessage());
         }
     }
 

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Combo;
 use App\Customer;
+use App\Repositories\CustomerRepository;
 use App\Employee;
 use App\Helper\Translation;
 use App\Constants\PaymentType;
@@ -367,6 +368,8 @@ class IntakeRepository implements IntakeRepositoryInterface
             $intake->is_valid = 1;
             $intake->save();
             DB::commit();
+            //TODO: CALCULATE TOTAL SPEND
+            // $total_spend = $customer->calculate_spending($intake->customer_id);
             return Intake::with(['orders', 'invoice'])->find($id);
         } catch (\Exception $exception) {
             DB::rollBack();
