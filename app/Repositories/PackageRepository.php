@@ -78,6 +78,12 @@ class PackageRepository implements PackageRepositoryInterface
                 }
             }
             $package->save();
+            //TODO: UP RANK
+            $up_rank = false;
+            if (!empty($customer)) {
+                $up_rank = Common::upRank($customer);
+            }
+            $package['up_rank_result'] = $up_rank;
             return $package;
         } else {
             // Create package

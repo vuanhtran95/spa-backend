@@ -2,6 +2,10 @@
 
 namespace App\Helper;
 
+use App\Intake;
+use App\Invoice;
+use App\Package;
+
 class Common
 {
     public static function getIds($n)
@@ -23,5 +27,78 @@ class Common
             default:
                 return 0.5;
         }
+    }
+    public static function upRank($customer)
+    {
+        $new_rank = false;
+        $current_rank = empty($customer->rank) ? 'non-member' : $customer->rank;
+        $customerId = $customer->id;
+        $intake_spending = Intake::where('customer_id', $customerId)
+                                    ->where('is_valid', '=', 1)
+                                    ->where('payment_type', '=', 'cash')
+                                    ->sum('final_price');
+
+        $package_spending = Package::where('customer_id', $customerId)
+                                    ->where('is_valid', '=', 1)
+                                    ->sum('total_price');
+       
+        $invoice_spending = Invoice::where('customer_id', $customerId)
+                                    ->where('type', '=', 'topup')
+                                    ->where('status', '=', 'paid')
+                                    ->sum('amount');
+        $total_spending = $intake_spending + $package_spending + $invoice_spending;
+        if ($total_spending < 10000 || $customer->rank === 'diamond') {
+            return  $total_spending;
+        }
+        switch ($customer->rank) {
+            case "gold":
+              if ($total_spending >= 50000) {
+                  $customer->rank = 'diamond';
+                  $customer->save();
+                  $new_rank='diamond';
+              }
+              break;
+            case "silver":
+                if ($total_spending >= 50000) {
+                    $customer->rank = 'diamond';
+                    $customer->save();
+                    $new_rank='diamond';
+                    break;
+                }
+                if ($total_spending >= 20000) {
+                    $customer->rank = 'gold';
+                    $customer->save();
+                    $new_rank='gold';
+                    break;
+                }
+                break;
+            case NULL:
+                if ($total_spending >= 50000) {
+                    $customer->rank = 'diamond';
+                    $customer->save();
+                    $new_rank='diamond';
+                    break;
+                }
+                if ($total_spending >= 20000) {
+                    $customer->rank = 'gold';
+                    $customer->save();
+                    $new_rank='gold';
+                    break;
+                }
+                if ($total_spending >= 10000) {
+                    $customer->rank = 'silver';
+                    $customer->save();
+                    $new_rank='silver';
+                    break;
+                }
+                break;
+            default:
+              break;
+        }
+        return empty($new_rank) ?  $total_spending : [
+            'from'=> $current_rank,
+            'to' => $new_rank,
+            'total_spending' => $total_spending
+        ];
     }
 }

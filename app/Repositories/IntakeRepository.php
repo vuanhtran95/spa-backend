@@ -7,6 +7,7 @@ use App\Customer;
 use App\Repositories\CustomerRepository;
 use App\Employee;
 use App\Helper\Translation;
+use App\Helper\Common;
 use App\Constants\PaymentType;
 use App\Constants\Invoice as InvoiceConstant;
 use App\Intake;
@@ -324,7 +325,7 @@ class IntakeRepository implements IntakeRepositoryInterface
             }
 
             /* 2. Check for discount */
-            if (isset($data['additional_discount_price']) && $data['additional_discount_price'] > 0) {
+            if (isset($data['additional_discount_price'])) {
                 $totalPrice = $totalPrice - $data['additional_discount_price'];
                 $intake->additional_discount_price = $data['additional_discount_price'];
                 $intake->discount_note = $data['discount_note'];
@@ -367,9 +368,15 @@ class IntakeRepository implements IntakeRepositoryInterface
             // Update Status For Intake
             $intake->is_valid = 1;
             $intake->save();
+            //TODO: UP RANK
+            $up_rank = false;
+            if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
+                $up_rank = Common::upRank($customer);
+            }
+            $result = Intake::with(['orders', 'invoice'])->find($id);
+            $result['up_rank_result'] = $up_rank;
             DB::commit();
-            //TODO: CALCULATE TOTAL SPEND
-            return Intake::with(['orders', 'invoice'])->find($id);
+            return $result;
         } catch (\Exception $exception) {
             DB::rollBack();
             throw new \Exception($exception->getMessage());

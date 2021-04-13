@@ -8,6 +8,7 @@ use App\Repositories\CustomerRepository;
 use App\Invoice;
 use App\Customer;
 use App\Constants\Invoice as InvoiceConstant;
+use App\Helper\Common;
 
 class InvoiceRepository implements InvoiceRepositoryInterface
 {
@@ -71,7 +72,12 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         // 5. Update commission for employee
         $invoice->topup_commission = $invoice->amount * (3 / 100);
         $invoice->save();
-
+        //TODO: UP RANK
+        $up_rank = false;
+        if (!empty($customer) ||  $invoice->type ===  InvoiceConstant::TOPUP) {
+            $up_rank = Common::upRank($customer);
+        }
+        $invoice['up_rank_result'] = $up_rank;
         return $invoice;
     }
 
