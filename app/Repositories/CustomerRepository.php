@@ -67,25 +67,6 @@ class CustomerRepository implements CustomerRepositoryInterface
             $query = $query::where('name', 'LIKE', '%' . $name . '%');
         }
 
-        
-        // $query->withCount([
-        //     'package AS packages_spend'=> function ($query) {
-        //         $query->where('is_valid', '=', 1)
-        //             ->select(DB::raw("SUM(total_price)"));
-        //     }]);
-
-        // $query->withCount([
-        //     'invoice AS coin_spend'=> function ($query) {
-        //         $query->where('type', '=', 'topup')->where('status', '=', 'paid')
-        //             ->select(DB::raw("SUM(amount)"));
-        //     }]);
-
-        // $query->withCount([
-        //     'intakes AS intakes_spend'=> function ($query) {
-        //         $query->where('is_valid', '=', 1)->where('payment_type', '=', 'cash')
-        //             ->select(DB::raw("SUM(final_price)"));
-        //     },]);
-
         $customer = $query->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->withCount([
@@ -125,9 +106,6 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function getOneBy($by, $value)
     {
-        // return Customer::where($by, '=', $value)->with(['packages' => function ($query) {
-        //     $query->with(['variant' => function($query) {$query->with('service');}]);
-        // }])->first();
         $customer = Customer::where($by, '=', $value)
                 ->withCount([
                     'package AS packages_spend'=> function ($query) {
