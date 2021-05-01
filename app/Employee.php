@@ -53,4 +53,9 @@ class Employee extends BaseModel
     {
         return $this->hasMany('App\TaskHistory', 'employee_id');
     }
+
+    public function judgements()
+    {
+        return $this->hasMany('App\Judgement', 'employee_id');
+    }
 }

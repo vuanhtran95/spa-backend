@@ -21,7 +21,7 @@ class CreateJudgementTable extends Migration
             ->on('employees')
             ->onUpdate('cascade')
             ->onDelete('cascade');
-            $table->integer('point');
+            $table->float('point')->default(0);
             $table->string('reason');
             $table->timestamps();
         });

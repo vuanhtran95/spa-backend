@@ -131,3 +131,7 @@ Route::post('/v1/config', 'ConfigController@create')->middleware('auth:api');
 Route::get('/v1/config', 'ConfigController@get')->middleware('auth:api');
 Route::put('/v1/config/{id}', 'ConfigController@update')->middleware('auth:api');
 Route::delete('/v1/config/{id}', 'ConfigController@remove')->middleware('auth:api');
+
+// Service Category
+Route::get('/v1/config-categories', 'ConfigCategoryController@get')->middleware('auth:api');
+Route::post('/v1/config-categories', 'ConfigCategoryController@create')->middleware('auth:api');

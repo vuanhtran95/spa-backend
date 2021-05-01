@@ -26,9 +26,6 @@ class JudgementRepository implements JudgementRepositoryInterface
     public function get(array $condition = [])
     {
         $employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
-    
-        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
-        $page = isset($condition['page']) ? $condition['page'] : 1;
 
         $fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
         $toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
@@ -47,17 +44,12 @@ class JudgementRepository implements JudgementRepositoryInterface
             $query = $query->where('created_at', '<=', $toDate);
         }
 
-        $judgements = $query->offset(($page - 1) * $perPage)
-            ->limit($perPage)
-            ->orderBy('id', 'desc')
-            ->get()
-            ->toArray();
-
+        $judgements = $query->orderBy('id', 'desc')
+                            ->get()
+                            ->toArray();
         return [
             "Data" => $judgements,
             "Pagination" => [
-                "CurrentPage" => $page,
-                "PerPage" => $perPage,
                 "TotalItems" => $query->count()
             ]
         ];
@@ -65,33 +57,36 @@ class JudgementRepository implements JudgementRepositoryInterface
 
     public function save($data, $is_update = true, $id = null)
     {
-        $task_history = null;
+        $judgement = null;
 
-        if (!$is_update) {
-            $task_history = new Judgement();
-        } else {
-            $task_history = Judgement::find($id);
+        if ($is_update && !is_array($data)) {
+            $judgement = Judgement::find($id);
+            foreach ($data as $property => $value) {
+                $judgement->$property = $value;
+            }
+            $judgement->save();
+            return $judgement;
         }
-
-        $task = Task::find($data['task_id']);
-
-        if (empty($task)) {
+        if (!$is_update && is_array($data)) {
+            $result = [];
+            foreach ($data as $judgement) {
+                $employee = Employee::find($judgement['employee_id']);
+                if (empty($employee)) {
+                    continue;
+                }
+                // Need to create order
+                $judgementData = new Judgement();
+                $judgementData->employee_id = $judgement['employee_id'];
+                $judgementData->reason = $judgement['reason'];
+                $judgementData->point = $judgement['point'];
+                $judgementData->save();
+                array_push($result, $judgement);
+            }
+            return $result;
+        }
+        if (empty($judgement)) {
             throw new \Exception('Unable to find the task');
         }
-
-        $employee = Employee::find($data['employee_id']);
-
-        if (empty($employee)) {
-            throw new \Exception('Unable to find the employee');
-        }
-
-        foreach ($data as $property => $value) {
-            $task_history->$property = $value;
-        }
-
-        $task_history->save();
-
-        return $task_history;
     }
 
     public function remove($id)

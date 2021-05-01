@@ -26,28 +26,20 @@ class ConfigRepository implements ConfigRepositoryInterface
     public function get(array $condition = [])
     {
         $category = isset($condition['category']) ? $condition['category'] : null;
-    
-        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
-        $page = isset($condition['page']) ? $condition['page'] : 1;
-
-        $query = new Config();
-
-        if ($category) {
-            $query = $query->where('category', '=', $category);
-        }
-
-        $data = $query->offset(($page - 1) * $perPage)
-            ->limit($perPage)
-            ->orderBy('id', 'desc')
-            ->get()
-            ->toArray();
-
+        $data = Config::with(['configCategory'])
+                        ->orderBy('id', 'desc')
+                        ->get()
+                        ->toArray();
+        if(!empty($category)) {
+            $data = array_filter($data, function($v, $k) use ($category){
+               return $v['config_category']['name'] === $category;
+            }, ARRAY_FILTER_USE_BOTH);
+        };
+       
         return [
             "Data" => $data,
             "Pagination" => [
-                "CurrentPage" => $page,
-                "PerPage" => $perPage,
-                "TotalItems" => $query->count()
+                "TotalItems" => count($data)
             ]
         ];
     }
@@ -61,11 +53,10 @@ class ConfigRepository implements ConfigRepositoryInterface
         } else {
             $entity = Config::find($id);
         }
-
+        
         foreach ($data as $property => $value) {
             $entity->$property = $value;
         }
-
         $entity->save();
 
         return $entity;

@@ -137,6 +137,17 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 ->select(DB::raw("SUM(topup_commission)"));
         }]);
 
+        // attendance
+        $query->withCount(['judgements AS attendance' => function ($query) use ($this_month_from, $this_month_to) {
+            $query->whereBetween('created_at', [$this_month_from, $this_month_to])
+                ->select(DB::raw("SUM(`point`)"));
+        }]);
+
+        $query->withCount(['judgements AS attendance_prev' => function ($query) use ($last_month_from, $last_month_to) {
+            $query->whereBetween('created_at', [$last_month_from, $last_month_to])
+                ->select(DB::raw("SUM(point)"));
+        }]);
+
         // Count Orders
         $query->withCount(['order AS total_sales' => function ($query) use ($this_month_from, $this_month_to) {
             $query->whereBetween('updated_at', [$this_month_from, $this_month_to])->whereHas('intake', function ($iQuery) {
@@ -163,6 +174,11 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 $subQuery->select(DB::raw("SUM(skill)"));
             }]);
         }]);
+
+        $query->withCount(['judgements AS attendance' => function ($query) {
+            $query->select(DB::raw("SUM(point)"));
+        }]);
+
 
         // $query->select(DB::raw("SUM(point) as total_point"))
         //     ->withCount(['taskHistories AS task_history' => function ($query) {
@@ -218,7 +234,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
             'monthOverflow' => false,
         ]);
         $day = $date->shortEnglishDayOfWeek;
-        $query = Employee::where($by, '=', $value)->with('role')->with(['TaskAssignments' => function ($taskQuery) use ($day){
+        $query = Employee::where($by, '=', $value)->with('role')->with(['TaskAssignments' => function ($taskQuery) use ($day) {
             $taskQuery->where(strtolower($day), 1);
         }]);
         if (isset($config['show_commission']) && $config['show_commission'] == 1) {
@@ -246,7 +262,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                                     ->setTimezone('UTC')
                                     ->toDateTimeString();
 
-                // Working commission
+            // Working commission
             $query->withCount(['order AS working_commission' => function ($query) use ($this_month_from, $this_month_to) {
                 $query->whereBetween('updated_at', [$this_month_from, $this_month_to])
                     ->select(DB::raw("SUM(working_commission)"));
@@ -256,7 +272,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 $query->whereBetween('updated_at', [$last_month_from, $last_month_to])
                     ->select(DB::raw("SUM(working_commission)"));
             }]);
-                // Sale commission
+            // Sale commission
             $query->withCount(['package AS sale_commission' => function ($query) use ($this_month_from, $this_month_to) {
                 $query->whereBetween('created_at', [$this_month_from, $this_month_to])
                     ->select(DB::raw("SUM(sale_commission)"));
@@ -267,7 +283,7 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                     ->select(DB::raw("SUM(sale_commission)"));
             }]);
 
-                // Topup commission
+            // Topup commission
             $query->withCount(['invoice AS topup_commission' => function ($query) use ($this_month_from, $this_month_to) {
                 $query->whereBetween('updated_at', [$this_month_from, $this_month_to])
                     ->select(DB::raw("SUM(`topup_commission`)"));
@@ -277,7 +293,21 @@ class EmployeeRepository implements EmployeeRepositoryInterface
                 $query->whereBetween('updated_at', [$last_month_from, $last_month_to])
                     ->select(DB::raw("SUM(topup_commission)"));
             }]);
+
+            // attendance
+            $query->withCount(['judgements AS attendance' => function ($query) use ($this_month_from, $this_month_to) {
+                $query->whereBetween('created_at', [$this_month_from, $this_month_to])
+                    ->select(DB::raw("SUM(`point`)"));
+            }]);
+
+            $query->withCount(['judgements AS attendance_prev' => function ($query) use ($last_month_from, $last_month_to) {
+                $query->whereBetween('created_at', [$last_month_from, $last_month_to])
+                    ->select(DB::raw("SUM(point)"));
+            }]);
         }
+        // Judgements
+        $query->with('judgements');
+
         $employee = $query->first();
 
         if (isset($config['show_point']) && $config['show_point'] == 1) {
