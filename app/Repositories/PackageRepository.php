@@ -7,6 +7,7 @@ use App\Customer;
 use App\Employee;
 use App\Combo;
 use App\Helper\Translation;
+use App\Helper\Common;
 use App\Order;
 use App\Service;
 use App\User;
