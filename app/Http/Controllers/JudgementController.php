@@ -68,7 +68,7 @@ class JudgementController extends Controller
             // Update task history
             $judgement = $this->JudgementRepository->save($params, true, $judgement_id);
 
-            return HttpResponse::toJson(true, Response::HTTP_UPDATED, Translation::$JUDGEMENT_UPDATED, $judgement);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$JUDGEMENT_UPDATED, $judgement);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }

@@ -8,6 +8,7 @@ use App\Repositories\CustomerRepository;
 use App\Employee;
 use App\Helper\Translation;
 use App\Helper\Common;
+use App\Helper\IntakeHelper;
 use App\Constants\PaymentType;
 use App\Constants\Invoice as InvoiceConstant;
 use App\Intake;
@@ -261,10 +262,17 @@ class IntakeRepository implements IntakeRepositoryInterface
 
         DB::beginTransaction();
         try {
+            // Create Intake Helper
+            $helper = new IntakeHelper();
             /* 0. Get customer */
             $customer = null;
             if ($intake->customer_id) {
                 $customer = Customer::find($intake->customer_id);
+            }
+
+            /* 0.5 Get System Discount List From Config */
+            if (!empty($customer) && !empty($customer->rank)) {
+                $helper->getRankDiscountConfig($customer->rank);
             }
 
             /* 1. Calculate Total Price And Update Combo Amount */
@@ -272,56 +280,33 @@ class IntakeRepository implements IntakeRepositoryInterface
             $payment_method = $intake->payment_type;
 
             if (!empty($intake->orders)) {
-                /* 1.1 calculate total price */
-                $paid_orders = $intake->orders->filter(
-                    function ($order) {
-                        return empty($order->combo_id);
-                    }
-                )->values();
-               
-                foreach ($paid_orders as $order) {
-
-                        // Pay money
-                    $updateOrder = Order::find($order->id);
-                    $variant = Variant::find($updateOrder->variant_id);
-                    $is_free_variant = $variant->is_free;
-                    // Not Calculate the free variant
-                    if (!$is_free_variant) {
-                        // Store price to order
-                        if ($payment_method ===  PaymentType::CREDIT) {
-                            $totalPrice = $totalPrice + $variant->credit_price * $order->amount;
-                        } else {
-                            $totalPrice = $totalPrice + $variant->price * $order->amount;
+            /* 1 calculate total price */
+                $intake->orders->each(
+                    function ($order) use ($helper, $totalPrice) {
+                        // Handle paid order
+                        if (empty($order->combo_id)) {
+                            $price = $helper->processOrderPrice($order->id);
+                            $totalPrice = $totalPrice  + $price*$order->amount;
                         }
-                        $updateOrder->price = $variant->price;
-                        $updateOrder->credit_price = $variant->credit_price;
-                        $updateOrder->save();
+                        // Handle Combo order
+                        else {
+                            // Use combo, won't pay money
+                            $combo = Combo::find($order->combo_id);
+                            // Minus combo
+                            $combo->number_used = (int)$combo->number_used + (int)$order->amount;
+                            if ($combo->number_used > $combo->amount) {
+                                throw new Exception('You have run out of use this combo');
+                            }
+                            $combo->save();
+                        }
                     }
-                }
+                );
+            }
+               
 
-                /* 1.2 Check user Balance if using credit */
-                if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
-                    throw new \Exception("Not enough credit");
-                }
-
-                /* 1.3 Calculate combo amount */
-                $combo_orders = $intake->orders->filter(
-                    function ($order) {
-                        return !empty($order->combo_id);
-                    }
-                )->values();
-    
-                foreach ($combo_orders as $order) {
-    
-                    // Use combo, won't pay money
-                    $combo = Combo::find($order->combo_id);
-                    // Minus combo
-                    $combo->number_used = (int)$combo->number_used + (int)$order->amount;
-                    if ($combo->number_used > $combo->amount) {
-                        throw new Exception('You have run out of use this combo');
-                    }
-                    $combo->save();
-                }
+            /* 1.2 Check user Balance if using credit */
+            if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
+                throw new \Exception("Not enough credit");
             }
 
             /* 2. Check for discount */

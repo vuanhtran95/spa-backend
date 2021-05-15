@@ -47,7 +47,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
             }
 
             // Get payment_type of intake
-            $price_field = $intake->payment_type === 'cash' ? 'price' : 'credit_price';
+            $price_field = 'price';
             
             // Check already reviewed ?
             $hasReviewForm = ReviewForm::where('intake_id', $intake_id)->first();

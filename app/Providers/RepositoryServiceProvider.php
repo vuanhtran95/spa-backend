@@ -36,12 +36,10 @@ use App\Repositories\TaskAssignmentRepository;
 use App\Repositories\TaskAssignmentRepositoryInterface;
 use App\Repositories\TaskHistoryRepository;
 use App\Repositories\TaskHistoryRepositoryInterface;
-use App\Repositories\ConfigRepository;
-use App\Repositories\ConfigRepositoryInterface;
-use App\Repositories\ConfigCategoryRepository;
-use App\Repositories\ConfigCategoryRepositoryInterface;
 use App\Repositories\JudgementRepository;
 use App\Repositories\JudgementRepositoryInterface;
+use App\Repositories\DiscountRepository;
+use App\Repositories\DiscountRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -80,8 +78,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TaskRepositoryInterface::class, TaskRepository::class);
         $this->app->bind(TaskAssignmentRepositoryInterface::class, TaskAssignmentRepository::class);
         $this->app->bind(TaskHistoryRepositoryInterface::class, TaskHistoryRepository::class);
-        $this->app->bind(ConfigRepositoryInterface::class, ConfigRepository::class);
-        $this->app->bind(ConfigCategoryRepositoryInterface::class, ConfigCategoryRepository::class);
         $this->app->bind(JudgementRepositoryInterface::class, JudgementRepository::class);
+        $this->app->bind(DiscountRepositoryInterface::class, DiscountRepository::class);
     }
 }

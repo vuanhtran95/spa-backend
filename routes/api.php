@@ -127,10 +127,10 @@ Route::put('/v1/judgement/{id}', 'JudgementController@update')->middleware('auth
 Route::delete('/v1/judgement/{id}', 'JudgementController@remove')->middleware('auth:api');
 
 // Config
-Route::post('/v1/config', 'ConfigController@create')->middleware('auth:api');
-Route::get('/v1/config', 'ConfigController@get')->middleware('auth:api');
-Route::put('/v1/config/{id}', 'ConfigController@update')->middleware('auth:api');
-Route::delete('/v1/config/{id}', 'ConfigController@remove')->middleware('auth:api');
+Route::post('/v1/discount', 'DiscountController@create')->middleware('auth:api');
+Route::get('/v1/discount', 'DiscountController@get')->middleware('auth:api');
+Route::put('/v1/discount', 'DiscountController@update')->middleware('auth:api');
+Route::delete('/v1/discount/{id}', 'DiscountController@remove')->middleware('auth:api');
 
 // Service Category
 Route::get('/v1/config-categories', 'ConfigCategoryController@get')->middleware('auth:api');

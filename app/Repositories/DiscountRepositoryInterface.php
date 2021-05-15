@@ -2,13 +2,13 @@
 
 namespace App\Repositories;
 
-interface ConfigRepositoryInterface
+interface   DiscountRepositoryInterface
 {
     public function create(array $attributes = []);
 
     public function get(array $condition = []);
     
-    public function save($data, $is_update);
+    public function update(array $attributes = []);
 
-    public function remove($id);
+    public function delete($id);
 }

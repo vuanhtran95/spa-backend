@@ -50,7 +50,7 @@ class TaskHistoryController extends Controller
             // Update task history
             $taskHistory = $this->taskHistoryRepository->save($params, true, $task_history_id);
 
-            return HttpResponse::toJson(true, Response::HTTP_UPDATED, Translation::$TASK_HISTORY_UPDATED, $taskHistory);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$TASK_HISTORY_UPDATED, $taskHistory);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
