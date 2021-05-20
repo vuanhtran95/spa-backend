@@ -337,10 +337,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 
             if ($payment_method ===  PaymentType::CREDIT) {
                 if (empty($invoice)) {
-                    throw new Exception('Missing invoice');
+                    throw new \Exception('Missing invoice');
                 }
                 if ($invoice->status === InvoiceConstant::PAID_STATUS) {
-                    throw new Exception('Payment Failed! Invoice has been proceeded');
+                    throw new \Exception('Payment Failed! Invoice has been proceeded');
                 }
                 $invoice->amount = $intake->final_price;
                 $invoice->status =InvoiceConstant::PAID_STATUS;
@@ -358,7 +358,7 @@ class IntakeRepository implements IntakeRepositoryInterface
             if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
                 $up_rank = Common::upRank($customer);
             }
-            $result = Intake::with(['orders', 'invoice'])->find($id);
+            $result = $this->getOneBy('id', $id);
             $result['up_rank_result'] = $up_rank;
             DB::commit();
             return $result;

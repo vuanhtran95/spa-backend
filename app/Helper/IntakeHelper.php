@@ -2,7 +2,6 @@
 
 namespace App\Helper;
 
-use App\Config;
 use App\Order;
 use App\Variant;
 use Illuminate\Support\Carbon;
@@ -10,20 +9,18 @@ use Illuminate\Support\Facades\DB;
 
 class IntakeHelper
 {
-    const DISCOUNT_CATEGORY = 'discount';
-    const RANK_CONDITION = 'rank';
 
-    public $discounts = [];
-    public $rank_discounts = [];
+    public $rank_name = null;
 
     public function __construct()
     {
-        $this->discounts = DB::table('configs')
-            ->join('config_categories', 'configs.config_category_id', '=', 'config_categories.id')
-            ->where('config_categories.name', '=', self::DISCOUNT_CATEGORY)
-            ->select('configs.*', 'config_categories.name as category_name')
-            ->get()
-            ->toArray();
+        // $this->discounts = DB::table('configs')
+        //     ->join('config_categories', 'configs.config_category_id', '=', 'config_categories.id')
+        //     ->where('config_categories.name', '=', self::DISCOUNT_CATEGORY)
+        //     ->select('configs.*', 'config_categories.name as category_name')
+        //     ->get()
+        //     ->toArray();
+        $this->discounts = [];
     }
 
     public function getRankDiscountConfig($rank)
@@ -91,8 +88,6 @@ class IntakeHelper
     public function processOrderPrice($order_id)
     {
         $dt = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
-        var_dump($dt->shortEnglishDayOfWeek);
-        die();
         $updateOrder = Order::find($order_id);
         $variant = Variant::find($updateOrder->variant_id);
         // Not Calculate the free variant
