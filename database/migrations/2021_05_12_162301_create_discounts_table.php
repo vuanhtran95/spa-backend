@@ -69,7 +69,7 @@ class CreateDiscountsTable extends Migration
     {
         Schema::table('discounts', function (Blueprint $table) {
             $table->dropForeign(['rank_name', 'service_category_id', 'service_id', 'variant_id']);
+            Schema::dropIfExists('discounts');
         });
-        Schema::dropIfExists('discounts');
     }
 }
