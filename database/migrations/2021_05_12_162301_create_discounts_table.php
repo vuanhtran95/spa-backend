@@ -35,7 +35,7 @@ class CreateDiscountsTable extends Migration
             $table->timestamps();
 
             $table->foreign('rank_name')
-                ->references('name')
+                ->references('id')
                 ->on('ranks')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
