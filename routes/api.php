@@ -135,3 +135,7 @@ Route::delete('/v1/discount/{id}', 'DiscountController@remove')->middleware('aut
 // Service Category
 Route::get('/v1/config-categories', 'ConfigCategoryController@get')->middleware('auth:api');
 Route::post('/v1/config-categories', 'ConfigCategoryController@create')->middleware('auth:api');
+
+// Variable Category
+Route::get('/v1/variable', 'VariableController@get')->middleware('auth:api');
+Route::post('/v1/variable', 'VariableController@update')->middleware('auth:api');

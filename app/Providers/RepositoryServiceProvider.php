@@ -40,7 +40,10 @@ use App\Repositories\JudgementRepository;
 use App\Repositories\JudgementRepositoryInterface;
 use App\Repositories\DiscountRepository;
 use App\Repositories\DiscountRepositoryInterface;
+use App\Repositories\VariableRepository;
+use App\Repositories\VariableRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
+
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -80,5 +83,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TaskHistoryRepositoryInterface::class, TaskHistoryRepository::class);
         $this->app->bind(JudgementRepositoryInterface::class, JudgementRepository::class);
         $this->app->bind(DiscountRepositoryInterface::class, DiscountRepository::class);
+        $this->app->bind(VariableRepositoryInterface::class, VariableRepository::class);
     }
 }

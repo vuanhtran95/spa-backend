@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRankToCustomersTable extends Migration
+class AddDiscountColumnsOrdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,10 @@ class AddRankToCustomersTable extends Migration
      */
     public function up()
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->string('rank')->nullable();
-            $table->foreign('rank')
-                ->references('id')
-                ->on('ranks')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->float('discount_amount')->default(0);
+            $table->float('discount_percentage')->default(0);
+            $table->string('discount_note')->nullable();
         });
     }
 
@@ -29,11 +26,11 @@ class AddRankToCustomersTable extends Migration
      * @return void
      */
     public function down()
-    
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->dropForeign('customers_rank_foreign');
-            $table->dropColumn('rank');
+            $table->dropColumn('discount_amount');
+            $table->dropColumn('discount_percentage');
+            $table->dropColumn('discount_note');
         });
     }
 }

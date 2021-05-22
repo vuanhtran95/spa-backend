@@ -48,7 +48,7 @@ class Common
                                     ->sum('amount');
         $total_spending = $intake_spending + $package_spending + $invoice_spending;
         if ($total_spending < 10000 || $customer->rank === 'diamond') {
-            return  $total_spending;
+            return  false;
         }
         switch ($customer->rank) {
             case "gold":
@@ -95,7 +95,7 @@ class Common
             default:
               break;
         }
-        return empty($new_rank) ?  $total_spending : [
+        return empty($new_rank) ?  false : [
             'from'=> $current_rank,
             'to' => $new_rank,
             'total_spending' => $total_spending

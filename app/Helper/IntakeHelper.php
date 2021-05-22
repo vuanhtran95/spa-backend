@@ -4,81 +4,138 @@ namespace App\Helper;
 
 use App\Order;
 use App\Variant;
+use App\Discount;
+use App\Variable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class IntakeHelper
 {
+    public $RANK_EXTRA_DISCOUNT_ACTIVE = 0;
+    public $RANK_EXTRA_DISCOUNT = 0;
+    public $rank = null;
+    public $discounts = null;
 
-    public $rank_name = null;
+    public $extra_rank_discount_variables = [
+        'is_active' => 'RANK_EXTRA_DISCOUNT_ACTIVE',
+        'diamond' => 'DIAMOND_EXTRA_DISCOUNT',
+        'gold' => 'GOLD_EXTRA_DISCOUNT',
+        'silver' => 'SILVER_EXTRA_DISCOUNT',
+    ];
 
-    public function __construct()
+    public function __construct($rank = null)
     {
-        // $this->discounts = DB::table('configs')
-        //     ->join('config_categories', 'configs.config_category_id', '=', 'config_categories.id')
-        //     ->where('config_categories.name', '=', self::DISCOUNT_CATEGORY)
-        //     ->select('configs.*', 'config_categories.name as category_name')
-        //     ->get()
-        //     ->toArray();
-        $this->discounts = [];
-    }
-
-    public function getRankDiscountConfig($rank)
-    {
-        $this->rank_discounts =  array_filter($this->discounts, function ($config) use ($rank) {
-            return $config->condition_type === self::RANK_CONDITION && $config->condition_value === $rank;
-        });
-    }
-    public function getServiceRankDiscount()
-    {
-        if (!count($this->rank_discounts)) {
-            return null;
-        }
-        $found = null;
-        foreach ($this->rank_discounts as $discount) {
-            if ($discount->name == 'service') {
-                $found = $discount;
-                break;
+        if (!empty($rank) && $rank !== 'non-member') {
+            $this->rank = $rank;
+            $this->set_rank_discount_active();
+            if (!empty($this->RANK_EXTRA_DISCOUNT_ACTIVE)) {
+                $this->set_rank_extra_discount();
             }
         }
-        return $found;
+        $this->get_discounts();
     }
-    public function getPromotionRankDiscount()
+
+    public function set_rank_discount_active()
     {
-        if (!count($this->rank_discounts)) {
-            return null;
+        $id = $this->extra_rank_discount_variables['is_active'];
+        $found = Variable::find($id);
+        if (!empty($found)) {
+            $this->RANK_EXTRA_DISCOUNT_ACTIVE = floatval($found->value);
         }
-        $found = null;
-        foreach ($this->rank_discounts as $discount) {
-            if ($discount->name == 'promotion') {
-                $found = $discount;
-                break;
-            }
-        }
-        return $found;
     }
+
+    public function set_rank_extra_discount()
+    {
+        $id = $this->extra_rank_discount_variables[$this->rank];
+        $found = Variable::find($id);
+        if (!empty($found)) {
+            $this->RANK_EXTRA_DISCOUNT = floatval($found->value);
+        }
+    }
+
+    public function get_discounts()
+    {
+        $date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
+        $day = strtolower($date->shortEnglishDayOfWeek);
+        $query = new Discount();
+
+        $this->discounts = $query->where('is_active', '=', 1)
+                            ->where('from', '<=', $date->format('Y-m-d'))
+                            ->where('to', '>=', $date->format('Y-m-d'))
+                            ->where('rank_name', '=', $this->rank)->orWhere('rank_name', '=', null)
+                            ->where($day, '=', 1)->get()->toArray();
+    }
+
+    public function apply_discount($discount, &$amount, &$percentage, &$discount_note)
+    {
+        ${$discount['type']} += $discount['value'];
+        array_push($discount_note, $discount['name']);
+        if ($this->rank
+            && $discount['rank_name'] === null
+            && $this->RANK_EXTRA_DISCOUNT_ACTIVE
+            && $this->RANK_EXTRA_DISCOUNT) {
+            $percentage += $this->RANK_EXTRA_DISCOUNT;
+            array_push(
+                $discount_note,
+                'Extra discount ('.$this->rank.'): '.$this->RANK_EXTRA_DISCOUNT.'%'
+            );
+        }
+    }
+
     public function calculateNormalOrderPrice($updateOrder, $variant)
     {
-        $price = 0;
-        $discount = $this->getServiceRankDiscount();
-        if (empty($discount)) {
-            $price = $variant->price;
-        } else {
-            $price = $variant->price*(1 - $discount->value);
+        $price = $variant->price;
+        $amount = 0;
+        $percentage = 0;
+        $discount_note = array();
+        if (!empty($this->discounts)) {
+            foreach ($this->discounts as $discount) {
+                if (
+                    $discount['variant_id'] === null
+                    && $discount['service_id'] === null
+                    && $discount['service_category_id'] === null
+                ) {
+                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    break;
+                }
+                
+                if ($discount['variant_id'] === $variant->id) {
+                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    break;
+                }
+                if ($discount['service_id'] === $variant->service_id) {
+                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    break;
+                }
+                if ($discount['service_category_id'] === $variant->service->service_category_id) {
+                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    break;
+                }
+            }
+        }
+        if ($amount) {
+            $price -= $amount;
+        }
+        if ($percentage) {
+            $price = $price*((100 - $percentage)/100);
         }
         $updateOrder->price = $price;
+        $updateOrder->discount_amount = $amount;
+        $updateOrder->discount_percentage = $percentage;
+        $updateOrder->discount_note = join("<br>", $discount_note);
         $updateOrder->save();
         return $price;
     }
     
     public function calculatePromotionOrderPrice($updateOrder, $variant)
     {
-        $price = 0;
-        $discount = $this->getPromotionRankDiscount();
-        if (empty($discount)) {
-            $price = $variant->price;
-        } else {
-            $price = $variant->price*(1 - $discount->value);
+        $price = $variant->price;
+        if (
+            $this->rank
+            && $this->RANK_EXTRA_DISCOUNT_ACTIVE
+            && $this->RANK_EXTRA_DISCOUNT) {
+                $price = $price*((100 -  $this->RANK_EXTRA_DISCOUNT)/100);
+                $updateOrder->discount_note = 'Extra discount ('.$this->rank.'): '.$this->RANK_EXTRA_DISCOUNT.'%';
         }
         $updateOrder->price = $price;
         $updateOrder->save();
@@ -87,15 +144,16 @@ class IntakeHelper
 
     public function processOrderPrice($order_id)
     {
-        $dt = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
         $updateOrder = Order::find($order_id);
-        $variant = Variant::find($updateOrder->variant_id);
+        $variant = Variant::where('id', '=', $updateOrder->variant_id)->with(['service' => function ($query) {
+            $query->with('serviceCategory');
+        }])->first();
         // Not Calculate the free variant
         if ($variant->is_free) {
             return 0;
         }
         // Handle Service Order
-        if (empty($updateOrder->promotion_hash)) {
+        if (!empty($updateOrder->promotion_hash)) {
             return $this->calculatePromotionOrderPrice($updateOrder, $variant);
         }
         return $this->calculateNormalOrderPrice($updateOrder, $variant);

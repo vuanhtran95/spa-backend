@@ -14,6 +14,7 @@ use App\Constants\Invoice as InvoiceConstant;
 use App\Intake;
 use App\Order;
 use App\Variant;
+use App\Variable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\InvoiceRepository;
@@ -262,18 +263,22 @@ class IntakeRepository implements IntakeRepositoryInterface
 
         DB::beginTransaction();
         try {
-            // Create Intake Helper
-            $helper = new IntakeHelper();
             /* 0. Get customer */
-            $customer = null;
+            $customer = NULL;
+            // Init customer rank
+            $customer_rank = NULL;
+
             if ($intake->customer_id) {
                 $customer = Customer::find($intake->customer_id);
+                /* 0.5 Get System Discount List From Config */
+                if (!empty($customer) && !empty($customer->rank)) {
+                    $customer_rank = $customer->rank;
+                }
             }
 
-            /* 0.5 Get System Discount List From Config */
-            if (!empty($customer) && !empty($customer->rank)) {
-                $helper->getRankDiscountConfig($customer->rank);
-            }
+            // Create Intake Helper
+            $helper = new IntakeHelper($customer_rank);
+
 
             /* 1. Calculate Total Price And Update Combo Amount */
             $totalPrice = 0;
@@ -282,7 +287,7 @@ class IntakeRepository implements IntakeRepositoryInterface
             if (!empty($intake->orders)) {
             /* 1 calculate total price */
                 $intake->orders->each(
-                    function ($order) use ($helper, $totalPrice) {
+                    function ($order) use ($helper, &$totalPrice) {
                         // Handle paid order
                         if (empty($order->combo_id)) {
                             $price = $helper->processOrderPrice($order->id);
@@ -303,14 +308,13 @@ class IntakeRepository implements IntakeRepositoryInterface
                 );
             }
                
-
             /* 1.2 Check user Balance if using credit */
             if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
                 throw new \Exception("Not enough credit");
             }
 
             /* 2. Check for discount */
-            if (isset($data['additional_discount_price'])) {
+            if (!empty($data['additional_discount_price']) && $data['additional_discount_price'] <= $totalPrice) {
                 $totalPrice = $totalPrice - $data['additional_discount_price'];
                 $intake->additional_discount_price = $data['additional_discount_price'];
                 $intake->discount_note = $data['discount_note'];
@@ -321,12 +325,19 @@ class IntakeRepository implements IntakeRepositoryInterface
             if ($intake->final_price < 0) {
                 $intake->final_price = 0;
             }
-            
 
             /* 4. Collect point for customer */
+            // TODO: remove the old way.
             if ($intake->final_price > 0 && !empty($customer) && $payment_method !==  PaymentType::CREDIT) {
-                $customer->points = $customer->points + (int)($intake->final_price / 50);
-                $customer->save();
+                // $customer->points = $customer->points + (int)($intake->final_price / 50);
+                // $customer->save();
+                $point_rate_id='POINT_RATE';
+                if($customer_rank) $point_rate_id .= '_'.strtoupper($customer_rank);
+                $rate = Variable::find($point_rate_id);
+                if (!empty($rate)) {
+                    $customer->cash_point = $customer->cash_point + $intake->final_price*(floatval($rate->value)/100);
+                    $customer->save();
+                }
             }
 
             /* 5. Process credit payment */
