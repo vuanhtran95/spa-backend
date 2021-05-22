@@ -16,7 +16,7 @@ class AddRankToCustomersTable extends Migration
         Schema::table('customers', function (Blueprint $table) {
             $table->string('rank')->nullable();
             $table->foreign('rank')
-                ->references('name')
+                ->references('id')
                 ->on('ranks')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
@@ -33,7 +33,7 @@ class AddRankToCustomersTable extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             $table->dropForeign(['rank']);
-            Schema::dropIfExists('rank');
+            Schema::dropColumn('rank');
         });
     }
 }
