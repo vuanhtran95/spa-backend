@@ -314,7 +314,9 @@ class IntakeRepository implements IntakeRepositoryInterface
             }
 
             /* 2. Check for discount */
-            if (!empty($data['additional_discount_price']) && $data['additional_discount_price'] <= $totalPrice) {
+            if (!empty($data['additional_discount_price'])
+            && $data['additional_discount_price'] <= $totalPrice
+            ) {
                 $totalPrice = $totalPrice - $data['additional_discount_price'];
                 $intake->additional_discount_price = $data['additional_discount_price'];
                 $intake->discount_note = $data['discount_note'];
@@ -360,18 +362,22 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $customer->save();
                 };
             }
-
-            // Update Status For Intake
             $intake->is_valid = 1;
             $intake->save();
+            DB::commit();
             //TODO: UP RANK
             $up_rank = false;
             if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
                 $up_rank = Common::upRank($customer);
+                if(!empty($up_rank)) {
+                    DB::beginTransaction();
+                    $intake->special_note = $up_rank;
+                    $intake->save();
+                    DB::commit();
+                }
             }
+            // Update Status For Intake
             $result = $this->getOneBy('id', $id);
-            $result['up_rank_result'] = $up_rank;
-            DB::commit();
             return $result;
         } catch (\Exception $exception) {
             DB::rollBack();

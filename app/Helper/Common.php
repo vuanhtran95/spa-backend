@@ -54,7 +54,7 @@ class Common
             case "gold":
               if ($total_spending >= 50000) {
                   $customer->rank = 'diamond';
-                  $customer->save();
+                //   $customer->save();
                   $new_rank='diamond';
               }
               break;
@@ -71,7 +71,6 @@ class Common
                     $new_rank='gold';
                     break;
                 }
-                break;
             case NULL:
                 if ($total_spending >= 50000) {
                     $customer->rank = 'diamond';
@@ -91,14 +90,13 @@ class Common
                     $new_rank='silver';
                     break;
                 }
-                break;
             default:
               break;
         }
-        return empty($new_rank) ?  false : [
+        return empty($new_rank) ?  false : json_encode([
             'from'=> $current_rank,
             'to' => $new_rank,
             'total_spending' => $total_spending
-        ];
+        ]);
     }
 }
