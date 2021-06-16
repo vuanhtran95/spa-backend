@@ -58,6 +58,34 @@ class TaskController extends Controller
         }
     }
 
+    public function getReminderAssignments(Request $request)
+    {
+        $params = $request->all();
+
+        try {
+            // Get Task Assignments
+            $reminders = $this->taskAssignmentRepository->getReminder();
+        
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$GET_TASK_ASSIGNMENTS_SUCCESSFULLY, $reminders);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
+    public function createReminder(Request $request)
+    {
+        $params = $request->all();
+
+        try {
+            // Create task history
+            $discounts = $this->taskAssignmentRepository->createReminder($params);
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$DISCOUNT_CREATED, $discounts);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
+
     public function create(Request $request)
     {
         $params = $request->all();

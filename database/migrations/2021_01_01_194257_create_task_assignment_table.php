@@ -25,7 +25,7 @@ class CreateTaskAssignmentTable extends Migration
             $table->boolean('sat')->default(0);
             $table->boolean('sun')->default(0);
 
-            $table->unsignedBigInteger('task_id');
+            $table->unsignedBigInteger('task_id')->nullable();
             $table->foreign('task_id')
             ->references('id')
             ->on('tasks')

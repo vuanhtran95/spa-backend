@@ -54,9 +54,11 @@ class DiscountRepository implements DiscountRepositoryInterface
                         $new_discount->$property = $value;
                     }
                 }
+                $new_discount->is_active = true;
                 $new_discount->save();
+                array_push($result, $new_discount);
             }
-            return true;
+            return $result;
         }
         throw new \Exception('No Discount Created');
     }
@@ -83,11 +85,20 @@ class DiscountRepository implements DiscountRepositoryInterface
         ];
     }
 
-    public function update(array $attributes = [])
+    public function saveById($id, $data) {
+        $update_discount = Discount::find($id);
+        foreach ($data as $property => $value) {
+            $update_discount->$property = $value;
+        }
+        $update_discount->save();
+        return $update_discount;
+    }
+
+    public function update($id, $data)
     {
         DB::beginTransaction();
         try {
-            $return = $this->save($attributes, true);
+            $return = $this->saveById($id, $data);
             DB::commit();
             return $return;
         } catch (\Exception $exception) {
@@ -106,7 +117,7 @@ class DiscountRepository implements DiscountRepositoryInterface
                 try {
                     $destroy = Discount::destroy($id);
                     DB::commit();
-                    return $destroy;
+                    return ['id' => $id];
                 } catch (\Exception $exception) {
                     DB::rollBack();
                     throw $exception;

@@ -24,9 +24,7 @@ class DiscountController extends Controller
 
         try {
             // Create task history
-            $discount = $this->DiscountRepository->create($params);
-            $discounts = $this->DiscountRepository->get($params);
-
+            $discounts = $this->DiscountRepository->create($params);
             return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$DISCOUNT_CREATED, $discounts);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
@@ -51,7 +49,7 @@ class DiscountController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function updateMany(Request $request)
     {
         $params = $request->all();
 
@@ -62,6 +60,19 @@ class DiscountController extends Controller
         try {
             // Update task history
             $discount = $this->DiscountRepository->update($params);
+
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DISCOUNT_UPDATED, $discount);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $data = $request->all();
+        try {
+            // Update task history
+            $discount = $this->DiscountRepository->update($id, $data);
 
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DISCOUNT_UPDATED, $discount);
         } catch (\Exception $e) {

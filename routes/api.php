@@ -126,16 +126,19 @@ Route::get('/v1/judgement', 'JudgementController@get')->middleware('auth:api');
 Route::put('/v1/judgement/{id}', 'JudgementController@update')->middleware('auth:api');
 Route::delete('/v1/judgement/{id}', 'JudgementController@remove')->middleware('auth:api');
 
-// Config
-Route::post('/v1/discount', 'DiscountController@create')->middleware('auth:api');
-Route::get('/v1/discount', 'DiscountController@get')->middleware('auth:api');
-Route::put('/v1/discount', 'DiscountController@update')->middleware('auth:api');
-Route::delete('/v1/discount/{id}', 'DiscountController@remove')->middleware('auth:api');
-
-// Service Category
-Route::get('/v1/config-categories', 'ConfigCategoryController@get')->middleware('auth:api');
-Route::post('/v1/config-categories', 'ConfigCategoryController@create')->middleware('auth:api');
 
 // Variable Category
 Route::get('/v1/variable', 'VariableController@get')->middleware('auth:api');
 Route::post('/v1/variable', 'VariableController@update')->middleware('auth:api');
+
+// Discount
+Route::post('/v1/discount', 'DiscountController@create')->middleware('auth:api');
+Route::get('/v1/discount', 'DiscountController@get')->middleware('auth:api');
+// Route::put('/v1/discount', 'DiscountController@update')->middleware('auth:api');
+Route::put('/v1/discount/{id}', 'DiscountController@update')->middleware('auth:api');
+Route::delete('/v1/discount/{id}', 'DiscountController@remove')->middleware('auth:api');
+
+Route::get('/v1/ranks', 'CustomerController@getRanks')->middleware('auth:api');
+// Reminder
+Route::post('/v1/reminder', 'TaskController@createReminder')->middleware('auth:api');
+Route::get('/v1/reminder', 'TaskController@getReminderAssignments')->middleware('auth:api');

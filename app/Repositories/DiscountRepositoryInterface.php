@@ -8,7 +8,8 @@ interface   DiscountRepositoryInterface
 
     public function get(array $condition = []);
     
-    public function update(array $attributes = []);
+    // public function update(array $attributes = []);
+    public function update($id, $data);
 
     public function delete($id);
 }

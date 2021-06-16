@@ -6,6 +6,7 @@ use App\Order;
 use App\Variant;
 use App\Discount;
 use App\Variable;
+use App\Repositories\TaskAssignmentRepository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -142,12 +143,8 @@ class IntakeHelper
         return $price;
     }
 
-    public function processOrderPrice($order_id)
+    public function processOrderPrice($updateOrder,  $variant)
     {
-        $updateOrder = Order::find($order_id);
-        $variant = Variant::where('id', '=', $updateOrder->variant_id)->with(['service' => function ($query) {
-            $query->with('serviceCategory');
-        }])->first();
         // Not Calculate the free variant
         if ($variant->is_free) {
             return 0;
@@ -157,5 +154,18 @@ class IntakeHelper
             return $this->calculatePromotionOrderPrice($updateOrder, $variant);
         }
         return $this->calculateNormalOrderPrice($updateOrder, $variant);
+    }
+
+    public function order_pre_process($updateOrder,  $variant,$customer) {
+        if($variant->service['serviceCategory']->name === 'facials') {
+            $taskAssignmentRepository = new taskAssignmentRepository();
+            $date = Carbon::createFromFormat('Y-m-d H:i:s',$updateOrder->created_at, 'Asia/Ho_Chi_Minh')->format('d/m/Y');
+            
+            $message = 'Nhắn tin hỏi thăm khách hàng<br><strong>'.$customer->name.'</strong><br>SĐT: <a href="tel:'.$customer->phone.'">'.$customer->phone.'</a><br>Đã làm dịch vụ <i>'.$variant->name.'</i><br>Ngày <u>'.$date.'</u>';
+            $taskAssignmentRepository->createReminder([
+                'title'=> $message,
+                'employee_id'=>$updateOrder->employee_id,
+            ]);
+        }
     }
 }

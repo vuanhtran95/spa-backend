@@ -196,7 +196,9 @@ class IntakeRepository implements IntakeRepositoryInterface
         }
 
         $intakes = $query->limit($perPage)
-            ->with(['customer', 'employee'])
+            ->with(['customer','orders' => function($o) {
+                $o->with(['variant', 'employee']);
+            }])
             ->offset(($page - 1) * $perPage)
             ->get()
             ->toArray();
@@ -287,10 +289,18 @@ class IntakeRepository implements IntakeRepositoryInterface
             if (!empty($intake->orders)) {
             /* 1 calculate total price */
                 $intake->orders->each(
-                    function ($order) use ($helper, &$totalPrice) {
+                    function ($order) use ($helper, &$totalPrice, $customer) {
+                        // Get order id information
+                        $updateOrder = Order::find($order->id);
+                        //Get Variant information
+                        $variant = Variant::where('id', '=', $updateOrder->variant_id)->with(['service' => function ($query) {
+                            $query->with('serviceCategory');
+                        }])->first();
+                        // Pre Process Order Additional Logic
+                        $helper->order_pre_process($updateOrder,  $variant, $customer);
                         // Handle paid order
                         if (empty($order->combo_id)) {
-                            $price = $helper->processOrderPrice($order->id);
+                            $price = $helper->processOrderPrice($updateOrder,  $variant);
                             $totalPrice = $totalPrice  + $price*$order->amount;
                         }
                         // Handle Combo order
@@ -362,8 +372,8 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $customer->save();
                 };
             }
-            $intake->is_valid = 1;
-            $intake->save();
+            // $intake->is_valid = 1;
+            // $intake->save();
             DB::commit();
             //TODO: UP RANK
             $up_rank = false;
