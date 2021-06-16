@@ -86,6 +86,7 @@ class IntakeHelper
     public function calculateNormalOrderPrice($updateOrder, $variant)
     {
         $price = $variant->price;
+        $updateOrder->base_price = $variant->price;
         $amount = 0;
         $percentage = 0;
         $discount_note = array();
@@ -131,6 +132,7 @@ class IntakeHelper
     public function calculatePromotionOrderPrice($updateOrder, $variant)
     {
         $price = $variant->price;
+        $updateOrder->base_price = $variant->price;
         if (
             $this->rank
             && $this->RANK_EXTRA_DISCOUNT_ACTIVE
