@@ -14,6 +14,7 @@ class AddDiscountColumnsOrdersTable extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
+            $table->float('base_price')->default(0);
             $table->float('discount_amount')->default(0);
             $table->float('discount_percentage')->default(0);
             $table->string('discount_note')->nullable();
@@ -27,7 +28,8 @@ class AddDiscountColumnsOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::table('customers', function (Blueprint $table) {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('base_price');
             $table->dropColumn('discount_amount');
             $table->dropColumn('discount_percentage');
             $table->dropColumn('discount_note');

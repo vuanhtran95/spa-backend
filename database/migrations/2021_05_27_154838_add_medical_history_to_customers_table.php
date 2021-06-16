@@ -14,7 +14,7 @@ class AddMedicalHistoryToCustomersTable extends Migration
     public function up()
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->string('medical_history')->nullable();
+            $table->longText('medical_history')->nullable();
         });
     }
 
