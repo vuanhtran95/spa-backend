@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Illuminate\Support\Facades\DB;
 class CreateDiscountsTable extends Migration
 {
     /**
@@ -67,9 +67,8 @@ class CreateDiscountsTable extends Migration
      */
     public function down()
     {
-        Schema::table('discounts', function (Blueprint $table) {
-            $table->dropForeign(['rank_name', 'service_category_id', 'service_id', 'variant_id']);
-            Schema::dropIfExists('discounts');
-        });
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::drop('discounts');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

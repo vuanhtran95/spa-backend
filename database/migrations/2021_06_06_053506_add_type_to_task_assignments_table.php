@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVariablesTable extends Migration
+class AddTypeToTaskAssignmentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateVariablesTable extends Migration
      */
     public function up()
     {
-        Schema::create('variables', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('description')->nullable();
-            $table->string('value')->nullable();
-            $table->timestamps();
+        Schema::table('task_assignments', function (Blueprint $table) {
+            $table->enum('type', ['chore', 'reminder'])->default('chore');
         });
     }
 
@@ -28,6 +25,8 @@ class CreateVariablesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('variables');
+        Schema::table('task_assignments', function (Blueprint $table) {
+            $table->dropColumn('type');
+        });
     }
 }

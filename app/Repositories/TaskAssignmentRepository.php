@@ -12,7 +12,7 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
 {
     public function get()
     {
-        $task_assignments = TaskAssignment::with(['employee'])->get();
+        $task_assignments = TaskAssignment::with(['employee'])->where('type', '=', 'chore')->get();
         $days_of_week = [
             'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'
         ];
@@ -35,21 +35,32 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
                 }
             }
         }
-
-        // foreach ($task_assignments as $task_assignment) {
-        //     foreach ($days_of_week as $day) {
-        //         if ($task_assignment->$day) {
-        //             $result[$day][] = [
-        //                 'id' => $task_assignment->id,
-        //                 'title' => $task_assignment->title,
-        //                 'task_id' => $task_assignment->task_id,
-        //                 'employee_id' => $task_assignment->employee_id
-        //             ];
-        //         }
-        //     }
-        // }
-
         return array_values($result);
+    }
+
+    public function getReminder()
+    {
+        $task_assignments = TaskAssignment::with(['employee'])->where('type', '=', 'reminder')->get()->toArray();
+        return $task_assignments;
+    }
+
+    public function createReminder(array $attributes = [])
+    {
+        DB::beginTransaction();
+        try {
+            $new_reminder = new TaskAssignment();
+            foreach ($attributes as $property => $value) {
+                $new_reminder->$property = $value;
+            }
+            $new_reminder->type = 'reminder';
+            $new_reminder->save();
+            DB::commit();
+            $result = TaskAssignment::with(['employee'])->where('id', '=', $new_reminder->id)->first();
+            return $result;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw new \Exception($exception->getMessage());
+        }
     }
 
     public function create(array $attributes = [])
@@ -76,6 +87,7 @@ class TaskAssignmentRepository implements TaskAssignmentRepositoryInterface
                         $day = strtolower($scheduleData['day']);
                         $taskAssignment->{$day} = true;
                         $taskAssignment->employee_id = $scheduleData['employee_id'];
+                        $taskAssignment->type = 'chore';
                         $taskAssignment->save();
                     } else {
                         continue;

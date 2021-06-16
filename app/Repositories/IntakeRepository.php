@@ -8,11 +8,13 @@ use App\Repositories\CustomerRepository;
 use App\Employee;
 use App\Helper\Translation;
 use App\Helper\Common;
+use App\Helper\IntakeHelper;
 use App\Constants\PaymentType;
 use App\Constants\Invoice as InvoiceConstant;
 use App\Intake;
 use App\Order;
 use App\Variant;
+use App\Variable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\InvoiceRepository;
@@ -194,7 +196,9 @@ class IntakeRepository implements IntakeRepositoryInterface
         }
 
         $intakes = $query->limit($perPage)
-            ->with(['customer', 'employee'])
+            ->with(['customer','employee','orders' => function($o) {
+                $o->with(['variant', 'employee']);
+            }])
             ->offset(($page - 1) * $perPage)
             ->get()
             ->toArray();
@@ -262,70 +266,67 @@ class IntakeRepository implements IntakeRepositoryInterface
         DB::beginTransaction();
         try {
             /* 0. Get customer */
-            $customer = null;
+            $customer = NULL;
+            // Init customer rank
+            $customer_rank = NULL;
+
             if ($intake->customer_id) {
                 $customer = Customer::find($intake->customer_id);
+                /* 0.5 Get System Discount List From Config */
+                if (!empty($customer) && !empty($customer->rank)) {
+                    $customer_rank = $customer->rank;
+                }
             }
+
+            // Create Intake Helper
+            $helper = new IntakeHelper($customer_rank);
+
 
             /* 1. Calculate Total Price And Update Combo Amount */
             $totalPrice = 0;
             $payment_method = $intake->payment_type;
 
             if (!empty($intake->orders)) {
-                /* 1.1 calculate total price */
-                $paid_orders = $intake->orders->filter(
-                    function ($order) {
-                        return empty($order->combo_id);
-                    }
-                )->values();
-               
-                foreach ($paid_orders as $order) {
-
-                        // Pay money
-                    $updateOrder = Order::find($order->id);
-                    $variant = Variant::find($updateOrder->variant_id);
-                    $is_free_variant = $variant->is_free;
-                    // Not Calculate the free variant
-                    if (!$is_free_variant) {
-                        // Store price to order
-                        if ($payment_method ===  PaymentType::CREDIT) {
-                            $totalPrice = $totalPrice + $variant->credit_price * $order->amount;
-                        } else {
-                            $totalPrice = $totalPrice + $variant->price * $order->amount;
+            /* 1 calculate total price */
+                $intake->orders->each(
+                    function ($order) use ($helper, &$totalPrice, $customer) {
+                        // Get order id information
+                        $updateOrder = Order::find($order->id);
+                        //Get Variant information
+                        $variant = Variant::where('id', '=', $updateOrder->variant_id)->with(['service' => function ($query) {
+                            $query->with('serviceCategory');
+                        }])->first();
+                        // Pre Process Order Additional Logic
+                        $helper->order_pre_process($updateOrder,  $variant, $customer);
+                        // Handle paid order
+                        if (empty($order->combo_id)) {
+                            $price = $helper->processOrderPrice($updateOrder,  $variant);
+                            $totalPrice = $totalPrice  + $price*$order->amount;
                         }
-                        $updateOrder->price = $variant->price;
-                        $updateOrder->credit_price = $variant->credit_price;
-                        $updateOrder->save();
+                        // Handle Combo order
+                        else {
+                            // Use combo, won't pay money
+                            $combo = Combo::find($order->combo_id);
+                            // Minus combo
+                            $combo->number_used = (int)$combo->number_used + (int)$order->amount;
+                            if ($combo->number_used > $combo->amount) {
+                                throw new Exception('You have run out of use this combo');
+                            }
+                            $combo->save();
+                        }
                     }
-                }
-
-                /* 1.2 Check user Balance if using credit */
-                if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
-                    throw new \Exception("Not enough credit");
-                }
-
-                /* 1.3 Calculate combo amount */
-                $combo_orders = $intake->orders->filter(
-                    function ($order) {
-                        return !empty($order->combo_id);
-                    }
-                )->values();
-    
-                foreach ($combo_orders as $order) {
-    
-                    // Use combo, won't pay money
-                    $combo = Combo::find($order->combo_id);
-                    // Minus combo
-                    $combo->number_used = (int)$combo->number_used + (int)$order->amount;
-                    if ($combo->number_used > $combo->amount) {
-                        throw new Exception('You have run out of use this combo');
-                    }
-                    $combo->save();
-                }
+                );
+            }
+               
+            /* 1.2 Check user Balance if using credit */
+            if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
+                throw new \Exception("Not enough credit");
             }
 
             /* 2. Check for discount */
-            if (isset($data['additional_discount_price'])) {
+            if (!empty($data['additional_discount_price'])
+            && $data['additional_discount_price'] <= $totalPrice
+            ) {
                 $totalPrice = $totalPrice - $data['additional_discount_price'];
                 $intake->additional_discount_price = $data['additional_discount_price'];
                 $intake->discount_note = $data['discount_note'];
@@ -336,12 +337,19 @@ class IntakeRepository implements IntakeRepositoryInterface
             if ($intake->final_price < 0) {
                 $intake->final_price = 0;
             }
-            
 
             /* 4. Collect point for customer */
+            // TODO: remove the old way.
             if ($intake->final_price > 0 && !empty($customer) && $payment_method !==  PaymentType::CREDIT) {
-                $customer->points = $customer->points + (int)($intake->final_price / 50);
-                $customer->save();
+                // $customer->points = $customer->points + (int)($intake->final_price / 50);
+                // $customer->save();
+                $point_rate_id='POINT_RATE';
+                if($customer_rank) $point_rate_id .= '_'.strtoupper($customer_rank);
+                $rate = Variable::find($point_rate_id);
+                if (!empty($rate)) {
+                    $customer->cash_point = $customer->cash_point + $intake->final_price*(floatval($rate->value)/100);
+                    $customer->save();
+                }
             }
 
             /* 5. Process credit payment */
@@ -352,10 +360,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 
             if ($payment_method ===  PaymentType::CREDIT) {
                 if (empty($invoice)) {
-                    throw new Exception('Missing invoice');
+                    throw new \Exception('Missing invoice');
                 }
                 if ($invoice->status === InvoiceConstant::PAID_STATUS) {
-                    throw new Exception('Payment Failed! Invoice has been proceeded');
+                    throw new \Exception('Payment Failed! Invoice has been proceeded');
                 }
                 $invoice->amount = $intake->final_price;
                 $invoice->status =InvoiceConstant::PAID_STATUS;
@@ -364,18 +372,22 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $customer->save();
                 };
             }
-
-            // Update Status For Intake
             $intake->is_valid = 1;
             $intake->save();
+            DB::commit();
             //TODO: UP RANK
             $up_rank = false;
             if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
                 $up_rank = Common::upRank($customer);
+                if(!empty($up_rank)) {
+                    DB::beginTransaction();
+                    $intake->special_note = $up_rank;
+                    $intake->save();
+                    DB::commit();
+                }
             }
-            $result = Intake::with(['orders', 'invoice'])->find($id);
-            $result['up_rank_result'] = $up_rank;
-            DB::commit();
+            // Update Status For Intake
+            $result = $this->getOneBy('id', $id);
             return $result;
         } catch (\Exception $exception) {
             DB::rollBack();

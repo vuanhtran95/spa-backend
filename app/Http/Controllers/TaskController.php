@@ -58,6 +58,34 @@ class TaskController extends Controller
         }
     }
 
+    public function getReminderAssignments(Request $request)
+    {
+        $params = $request->all();
+
+        try {
+            // Get Task Assignments
+            $reminders = $this->taskAssignmentRepository->getReminder();
+        
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$GET_TASK_ASSIGNMENTS_SUCCESSFULLY, $reminders);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
+    public function createReminder(Request $request)
+    {
+        $params = $request->all();
+
+        try {
+            // Create task history
+            $discounts = $this->taskAssignmentRepository->createReminder($params);
+            return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$DISCOUNT_CREATED, $discounts);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
+
     public function create(Request $request)
     {
         $params = $request->all();
@@ -111,7 +139,7 @@ class TaskController extends Controller
             // Update Task
             $task = $this->taskRepository->save($validatedData, true, $task_id);
 
-            return HttpResponse::toJson(true, Response::HTTP_UPDATED, Translation::$TASK_UPDATED, $task);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$TASK_UPDATED, $task);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
@@ -130,7 +158,7 @@ class TaskController extends Controller
             // Update Task assignment
             $taskAssignment = $this->taskAssignmentRepository->save($validatedData, $task_assignment_id);
 
-            return HttpResponse::toJson(true, Response::HTTP_UPDATED, Translation::$TASK_ASSIGNMENT_UPDATED, $task);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$TASK_ASSIGNMENT_UPDATED, $task);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }

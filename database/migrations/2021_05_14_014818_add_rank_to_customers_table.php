@@ -32,8 +32,8 @@ class AddRankToCustomersTable extends Migration
     
     {
         Schema::table('customers', function (Blueprint $table) {
-            $table->dropForeign(['rank']);
-            Schema::dropColumn('rank');
+            $table->dropForeign('customers_rank_foreign');
+            $table->dropColumn('rank');
         });
     }
 }

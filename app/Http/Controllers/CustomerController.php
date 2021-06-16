@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller as Controller;
 use App\Http\HttpResponse;
 use App\Repositories\CustomerRepositoryInterface;
-use App\Repositories\EmployeeRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as Response;
 use Exception;
@@ -53,6 +52,22 @@ class CustomerController extends Controller
                 Translation::$GET_ALL_CUSTOMER_SUCCESS,
                 $customers['Data'],
                 $customers['Pagination']
+            );
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, $e->getMessage());
+        }
+    }
+
+    public function getRanks()
+    {
+        try {
+            $ranks = $this->customerRepository->getRanks();
+            return HttpResponse::toJson(
+                true,
+                Response::HTTP_OK,
+                Translation::$GET_ALL_CUSTOMER_SUCCESS,
+                $ranks['Data'],
+                $ranks['Pagination']
             );
         } catch (Exception $e) {
             return HttpResponse::toJson(false, $e->getMessage());

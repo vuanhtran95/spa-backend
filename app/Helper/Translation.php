@@ -115,6 +115,11 @@ class Translation
     public static $JUDGEMENT_UPDATED = "JUDGEMENT_UPDATED";
     public static $JUDGEMENT_DELETED = "JUDGEMENT_DELETED";
 
+    public static $DISCOUNT_CREATED = "DISCOUNT_CREATED";
+    public static $DISCOUNT_GET = "DISCOUNT_GET_SUCCESS";
+    public static $DISCOUNT_UPDATED = "DISCOUNT_UPDATED";
+    public static $DISCOUNT_DELETED = "DISCOUNT_DELETED";
+
     public static $SYSTEM_ERROR = "SYSTEM_ERROR";
     public static $INPUT_ERROR = "INPUT_ERROR";
 

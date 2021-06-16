@@ -235,7 +235,11 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         ]);
         $day = $date->shortEnglishDayOfWeek;
         $query = Employee::where($by, '=', $value)->with('role')->with(['TaskAssignments' => function ($taskQuery) use ($day) {
-            $taskQuery->where(strtolower($day), 1);
+            $taskQuery->where('type', '=', 'reminder')
+                ->orWhere(function($query) use ($day) {
+                    $query->where(strtolower($day), 1)->where('type', '=', 'chore');
+                });
+                
         }]);
         if (isset($config['show_commission']) && $config['show_commission'] == 1) {
            

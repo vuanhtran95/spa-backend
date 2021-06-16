@@ -37,4 +37,8 @@ class Customer extends Model
     {
         return $this->hasMany('App\Intake');
     }
+    public function orders()
+    {
+        return $this->hasMany('App\Order');
+    }
 }

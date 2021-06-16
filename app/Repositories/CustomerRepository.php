@@ -3,6 +3,9 @@
 namespace App\Repositories;
 
 use App\Customer;
+use App\Rank;
+use App\Intake;
+use App\Order;
 use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -104,6 +107,22 @@ class CustomerRepository implements CustomerRepositoryInterface
         ];
     }
 
+    public function getRanks()
+    {
+        $query = new Rank();
+
+        $ranks = $query->get()->toArray();
+        
+        return [
+            "Data" => $ranks,
+            "Pagination" => [
+                "CurrentPage" => 0,
+                "PerPage" => 0,
+                "TotalItems" => $query->count()
+            ]
+        ];
+    }
+
     public function getOneBy($by, $value)
     {
         $customer = Customer::where($by, '=', $value)
@@ -125,7 +144,29 @@ class CustomerRepository implements CustomerRepositoryInterface
                             ->select(DB::raw("SUM(final_price)"));
                     },])
                 ->first();
-        $customer['total_spend'] =  $customer['intakes_spend'] + $customer['packages_spend'] + $customer['coin_spend'];
+        if(!empty($customer)) {
+            $customer_id = $customer['id'];
+
+            $latest_body_order = Order::whereHas('intake', function($i) use( $customer_id) {
+                $i->where('customer_id', '=',  $customer_id);
+            })->whereHas('variant', function($v) {
+                $v->where('variant_category', '=','body');
+            })->orderBy('updated_at','DESC')->with(['variant', 'employee'])->first();
+
+            
+    
+            $latest_facials_order = Order::whereHas('intake', function($i) use( $customer_id) {
+                $i->where('customer_id', '=',  $customer_id);
+            })->whereHas('variant', function($v) {
+                $v->where('variant_category', '=','facials');
+            })->orderBy('updated_at','DESC')->with(['variant', 'employee'])->first();
+            
+            $customer['latest_treatments'] = [
+                'body' => $latest_body_order,
+                'facials' => $latest_facials_order
+            ];
+            $customer['total_spend'] =  $customer['intakes_spend'] + $customer['packages_spend'] + $customer['coin_spend'];
+        }
         return $customer;
     }
 

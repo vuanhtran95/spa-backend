@@ -7,6 +7,7 @@ interface CustomerRepositoryInterface
     public function create(array $attributes = []);
 
     public function get(array $condition = []);
+    public function getRanks();
 
     public function getOneBy($by, $value);
 
