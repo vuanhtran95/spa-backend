@@ -100,17 +100,25 @@ class IntakeHelper
                     $this->apply_discount($discount, $amount, $percentage, $discount_note);
                     break;
                 }
-                
-                if ($discount['variant_id'] === $variant->id) {
-                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+
+                if($discount['variant_id'] !== null) {
+                    if($discount['variant_id'] === $variant->id) {
+                        $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    }
                     break;
                 }
-                if ($discount['service_id'] === $variant->service_id) {
-                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+
+                if($discount['service_id'] !== null ) {
+                    if ($discount['service_id'] === $variant->service_id) {
+                        $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    }
                     break;
                 }
-                if ($discount['service_category_id'] === $variant->service->service_category_id) {
-                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+
+                if ($discount['service_category_id'] !== null ) {
+                    if ($discount['service_category_id'] === $variant->service->service_category_id) {
+                        $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    }
                     break;
                 }
             }

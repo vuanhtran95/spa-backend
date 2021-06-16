@@ -196,7 +196,7 @@ class IntakeRepository implements IntakeRepositoryInterface
         }
 
         $intakes = $query->limit($perPage)
-            ->with(['customer','orders' => function($o) {
+            ->with(['customer','employee','orders' => function($o) {
                 $o->with(['variant', 'employee']);
             }])
             ->offset(($page - 1) * $perPage)
