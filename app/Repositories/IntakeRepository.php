@@ -372,8 +372,8 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $customer->save();
                 };
             }
-            // $intake->is_valid = 1;
-            // $intake->save();
+            $intake->is_valid = 1;
+            $intake->save();
             DB::commit();
             //TODO: UP RANK
             $up_rank = false;
