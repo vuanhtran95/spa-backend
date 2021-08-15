@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSpecialNoteToIntakesTable extends Migration
+class CreateRolesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class AddSpecialNoteToIntakesTable extends Migration
      */
     public function up()
     {
-        Schema::table('intakes', function (Blueprint $table) {
-            $table->longText('special_note')->nullable();
+        Schema::create('roles', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +27,6 @@ class AddSpecialNoteToIntakesTable extends Migration
      */
     public function down()
     {
-        Schema::table('intakes', function (Blueprint $table) {
-            $table->dropColumn('special_note');
-        });
+        Schema::dropIfExists('roles');
     }
 }

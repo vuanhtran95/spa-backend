@@ -99,4 +99,9 @@ class Common
             'total_spending' => $total_spending
         ]);
     }
+    public static function currency_format($number, $postfix = '₫', $suffix = '') {
+      if (!empty($number)) {
+          return " {$postfix} ".number_format($number, 0, ',', '.') . " {$suffix}";
+      }
+  }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class DropCommissionColumnsFromServicesTable extends Migration
+class AddOrderColumToServicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,7 @@ class DropCommissionColumnsFromServicesTable extends Migration
     public function up()
     {
         Schema::table('services', function (Blueprint $table) {
-            $table->dropColumn('commission_rate_male');
-            $table->dropColumn('commission_rate_female');
-            $table->dropColumn('commission_rate_both');
+            $table->integer('order')->default(0);
         });
     }
 
@@ -28,9 +26,7 @@ class DropCommissionColumnsFromServicesTable extends Migration
     public function down()
     {
         Schema::table('services', function (Blueprint $table) {
-            $table->integer('commission_rate_male')->nullable();
-            $table->integer('commission_rate_female')->nullable();
-            $table->integer('commission_rate_both')->nullable();
+            $table->dropColumn('order');
         });
     }
 }

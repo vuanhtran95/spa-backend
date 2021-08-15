@@ -88,12 +88,11 @@ class PackageRepository implements PackageRepositoryInterface
             return $package;
         } else {
             // Create package
-            
-
             $userId = $data['user_id'];
             $employee = Employee::where('user_id', $userId)->first();
             unset($data['user_id']);
             $combos = $data['combos'];
+            
             unset($data['combos']);
             // Create Package
             $package = new Package();
@@ -111,7 +110,7 @@ class PackageRepository implements PackageRepositoryInterface
                     $variant_price = Variant::find($combos[$key]['variant_id'])->price;
                     $combos[$key]['total_price'] = $combos[$key]['amount']*$variant_price;
                 }
-
+               
                 Combo::insert($combos);
                 // Return Intake with order
                 return Package::with('combos')->find($package->id);

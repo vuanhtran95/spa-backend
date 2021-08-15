@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class DropDurationColumnFromVariantsTable extends Migration
+class AddFinalPriceToIntakesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class DropDurationColumnFromVariantsTable extends Migration
      */
     public function up()
     {
-        Schema::table('variants', function (Blueprint $table) {
-            $table->dropColumn('duration');
+        Schema::table('intakes', function (Blueprint $table) {
+            $table->float('final_price')->default(0);
         });
     }
 
@@ -25,8 +25,8 @@ class DropDurationColumnFromVariantsTable extends Migration
      */
     public function down()
     {
-        Schema::table('variants', function (Blueprint $table) {
-            $table->integer('duration')->default(0);
+        Schema::table('intakes', function (Blueprint $table) {
+            $table->dropColumn('final_price');
         });
     }
 }

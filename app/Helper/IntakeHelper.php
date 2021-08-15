@@ -9,6 +9,7 @@ use App\Variable;
 use App\Repositories\TaskAssignmentRepository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Helper\Common;
 
 class IntakeHelper
 {
@@ -67,18 +68,26 @@ class IntakeHelper
                             ->where($day, '=', 1)->get()->toArray();
     }
 
-    public function apply_discount($discount, &$amount, &$percentage, &$discount_note)
+    public function apply_discount($discount, &$amount, &$percentage, &$discount_notes, $price)
     {
         ${$discount['type']} += $discount['value'];
-        array_push($discount_note, $discount['name']);
+        $discount_note_amount = 0;
+        if($discount['type'] === 'percentage') {
+          $discount_note_amount = $price*($discount['value']/100)*1000;
+        } else {
+          $discount_note_amount = $discount['value']*1000;
+        }
+        $discount_note = $discount['name'].': -'.Common::currency_format($discount_note_amount);
+        array_push($discount_notes, $discount_note);
         if ($this->rank
             && $discount['rank_name'] === null
             && $this->RANK_EXTRA_DISCOUNT_ACTIVE
             && $this->RANK_EXTRA_DISCOUNT) {
             $percentage += $this->RANK_EXTRA_DISCOUNT;
+            $rank_discount_amount = $price*($this->RANK_EXTRA_DISCOUNT/100)*1000;
             array_push(
-                $discount_note,
-                'Extra discount ('.$this->rank.'): '.$this->RANK_EXTRA_DISCOUNT.'%'
+                $discount_notes,
+                'Extra discount ('.$this->rank.') '.$this->RANK_EXTRA_DISCOUNT.'%'.' : -'.Common::currency_format($rank_discount_amount)
             );
         }
     }
@@ -89,7 +98,7 @@ class IntakeHelper
         $updateOrder->base_price = $variant->price;
         $amount = 0;
         $percentage = 0;
-        $discount_note = array();
+        $discount_notes = array();
         if (!empty($this->discounts)) {
             foreach ($this->discounts as $discount) {
                 if (
@@ -97,27 +106,27 @@ class IntakeHelper
                     && $discount['service_id'] === null
                     && $discount['service_category_id'] === null
                 ) {
-                    $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                    $this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
                     break;
                 }
 
                 if($discount['variant_id'] !== null) {
                     if($discount['variant_id'] === $variant->id) {
-                        $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                        $this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
                     }
                     break;
                 }
 
                 if($discount['service_id'] !== null ) {
                     if ($discount['service_id'] === $variant->service_id) {
-                        $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                        $this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
                     }
                     break;
                 }
 
                 if ($discount['service_category_id'] !== null ) {
                     if ($discount['service_category_id'] === $variant->service->service_category_id) {
-                        $this->apply_discount($discount, $amount, $percentage, $discount_note);
+                        $this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
                     }
                     break;
                 }
@@ -132,7 +141,7 @@ class IntakeHelper
         $updateOrder->price = $price;
         $updateOrder->discount_amount = $amount;
         $updateOrder->discount_percentage = $percentage;
-        $updateOrder->discount_note = join("<br>", $discount_note);
+        $updateOrder->discount_note = join("<br>", $discount_notes);
         $updateOrder->save();
         return $price;
     }

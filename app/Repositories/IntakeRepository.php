@@ -150,7 +150,6 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $orders[$key]['updated_at'] = Carbon::now();
                     $orders[$key]['combo_id'] = isset($orders[$key]['combo_id']) ? $orders[$key]['combo_id'] : null;
                     $order[$key]['note'] = isset($orders[$key]['note']) ? $orders[$key]['note'] : null;
-                    //                    $order[$key]['gender'] = isset($orders[$key]['gender']) ? $orders[$key]['gender'] : 'both';
                 }
                 Order::insert($orders);
                 // Return Intake with order
@@ -296,6 +295,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                         $variant = Variant::where('id', '=', $updateOrder->variant_id)->with(['service' => function ($query) {
                             $query->with('serviceCategory');
                         }])->first();
+                        $updateOrder->name = $variant->name;
                         // Pre Process Order Additional Logic
                         $helper->order_pre_process($updateOrder,  $variant, $customer);
                         // Handle paid order
@@ -339,8 +339,8 @@ class IntakeRepository implements IntakeRepositoryInterface
             }
 
             /* 4. Collect point for customer */
-            // TODO: remove the old way.
-            if ($intake->final_price > 0 && !empty($customer) && $payment_method !==  PaymentType::CREDIT) {
+            //
+            if ($intake->final_price > 0 && !empty($customer)) {
                 // $customer->points = $customer->points + (int)($intake->final_price / 50);
                 // $customer->save();
                 $point_rate_id='POINT_RATE';
@@ -372,7 +372,7 @@ class IntakeRepository implements IntakeRepositoryInterface
                     $customer->save();
                 };
             }
-            $intake->is_valid = 1;
+            // $intake->is_valid = 1;
             $intake->save();
             DB::commit();
             //TODO: UP RANK
