@@ -14,11 +14,11 @@ use Illuminate\Http\Request;
 */
 
 Route::get('/public', function (Request $request) {
-    return "Public";
+	return "Public";
 });
 
 Route::get('/private', function (Request $request) {
-    return "Private";
+	return "Private";
 })->middleware('auth:api');
 
 

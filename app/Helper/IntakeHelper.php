@@ -154,8 +154,9 @@ class IntakeHelper
             $this->rank
             && $this->RANK_EXTRA_DISCOUNT_ACTIVE
             && $this->RANK_EXTRA_DISCOUNT) {
-                $price = $price*((100 -  $this->RANK_EXTRA_DISCOUNT)/100);
-                $updateOrder->discount_note = 'Extra discount ('.$this->rank.'): '.$this->RANK_EXTRA_DISCOUNT.'%';
+                $discount_amount = $price * ($this->RANK_EXTRA_DISCOUNT/100);
+                $price = $price -  $discount_amount;
+                $updateOrder->discount_note = 'Extra discount ('.$this->rank.') '.$this->RANK_EXTRA_DISCOUNT.'%'.' : -'.Common::currency_format($discount_amount*1000);
         }
         $updateOrder->price = $price;
         $updateOrder->save();

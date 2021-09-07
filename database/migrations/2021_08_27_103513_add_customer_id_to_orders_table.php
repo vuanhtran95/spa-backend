@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddCreditPriceToOrdersTable extends Migration
+class AddCustomerIdToOrdersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,12 @@ class AddCreditPriceToOrdersTable extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->float('credit_price')->default(0);
+            $table->unsignedBigInteger('customer_id')->nullable();
+
+            $table->foreign('customer_id')
+                ->references('id')
+                ->on('customers')
+                ->onUpdate('cascade');
         });
     }
 
@@ -26,7 +31,7 @@ class AddCreditPriceToOrdersTable extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('credit_price');
+            $table->dropForeign(['customer_id']);
         });
     }
 }
