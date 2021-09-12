@@ -198,6 +198,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 		$fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
 		$toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
 
+		$hasReviewForm = isset($condition['has_review']) ? $condition['has_review'] : null;
+
 		$query = new Intake();
 
 		if ($employeeId) {
@@ -219,9 +221,15 @@ class IntakeRepository implements IntakeRepositoryInterface
 		if ($toDate) {
 			$query = $query->where('created_at', '<=', $toDate);
 		}
-
+		if ($hasReviewForm !== null) {
+			if ($hasReviewForm) {
+				$query = $query->has('reviewForm');
+			} else {
+				$query = $query->doesnthave('reviewForm');
+			}
+		}
 		$intakes = $query->limit($perPage)
-			->with(['customer', 'employee', 'orders' => function ($o) {
+			->with(['customer', 'employee', 'reviewForm', 'orders' => function ($o) {
 				$o->with(['variant', 'employee']);
 			}])
 			->paginate($perPage, ['*'], 'page', $page);
