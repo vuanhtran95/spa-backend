@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class DropDurationColumnFromVariantsTable extends Migration
+class CreateRolesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class DropDurationColumnFromVariantsTable extends Migration
      */
     public function up()
     {
-        Schema::table('variants', function (Blueprint $table) {
-            $table->dropColumn('duration');
+        Schema::create('roles', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +27,6 @@ class DropDurationColumnFromVariantsTable extends Migration
      */
     public function down()
     {
-        Schema::table('variants', function (Blueprint $table) {
-            $table->integer('duration')->default(0);
-        });
+        Schema::dropIfExists('roles');
     }
 }

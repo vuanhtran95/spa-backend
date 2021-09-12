@@ -12,13 +12,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class BaseModel extends Model
 {
-    protected static function boot()
-    {
-        parent::boot();
+	public static $ORDER = 'id';
 
-        // Order by name ASC
-        static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('id', 'desc');
-        });
-    }
+	protected static function boot()
+	{
+		parent::boot();
+
+		// Order by name ASC
+		static::addGlobalScope('order', function (Builder $builder) {
+			$builder->orderBy(self::$ORDER, 'desc');
+		});
+	}
 }

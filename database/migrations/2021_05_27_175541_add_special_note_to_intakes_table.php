@@ -14,7 +14,7 @@ class AddSpecialNoteToIntakesTable extends Migration
     public function up()
     {
         Schema::table('intakes', function (Blueprint $table) {
-            $table->string('special_note')->nullable();
+            $table->longText('special_note')->nullable();
         });
     }
 

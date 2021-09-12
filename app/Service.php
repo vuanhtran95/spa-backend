@@ -8,7 +8,7 @@ use App\BaseModel;
 class Service extends BaseModel
 {
     protected $table = 'services';
-
+    public static $ORDER = 'order';
     /**
      * The attributes that are mass assignable.
      *
