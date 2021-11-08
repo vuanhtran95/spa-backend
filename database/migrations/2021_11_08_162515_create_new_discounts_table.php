@@ -19,8 +19,8 @@ class CreateNewDiscountsTable extends Migration
 			$table->string('name');
 			$table->string('fromTime');
 			$table->string('toTime');
-			$table->dateTime('fromDate');
-			$table->dateTime('toDate');
+			$table->date('fromDate');
+			$table->date('toDate');
 			$table->json('conditions');
 			$table->enum('type', ['percentage', 'amount']);
 			$table->float('value')->default(0);
@@ -28,13 +28,15 @@ class CreateNewDiscountsTable extends Migration
 			$table->unsignedBigInteger('service_category_id')->nullable();
 			$table->unsignedBigInteger('service_id')->nullable();
 			$table->unsignedBigInteger('variant_id')->nullable();
-			$table->boolean('mon')->default(1);
-			$table->boolean('tue')->default(1);
-			$table->boolean('wed')->default(1);
-			$table->boolean('thu')->default(1);
-			$table->boolean('fri')->default(1);
-			$table->boolean('sat')->default(1);
-			$table->boolean('sun')->default(1);
+			$table->boolean('mon')->default(0);
+			$table->boolean('tue')->default(0);
+			$table->boolean('wed')->default(0);
+			$table->boolean('thu')->default(0);
+			$table->boolean('fri')->default(0);
+			$table->boolean('sat')->default(0);
+			$table->boolean('sun')->default(0);
+			$table->boolean('whole_bill')->default(0);
+			$table->boolean('all_variants')->default(0);
 			$table->timestamps();
 
 			$table->foreign('service_category_id')
