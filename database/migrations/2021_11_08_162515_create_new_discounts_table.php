@@ -1,0 +1,71 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+class CreateNewDiscountsTable extends Migration
+{
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+		Schema::create('discounts', function (Blueprint $table) {
+			$table->bigIncrements('id');
+			$table->string('name');
+			$table->string('fromTime');
+			$table->string('toTime');
+			$table->dateTime('fromDate');
+			$table->dateTime('toDate');
+			$table->json('conditions');
+			$table->enum('type', ['percentage', 'amount']);
+			$table->float('value')->default(0);
+			$table->boolean('is_active')->default(1);
+			$table->unsignedBigInteger('service_category_id')->nullable();
+			$table->unsignedBigInteger('service_id')->nullable();
+			$table->unsignedBigInteger('variant_id')->nullable();
+			$table->boolean('mon')->default(1);
+			$table->boolean('tue')->default(1);
+			$table->boolean('wed')->default(1);
+			$table->boolean('thu')->default(1);
+			$table->boolean('fri')->default(1);
+			$table->boolean('sat')->default(1);
+			$table->boolean('sun')->default(1);
+			$table->timestamps();
+
+			$table->foreign('service_category_id')
+				->references('id')
+				->on('service_categories')
+				->onUpdate('cascade')
+				->onDelete('cascade');
+
+			$table->foreign('service_id')
+				->references('id')
+				->on('services')
+				->onUpdate('cascade')
+				->onDelete('cascade');
+
+			$table->foreign('variant_id')
+				->references('id')
+				->on('variants')
+				->onUpdate('cascade')
+				->onDelete('cascade');
+		});
+	}
+
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+		DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+		Schema::drop('discounts');
+		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+	}
+}
