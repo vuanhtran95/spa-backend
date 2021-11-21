@@ -29,34 +29,21 @@ class DiscountRepository implements DiscountRepositoryInterface
 		}
 	}
 
-	public function save($data, $is_update = true, $id = null)
+	public function save($discount_data, $is_update = true, $id = null)
 	{
-		if ($is_update && is_array($data)) {
-			foreach ($data as $discount) {
-				if (empty($discount['id'])) break;
-				$update_discount = Discount::find($discount['id']);
-				foreach ($discount as $property => $value) {
-					$update_discount->$property = $value;
-				}
-				$update_discount->save();
-			}
-			return true;
+		$discount_instance = null;
+		if ($is_update) {
+			$discount_instance = Discount::find($id);
+			if (empty($discount_instance)) 	throw new \Exception('No Discount Found');
+		} else {
+			$discount_instance = new Discount();
+			$discount_instance->is_active = true;
 		}
-		if (!$is_update && is_array($data)) {
-			$result = [];
-			foreach ($data as $discount_data) {
-				// Need to create order
-				$new_discount = new Discount();
-				foreach ($discount_data as $property => $value) {
-					$new_discount->$property = $value;
-				}
-				$new_discount->is_active = true;
-				$new_discount->save();
-				array_push($result, $new_discount);
-			}
-			return $result;
+		foreach ($discount_data  as $property => $value) {
+			$discount_instance->$property = $value;
 		}
-		throw new \Exception('No Discount Created');
+		$discount_instance->save();
+		return true;
 	}
 
 	public function get(array $condition = [])
