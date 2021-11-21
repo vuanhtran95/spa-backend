@@ -19,6 +19,13 @@ class IntakeHelper
 		'gold' => 'GOLD_EXTRA_DISCOUNT',
 		'silver' => 'SILVER_EXTRA_DISCOUNT',
 	];
+	public $APPLY_ON = [
+		'whole_bill' => 'whole_bill',
+		'all' => 'all',
+		'service_categories' => 'service_categories',
+		'services' => 'services',
+		'variants' => 'variants',
+	];
 	public $RANK_EXTRA_DISCOUNT_ACTIVE = 0;
 	public $RANK_EXTRA_DISCOUNT = 0;
 	public $rank = null;
@@ -41,7 +48,7 @@ class IntakeHelper
 
 	public function set_rank_discount_active()
 	{
-		$id = $this->extra_rank_discount_variables['rank_discount_active'];
+		$id = $this->variables['rank_discount_active'];
 		$found = Variable::find($id);
 		if (!empty($found)) {
 			$this->RANK_EXTRA_DISCOUNT_ACTIVE = floatval($found->value);
@@ -72,10 +79,11 @@ class IntakeHelper
 			->where($day, '=', 1)
 			->get()->toArray();
 		$this->discounts = array_reduce($discount_array, function ($accumulator, $discount) {
-			if (!$discount['whole_bill']) {
-				$accumulator['individual'][] = $discount;
-			} else {
+			$apply_on = $discount['conditions']['apply_on_conditions']['key'];
+			if ($apply_on === $this->APPLY_ON['whole_bill']) {
 				$accumulator['whole_bill'][] = $discount;
+			} else {
+				$accumulator['individual'][] = $discount;
 			}
 			return $accumulator;
 		}, ['whole_bill' => [], 'individual' => []]);
@@ -184,10 +192,10 @@ class IntakeHelper
 	{
 	}
 
-	public function calculate_discount($order, $discount)
+	public function calculate_discount($order, $discount, $discount_object)
 	{
-		$discount_amount = ($discount->type === 'percentage' ? ($discount->amount / 100) : $discount->amount) * $order->unit_price;
-		$order->discount_description ? $order->discount_description .= ",{$discount->name}" : $order->discount_description .= $discount->name;
+		$discount_amount = ($discount_object['type'] === 'percentage' ? ($discount_object['value'] / 100) : $discount_object['value']) * $order->unit_price;
+		$order->discount_description ? $order->discount_description .= ",{$discount['name']}" : $order->discount_description .= $discount['name'];
 		if (
 			$this->rank
 			&& $this->RANK_EXTRA_DISCOUNT_ACTIVE
@@ -202,45 +210,46 @@ class IntakeHelper
 
 	public function apply_individual_discount($order, $discount)
 	{
-		$condition = $discount->conditions;
+		$condition = $discount['conditions'];
+		$apply_to_key = $condition['apply_to_conditions']['key'];
+		$apply_to_value = $condition['apply_to_conditions']['value'];
 		// Check customer condition: 
 		// (1) apply for non-member
 		// (2) apply for member only 
 		// (3) apply all
-		$customer_condition = ($condition['apply_to'] === 'non-member' && empty($this->rank))
-			|| (!$condition['apply_to'] === 'member' && in_array($this->rank, $condition['ranks']))
-			|| ($condition['apply_to'] === 'all');
+		$customer_condition = ($apply_to_key === 'non-member' && empty($this->rank))
+			|| ($apply_to_key  === 'member' && in_array($this->rank, $apply_to_value))
+			|| ($apply_to_key  === 'all');
 
 		if ($customer_condition) {
-			// Check service condition: 
+			$apply_on_key = $condition['apply_on_conditions']['key'];
+			$apply_on_value = $condition['apply_on_conditions']['value'];
+			// Check service condition:
 			// (1) apply all services
-			if ($discount['variant_id'] === null && $discount['service_id'] === null && $discount['service_category_id'] === null) {
-				$this->calculate_discount($order, $discount);
+			if ($apply_on_key === $this->APPLY_ON['all']) {
+				$this->calculate_discount($order, $discount, $apply_on_value);
 				return;
-			}
-
-			// (2) apply for a variant
-			if ($discount['variant_id'] !== null) {
-				if ($discount['variant_id'] === $order->variant->id) {
-					$this->calculate_discount($order, $discount);
+			} else {
+				$id = null;
+				switch ($apply_on_key) {
+					case $this->APPLY_ON['variants']:
+						$id =  $order->variant->id;
+						break;
+					case $this->APPLY_ON['services']:
+						$id = $order->variant->service_id;
+						break;
+					case $this->APPLY_ON['service_categories']:
+						$id = $order->variant->service->service_category_id;
+						break;
+					default:
+						break;
 				}
-				return;
-			}
-
-			// (3) apply for all variants of a service
-			if ($discount['service_id'] !== null) {
-				if ($discount['service_id'] === $order->variant->service_id) {
-					$this->calculate_discount($order, $discount);
+				if (isset($id)) {
+					$found_key = array_search($id, array_column($apply_on_value, 'id'));
+					if (isset($found_key)) {
+						$this->calculate_discount($order, $discount, $apply_on_value[$found_key]);
+					}
 				}
-				return;
-			}
-
-			// (4) apply for all variants of all services of a service category
-			if ($discount['service_category_id'] !== null) {
-				if ($discount['service_category_id'] === $order->variant->service->service_category_id) {
-					$this->calculate_discount($order, $discount);
-				}
-				return;
 			}
 		}
 		return;
