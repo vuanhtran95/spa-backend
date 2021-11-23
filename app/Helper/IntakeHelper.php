@@ -11,6 +11,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Helper\Common;
 
+use function GuzzleHttp\json_encode;
+
 class IntakeHelper
 {
 	public $variables = [
@@ -18,6 +20,12 @@ class IntakeHelper
 		'diamond' => 'DIAMOND_EXTRA_DISCOUNT',
 		'gold' => 'GOLD_EXTRA_DISCOUNT',
 		'silver' => 'SILVER_EXTRA_DISCOUNT',
+	];
+	public $point_rate_variables = [
+		'non-member' => 'POINT_RATE',
+		'diamond' => 'POINT_RATE_DIAMOND',
+		'gold' => 'POINT_RATE_GOLD',
+		'silver' => 'POINT_RATE_SILVER',
 	];
 	public $APPLY_ON = [
 		'whole_bill' => 'whole_bill',
@@ -28,10 +36,12 @@ class IntakeHelper
 	];
 	public $RANK_EXTRA_DISCOUNT_ACTIVE = 0;
 	public $RANK_EXTRA_DISCOUNT = 0;
+	public $POINT_RATE = 0;
 	public $rank = null;
 	public $customer = true;
 	public $discounts =  ['whole_bill' => [], 'individual' => []];
 	public $service_reminders = [];
+	public $points = 0;
 
 	public function __construct($customer, $created_at)
 	{
@@ -63,6 +73,20 @@ class IntakeHelper
 			if (!empty($found)) {
 				$this->RANK_EXTRA_DISCOUNT = floatval($found->value);
 			}
+		}
+	}
+
+	public function set_point_rate()
+	{
+		$id = null;
+		if (!empty($this->rank)) {
+			$id = $this->point_rate_variables[$this->rank];
+		} else {
+			$id = $this->point_rate_variables['non-member'];
+		}
+		$found = Variable::find($id);
+		if (!empty($found)) {
+			$this->POINT_RATE = floatval($found->value);
 		}
 	}
 
@@ -194,8 +218,17 @@ class IntakeHelper
 
 	public function calculate_discount($order, $discount, $discount_object)
 	{
-		$discount_amount = ($discount_object['type'] === 'percentage' ? ($discount_object['value'] / 100) : $discount_object['value']) * $order->unit_price;
-		$order->discount_description ? $order->discount_description .= ",{$discount['name']}" : $order->discount_description .= $discount['name'];
+		$discount_amount = 0;
+		$discount_description = '';
+		if ($discount_object['type'] === 'percentage') {
+			$discount_amount = ($discount_object['value'] / 100) * $order->unit_price;
+			$discount_description = "Giảm {$discount_object['value']}%";
+		} else {
+			$discount_amount = $discount_object['value'];
+			$discount_description = "Giảm " . Common::currency_format($discount_object['value'] * 1000);
+		}
+
+		$order->discount_description ? $order->discount_description .= ",{$discount_description}" : $order->discount_description .= $discount_description;
 		if (
 			$this->rank
 			&& $this->RANK_EXTRA_DISCOUNT_ACTIVE
@@ -205,7 +238,7 @@ class IntakeHelper
 			$order->discount_description .= " + extra({$this->RANK_EXTRA_DISCOUNT}%)";
 		}
 		$order->discount_amount += $discount_amount;
-		$order->discount_description .= (' :' . Common::currency_format($discount_amount * 1000));
+		$order->discount_description .= (': -' . Common::currency_format($discount_amount * 1000));
 	}
 
 	public function apply_individual_discount($order, $discount)
@@ -248,6 +281,8 @@ class IntakeHelper
 					$found_key = array_search($id, array_column($apply_on_value, 'id'));
 					if (isset($found_key)) {
 						$this->calculate_discount($order, $discount, $apply_on_value[$found_key]);
+					} else {
+						$this->points += $order->unit_price * $this->POINT_RATE;
 					}
 				}
 			}
@@ -273,9 +308,5 @@ class IntakeHelper
 			$this->apply_discounts($order);
 		}
 		$order->price = $order->unit_price - $order->discount_amount;
-		var_dump($order->price);
-		var_dump($order->discount_amount);
-		var_dump($order->discount_description);
-		die;
 	}
 }

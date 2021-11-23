@@ -20,6 +20,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\InvoiceRepository;
 
+use function GuzzleHttp\json_decode;
+use function GuzzleHttp\json_encode;
+
 class IntakeRepository implements IntakeRepositoryInterface
 {
 	public function create(array $attributes = [])
@@ -346,7 +349,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 						// Handle paid order
 						if (empty($order->combo_id)) {
 							$helper->process_order($order);
-							$totalPrice = $totalPrice  + $price * $order->amount;
+							$totalPrice = $totalPrice  + $order->price * $order->amount;
 						}
 						// Handle Combo order
 						else {
@@ -362,6 +365,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 					}
 				);
 			}
+
+			// var_dump(json_encode($intake));
 
 			/* 1.2 Check user Balance if using credit */
 			if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
