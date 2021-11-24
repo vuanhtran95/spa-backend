@@ -296,7 +296,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 	public function approve($id, $data)
 	{
-		// Get Intake and orders within variants and service
+		/* 0. Get Intake detail by ID */
 		$intake = Intake::with(
 			['orders' => function ($query) {
 				$query->with(
@@ -319,97 +319,80 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 		DB::beginTransaction();
 		try {
-			/* 0. Get customer */
-			$customer = NULL;
-			// Init customer rank
-			$customer_rank = NULL;
-
+			/* 0. Get Customer */
+			$customer = NULL; // Guest
 			if ($intake->customer_id) {
-				$customer = Customer::find($intake->customer_id);
-				/* 0.5 Get System Discount List From Config */
-				if (!empty($customer) && !empty($customer->rank)) {
-					$customer_rank = $customer->rank;
-				}
+				$customer = Customer::find($intake->customer_id); // Customer
 			}
 
-			// Create Intake Helper
+			/* 1. Create Intake Helper */
 			$helper = new IntakeHelper($customer, $intake->created_at);
 
-
-			/* 1. Calculate Total Price And Update Combo Amount */
+			/* 2. Calculate Total Price And Update Combo Amount */
 			$totalPrice = 0;
-			$payment_method = $intake->payment_type;
 
 			if (!empty($intake->orders)) {
-				/* 1 calculate total price */
-				// TODO: Calculate discount for Promotion Packs ()
 				$intake->orders->each(
-					function ($order) use ($helper, &$totalPrice, $customer) {
-						$helper->add_service_reminder($order);
-						// Handle paid order
-						if (empty($order->combo_id)) {
-							$helper->process_order($order);
-							$totalPrice = $totalPrice  + $order->price * $order->amount;
-						}
-						// Handle Combo order
-						else {
-							// Use combo, won't pay money
+					function ($order) use ($helper, &$totalPrice) {
+						/* 2.1 Process combo order */
+						if ($order->combo_id) {
 							$combo = Combo::find($order->combo_id);
-							// Minus combo
 							$combo->number_used = (int)$combo->number_used + (int)$order->amount;
 							if ($combo->number_used > $combo->amount) {
 								throw new Exception('You have run out of use this combo');
 							}
 							$combo->save();
 						}
+						/* 2.2 Process normal order */ else {
+							$helper->process_order($order);
+							$totalPrice = $totalPrice  + $order->price * $order->amount;
+						}
+						/* 2.3 Service Reminder */
+						$helper->add_service_reminder($order);
 					}
 				);
 			}
 
-			// var_dump(json_encode($intake));
+			/* 3. Apply whole bill discount */
+			$whole_bill_discount = $helper->calculate_whole_bill_discount($totalPrice);
+			$totalPrice = $totalPrice - $whole_bill_discount['amount'];
+			$intake->discount_note = $whole_bill_discount['description'];
 
-			/* 1.2 Check user Balance if using credit */
-			if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
-				throw new \Exception("Not enough credit");
-			}
-
-			/* 2. Check for discount */
+			/* 4. Apply additional discount */
 			if (
 				!empty($data['additional_discount_price'])
 				&& $data['additional_discount_price'] <= $totalPrice
 			) {
 				$totalPrice = $totalPrice - $data['additional_discount_price'];
 				$intake->additional_discount_price = $data['additional_discount_price'];
-				$intake->discount_note = $data['discount_note'];
+				$intake->discount_note ?  $intake->discount_note .= ", {$data['discount_note']}" :  $intake->discount_note = $data['discount_note'];
 			}
 
-			/* 3. Check negative price and set Intake Price */
+			/* 5. Check negative price and set Intake Final Price */
 			$intake->final_price = $totalPrice;
 			if ($intake->final_price < 0) {
 				$intake->final_price = 0;
 			}
 
-			/* 4. Collect point for customer */
-			//
-			if ($intake->final_price > 0 && !empty($customer)) {
-				// $customer->points = $customer->points + (int)($intake->final_price / 50);
-				// $customer->save();
-				// TODO: LOCK FOR TESTING
-				// $point_rate_id = 'POINT_RATE';
-				// if ($customer_rank) $point_rate_id .= '_' . strtoupper($customer_rank);
-				// $rate = Variable::find($point_rate_id);
-				// if (!empty($rate)) {
-				// 	$customer->cash_point = $customer->cash_point + $intake->final_price * (floatval($rate->value) / 100);
-				// 	$customer->save();
-				// }
+			/* 6. Check user Balance if using credit */
+			$payment_method = $intake->payment_type;
+			if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
+				throw new \Exception("Not enough credit");
 			}
 
-			/* 5. Process credit payment */
+			/* 7. Collect point for customer */
+			if ($intake->final_price > 0 && !empty($customer)) {
+				$customer->cash_point = $customer->cash_point + $helper->get_points();
+				$customer->save();
+			}
+
+			/* 8. Clear created invoice if payment is cash */
 			$invoice = $intake->invoice;
 			if ($payment_method ===  PaymentType::CASH && !empty($invoice)) {
 				$invoice->delete();
 			}
 
+			/* 9. Create Credit Invoice */
 			if ($payment_method ===  PaymentType::CREDIT) {
 				if (empty($invoice)) {
 					throw new \Exception('Missing invoice');
@@ -420,26 +403,29 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$invoice->amount = $intake->final_price;
 				$invoice->status = InvoiceConstant::PAID_STATUS;
 				$customer->balance = $customer->balance - $invoice->amount;
-				// TODO: Lock for testing
-				// if ($invoice->save()) {
-				// 	$customer->save();
-				// };
+
+				if ($invoice->save()) {
+					$customer->save();
+				};
 			}
-			// $intake->is_valid = 1;
+
+			/* 10. Update intake Status and save to DB */
+			$intake->is_valid = 1;
 			$intake->save();
 			DB::commit();
-			//TODO: UP RANK, lock for testing
-			// $up_rank = false;
-			// if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
-			// 	$up_rank = Common::upRank($customer);
-			// 	if (!empty($up_rank)) {
-			// 		DB::beginTransaction();
-			// 		$intake->special_note = $up_rank;
-			// 		$intake->save();
-			// 		DB::commit();
-			// 	}
-			// }
-			// Update Status For Intake
+
+			/* 11. Upgrade rank for user */
+			$up_rank = false;
+			if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
+				$up_rank = Common::upRank($customer);
+				if (!empty($up_rank)) {
+					DB::beginTransaction();
+					$intake->special_note = $up_rank;
+					$intake->save();
+					DB::commit();
+				}
+			}
+
 			$result = $this->getOneBy('id', $id);
 			return $result;
 		} catch (\Exception $exception) {

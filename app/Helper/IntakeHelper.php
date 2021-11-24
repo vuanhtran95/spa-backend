@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 
+use App\Customer;
 use App\Order;
 use App\Variant;
 use App\Discount;
@@ -48,12 +49,18 @@ class IntakeHelper
 		if (!empty($customer)) {
 			$this->customer = $customer;
 			$this->rank = $customer->rank;
+			$this->set_point_rate();
 			$this->set_rank_discount_active();
 			if (!empty($this->RANK_EXTRA_DISCOUNT_ACTIVE)) {
 				$this->set_rank_extra_discount();
 			}
 		}
 		$this->get_discounts($created_at);
+	}
+
+	public function get_points()
+	{
+		return $this->points;
 	}
 
 	public function set_rank_discount_active()
@@ -86,7 +93,7 @@ class IntakeHelper
 		}
 		$found = Variable::find($id);
 		if (!empty($found)) {
-			$this->POINT_RATE = floatval($found->value);
+			$this->POINT_RATE = floatval($found->value / 100);
 		}
 	}
 
@@ -113,96 +120,6 @@ class IntakeHelper
 		}, ['whole_bill' => [], 'individual' => []]);
 	}
 
-	public function process_orders()
-	{
-		$orders = $this->intake->orders;
-	}
-
-	public function calculateNormalOrderPrice($updateOrder, $variant)
-	{
-		$price = $variant->price;
-		$updateOrder->unit_price = $variant->price;
-		$amount = 0;
-		$percentage = 0;
-		$discount_notes = array();
-		if (!empty($this->discounts)) {
-			foreach ($this->discounts as $discount) {
-				if (
-					$discount['variant_id'] === null
-					&& $discount['service_id'] === null
-					&& $discount['service_category_id'] === null
-				) {
-					$this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
-					break;
-				}
-
-				if ($discount['variant_id'] !== null) {
-					if ($discount['variant_id'] === $variant->id) {
-						$this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
-					}
-					break;
-				}
-
-				if ($discount['service_id'] !== null) {
-					if ($discount['service_id'] === $variant->service_id) {
-						$this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
-					}
-					break;
-				}
-
-				if ($discount['service_category_id'] !== null) {
-					if ($discount['service_category_id'] === $variant->service->service_category_id) {
-						$this->apply_discount($discount, $amount, $percentage, $discount_notes, $price);
-					}
-					break;
-				}
-			}
-		}
-		if ($amount) {
-			$price -= $amount;
-		}
-		if ($percentage) {
-			$price = $price * ((100 - $percentage) / 100);
-		}
-		$updateOrder->price = $price;
-		$updateOrder->discount_amount = $amount;
-		// $updateOrder->discount_percentage = $percentage;
-		// $updateOrder->discount_note = join("<br>", $discount_notes);
-		$updateOrder->save();
-		return $price;
-	}
-
-	public function calculatePromotionOrderPrice($updateOrder, $variant)
-	{
-		$price = $variant->price;
-		$updateOrder->unit_price = $variant->price;
-		if (
-			$this->rank
-			&& $this->RANK_EXTRA_DISCOUNT_ACTIVE
-			&& $this->RANK_EXTRA_DISCOUNT
-		) {
-			$discount_amount = $price * ($this->RANK_EXTRA_DISCOUNT / 100);
-			$price = $price -  $discount_amount;
-			$updateOrder->discount_note = 'Extra discount (' . $this->rank . ') ' . $this->RANK_EXTRA_DISCOUNT . '%' . ' : -' . Common::currency_format($discount_amount * 1000);
-		}
-		$updateOrder->price = $price;
-		$updateOrder->save();
-		return $price;
-	}
-
-	public function processOrderPrice($updateOrder,  $variant)
-	{
-		// Not Calculate the free variant
-		if ($variant->is_free) {
-			return 0;
-		}
-		// Handle Service Order
-		if (!empty($updateOrder->promotion_hash)) {
-			return $this->calculatePromotionOrderPrice($updateOrder, $variant);
-		}
-		return $this->calculateNormalOrderPrice($updateOrder, $variant);
-	}
-
 	public function add_service_reminder($order)
 	{
 		$service_category = $order->variant->service->serviceCategory->name;
@@ -210,10 +127,6 @@ class IntakeHelper
 		if ($service_category === 'facials' && $is_owner) {
 			$service_reminders[] = $order->variant->name;
 		}
-	}
-
-	public function apply_extra_discounts($order)
-	{
 	}
 
 	public function calculate_discount($order, $discount, $discount_object)
@@ -279,7 +192,7 @@ class IntakeHelper
 				}
 				if (isset($id)) {
 					$found_key = array_search($id, array_column($apply_on_value, 'id'));
-					if (isset($found_key)) {
+					if ($found_key !== false) {
 						$this->calculate_discount($order, $discount, $apply_on_value[$found_key]);
 					} else {
 						$this->points += $order->unit_price * $this->POINT_RATE;
@@ -299,14 +212,52 @@ class IntakeHelper
 	}
 	public function process_order($order)
 	{
+		// Free service
 		if ($order->variant->is_free) {
 			$order->unit_price  = 0;
 			$order->price = 0;
 			return;
 		}
-		if (empty($order->promotion_hash)) {
-			$this->apply_discounts($order);
+		//Promotion service
+		if ($order->promotion_hash) {
+			$order->price = $order->unit_price;
+			return;
 		}
+		// Normal Service
+		$this->apply_discounts($order);
 		$order->price = $order->unit_price - $order->discount_amount;
+	}
+
+	public function calculate_whole_bill_discount($totalPrice)
+	{
+		$result = [
+			'amount' => 0,
+			'description' => '',
+		];
+		$whole_bill = $this->discounts['whole_bill'];
+		foreach ($whole_bill as $discount) {
+			$condition = $discount['conditions'];
+			$apply_to_key = $condition['apply_to_conditions']['key'];
+			$apply_to_value = $condition['apply_to_conditions']['value'];
+			// Check customer condition: 
+			// (1) apply for non-member
+			// (2) apply for member only 
+			// (3) apply all
+			$customer_condition = ($apply_to_key === 'non-member' && empty($this->rank))
+				|| ($apply_to_key  === 'member' && in_array($this->rank, $apply_to_value))
+				|| ($apply_to_key  === 'all');
+			if ($customer_condition) {
+				$discount_description = '';
+				$discount_object =  $condition['apply_on_conditions']['value'];
+				if ($discount_object['type'] === 'percentage') {
+					$result['amount'] += ($discount_object['value'] / 100) * $totalPrice;
+					$discount_description = "Giảm {$discount_object['value']}% tổng bill";
+				} else {
+					$result['amount'] += $discount_object['value'];
+					$discount_description = "Giảm " . Common::currency_format($discount_object['value'] * 1000) . ' tổng bill';
+				}
+				$result['description'] ? $result['description'] .= ",{$discount_description}" : $result['description'] .= $discount_description;
+			}
+		}
 	}
 }
