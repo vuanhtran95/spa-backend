@@ -20,6 +20,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\InvoiceRepository;
 
+use function GuzzleHttp\json_decode;
+use function GuzzleHttp\json_encode;
+
 class IntakeRepository implements IntakeRepositoryInterface
 {
 	public function create(array $attributes = [])
@@ -46,9 +49,11 @@ class IntakeRepository implements IntakeRepositoryInterface
 						$query->with('combo');
 					}, 'invoice']
 				)->find($id);
+
 				if ($intake->is_valid) {
 					throw new \Exception("Intake already approved");
 				}
+
 				if (isset($data['orders'])) {
 					$allOrdersOfIntake = Order::where('intake_id', '=', $id)->get()->toArray();
 					$updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $data['orders']));
@@ -72,6 +77,12 @@ class IntakeRepository implements IntakeRepositoryInterface
 							if (isset($updateData['combo_id'])) {
 								$orderData->combo_id = $updateData['combo_id'];
 							}
+							if (isset($updateData['is_owner'])) {
+								$orderData->is_owner = $updateData['is_owner'];
+							}
+							if (isset($updateData['owner_name'])) {
+								$orderData->owner_name = $updateData['owner_name'];
+							}
 							if (isset($updateData['variant_id'])) {
 								$variant = Variant::where('id', '=', $updateData['variant_id'])->first();
 
@@ -79,6 +90,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 								$orderData->variant_id = $variant->id;
 								$orderData->name = $variant->name;
+								$orderData->unit_price = isset($updateData['combo_id']) ? 0 :  $variant->price;
 							}
 							//                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
 							$orderData->save();
@@ -96,6 +108,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 							$variant = Variant::where('id', '=', $order['variant_id'])->first();
 							$orderData->variant_id = $variant->id;
+							$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->price;
 							$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
 
 							$orderData->employee_id = $order['employee_id'];
@@ -103,6 +116,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 							$orderData->note = $order['note'];
 							$orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
 							$orderData->promotion_hash = isset($order['promotion_hash']) ? $order['promotion_hash'] : null;
+							$orderData->is_owner = isset($order['is_owner']) ? $order['is_owner'] : true;
+							$orderData->owner_name = isset($order['owner_name']) ? $order['owner_name'] : null;
+							$orderData->customer_id = $intake->customer_id;
 							$orderData->save();
 						}
 					}
@@ -163,6 +179,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 						$variant = Variant::where('id', '=', $order['variant_id'])->first();
 						$orderData->variant_id = $variant->id;
+						$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->price;
 						$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
 
 						$orderData->employee_id = $order['employee_id'];
@@ -170,6 +187,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 						$orderData->note = $order['note'];
 						$orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
 						$orderData->promotion_hash = isset($order['promotion_hash']) ? $order['promotion_hash'] : null;
+						$orderData->is_owner = isset($order['is_owner']) ? $order['is_owner'] : true;
+						$orderData->owner_name = isset($order['owner_name']) ? $order['owner_name'] : null;
+						$orderData->customer_id = $data['customer_id'];
 						$orderData->save();
 					}
 					// Return Intake with order
@@ -276,12 +296,14 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 	public function approve($id, $data)
 	{
-		// Get Intake and orders within variants and service
+		/* 0. Get Intake detail by ID */
 		$intake = Intake::with(
 			['orders' => function ($query) {
 				$query->with(
 					['variant' => function ($subQuery) {
-						$subQuery->with('service');
+						$subQuery->with(['service' => function ($eQuery) {
+							$eQuery->with('serviceCategory');
+						}]);
 					}]
 				);
 			}]
@@ -297,102 +319,80 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 		DB::beginTransaction();
 		try {
-			/* 0. Get customer */
-			$customer = NULL;
-			// Init customer rank
-			$customer_rank = NULL;
-
+			/* 0. Get Customer */
+			$customer = NULL; // Guest
 			if ($intake->customer_id) {
-				$customer = Customer::find($intake->customer_id);
-				/* 0.5 Get System Discount List From Config */
-				if (!empty($customer) && !empty($customer->rank)) {
-					$customer_rank = $customer->rank;
-				}
+				$customer = Customer::find($intake->customer_id); // Customer
 			}
 
-			// Create Intake Helper
-			$helper = new IntakeHelper($customer_rank);
+			/* 1. Create Intake Helper */
+			$helper = new IntakeHelper($customer, $intake->created_at);
 
-
-			/* 1. Calculate Total Price And Update Combo Amount */
+			/* 2. Calculate Total Price And Update Combo Amount */
 			$totalPrice = 0;
-			$payment_method = $intake->payment_type;
 
 			if (!empty($intake->orders)) {
-				/* 1 calculate total price */
-				// TODO: Calculate discount for Promotion Packs ()
 				$intake->orders->each(
-					function ($order) use ($helper, &$totalPrice, $customer) {
-						// Get order id information
-						$updateOrder = Order::find($order->id);
-						//Get Variant information
-						$variant = Variant::where('id', '=', $updateOrder->variant_id)->with(['service' => function ($query) {
-							$query->with('serviceCategory');
-						}])->first();
-						$updateOrder->name = $variant->name;
-						// Pre Process Order Additional Logic
-						$helper->order_pre_process($updateOrder,  $variant, $customer);
-						// Handle paid order
-						if (empty($order->combo_id)) {
-							$price = $helper->processOrderPrice($updateOrder,  $variant);
-							$totalPrice = $totalPrice  + $price * $order->amount;
-						}
-						// Handle Combo order
-						else {
-							// Use combo, won't pay money
+					function ($order) use ($helper, &$totalPrice) {
+						/* 2.1 Process combo order */
+						if ($order->combo_id) {
 							$combo = Combo::find($order->combo_id);
-							// Minus combo
 							$combo->number_used = (int)$combo->number_used + (int)$order->amount;
 							if ($combo->number_used > $combo->amount) {
 								throw new Exception('You have run out of use this combo');
 							}
 							$combo->save();
 						}
+						/* 2.2 Process normal order */ else {
+							$helper->process_order($order);
+							$totalPrice = $totalPrice  + $order->price * $order->amount;
+						}
+						/* 2.3 Service Reminder */
+						$helper->add_service_reminder($order);
 					}
 				);
 			}
 
-			/* 1.2 Check user Balance if using credit */
-			if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
-				throw new \Exception("Not enough credit");
-			}
+			/* 3. Apply whole bill discount */
+			$whole_bill_discount = $helper->calculate_whole_bill_discount($totalPrice);
+			$totalPrice = $totalPrice - $whole_bill_discount['amount'];
+			$intake->discount_note = $whole_bill_discount['description'];
 
-			/* 2. Check for discount */
+			/* 4. Apply additional discount */
 			if (
 				!empty($data['additional_discount_price'])
 				&& $data['additional_discount_price'] <= $totalPrice
 			) {
 				$totalPrice = $totalPrice - $data['additional_discount_price'];
 				$intake->additional_discount_price = $data['additional_discount_price'];
-				$intake->discount_note = $data['discount_note'];
+				$intake->discount_note ?  $intake->discount_note .= ", {$data['discount_note']}" :  $intake->discount_note = $data['discount_note'];
 			}
 
-			/* 3. Check negative price and set Intake Price */
+			/* 5. Check negative price and set Intake Final Price */
 			$intake->final_price = $totalPrice;
 			if ($intake->final_price < 0) {
 				$intake->final_price = 0;
 			}
 
-			/* 4. Collect point for customer */
-			//
-			if ($intake->final_price > 0 && !empty($customer)) {
-				// $customer->points = $customer->points + (int)($intake->final_price / 50);
-				// $customer->save();
-				$point_rate_id = 'POINT_RATE';
-				if ($customer_rank) $point_rate_id .= '_' . strtoupper($customer_rank);
-				$rate = Variable::find($point_rate_id);
-				if (!empty($rate)) {
-					$customer->cash_point = $customer->cash_point + $intake->final_price * (floatval($rate->value) / 100);
-					$customer->save();
-				}
+			/* 6. Check user Balance if using credit */
+			$payment_method = $intake->payment_type;
+			if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
+				throw new \Exception("Not enough credit");
 			}
 
-			/* 5. Process credit payment */
+			/* 7. Collect point for customer */
+			if ($intake->final_price > 0 && !empty($customer)) {
+				$customer->cash_point = $customer->cash_point + $helper->get_points();
+				$customer->save();
+			}
+
+			/* 8. Clear created invoice if payment is cash */
 			$invoice = $intake->invoice;
 			if ($payment_method ===  PaymentType::CASH && !empty($invoice)) {
 				$invoice->delete();
 			}
 
+			/* 9. Create Credit Invoice */
 			if ($payment_method ===  PaymentType::CREDIT) {
 				if (empty($invoice)) {
 					throw new \Exception('Missing invoice');
@@ -403,14 +403,18 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$invoice->amount = $intake->final_price;
 				$invoice->status = InvoiceConstant::PAID_STATUS;
 				$customer->balance = $customer->balance - $invoice->amount;
+
 				if ($invoice->save()) {
 					$customer->save();
 				};
 			}
-			// $intake->is_valid = 1;
+
+			/* 10. Update intake Status and save to DB */
+			$intake->is_valid = 1;
 			$intake->save();
 			DB::commit();
-			//TODO: UP RANK
+
+			/* 11. Upgrade rank for user */
 			$up_rank = false;
 			if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
 				$up_rank = Common::upRank($customer);
@@ -421,7 +425,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 					DB::commit();
 				}
 			}
-			// Update Status For Intake
+
 			$result = $this->getOneBy('id', $id);
 			return $result;
 		} catch (\Exception $exception) {

@@ -16,115 +16,98 @@ use Illuminate\Support\Facades\DB;
 
 class DiscountRepository implements DiscountRepositoryInterface
 {
-    public function create(array $attributes = [])
-    {
-        DB::beginTransaction();
-        try {
-            $return = $this->save($attributes, false);
-            DB::commit();
-            return $return;
-        } catch (\Exception $exception) {
-            DB::rollBack();
-            throw new \Exception($exception->getMessage());
-        }
-    }
+	public function create(array $attributes = [])
+	{
+		DB::beginTransaction();
+		try {
+			$return = $this->save($attributes, false);
+			DB::commit();
+			return $return;
+		} catch (\Exception $exception) {
+			DB::rollBack();
+			throw new \Exception($exception->getMessage());
+		}
+	}
 
-    public function save($data, $is_update = true, $id = null)
-    {
-        if ($is_update && is_array($data)) {
-            foreach ($data as $discount) {
-                if(empty($discount['id'])) break;
-                $update_discount = Discount::find($discount['id']);
-                foreach ($discount as $property => $value) {
-                    $update_discount->$property = $value;
-                }
-                $update_discount->save();
-            }
-            return true;
-        }
-        if (!$is_update && is_array($data)) {
-            $result = [];
-            foreach ($data as $discount_data) {
-                // Need to create order
-                $new_discount = new Discount();
-                foreach ($discount_data as $property => $value) {
-                    if ($property === 'from' || $property === 'to') {
-                        $new_discount->$property = date('Y-m-d H:m:s', strtotime($value));
-                    } else {
-                        $new_discount->$property = $value;
-                    }
-                }
-                $new_discount->is_active = true;
-                $new_discount->save();
-                array_push($result, $new_discount);
-            }
-            return $result;
-        }
-        throw new \Exception('No Discount Created');
-    }
+	public function save($discount_data, $is_update = true, $id = null)
+	{
+		$discount_instance = null;
+		if ($is_update) {
+			$discount_instance = Discount::find($id);
+			if (empty($discount_instance)) 	throw new \Exception('No Discount Found');
+		} else {
+			$discount_instance = new Discount();
+			$discount_instance->is_active = true;
+		}
+		foreach ($discount_data  as $property => $value) {
+			$discount_instance->$property = $value;
+		}
+		$discount_instance->save();
+		return true;
+	}
 
-    public function get(array $condition = [])
-    {
-        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
-        $page = isset($condition['page']) ? $condition['page'] : 1;
+	public function get(array $condition = [])
+	{
+		$perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
+		$page = isset($condition['page']) ? $condition['page'] : 1;
 
-        $query = new Discount();
-        $discounts = $query->offset(($page - 1) * $perPage)
-            ->limit($perPage)
-            ->orderBy('id', 'desc')
-            ->get()
-            ->toArray();
+		$query = new Discount();
+		$discounts = $query->offset(($page - 1) * $perPage)
+			->limit($perPage)
+			->orderBy('id', 'desc')
+			->get()
+			->toArray();
+		return [
+			"Data" => $discounts,
+			"Pagination" => [
+				"CurrentPage" => $page,
+				"PerPage" => $perPage,
+				"TotalItems" => $query->count()
+			]
+		];
+	}
 
-        return [
-            "Data" => $discounts,
-            "Pagination" => [
-                "CurrentPage" => $page,
-                "PerPage" => $perPage,
-                "TotalItems" => $query->count()
-            ]
-        ];
-    }
+	public function saveById($id, $data)
+	{
+		$update_discount = Discount::find($id);
+		foreach ($data as $property => $value) {
+			$update_discount->$property = $value;
+		}
+		$update_discount->save();
+		return $update_discount;
+	}
 
-    public function saveById($id, $data) {
-        $update_discount = Discount::find($id);
-        foreach ($data as $property => $value) {
-            $update_discount->$property = $value;
-        }
-        $update_discount->save();
-        return $update_discount;
-    }
+	public function update($id, $data)
+	{
+		DB::beginTransaction();
+		try {
+			$return = $this->saveById($id, $data);
+			DB::commit();
+			return $return;
+		} catch (\Exception $exception) {
+			DB::rollBack();
+		}
+	}
 
-    public function update($id, $data)
-    {
-        DB::beginTransaction();
-        try {
-            $return = $this->saveById($id, $data);
-            DB::commit();
-            return $return;
-        } catch (\Exception $exception) {
-            DB::rollBack();
-        }
-    }
-
-    public function delete($id)
-    {
-        $discount = Discount::find($id);
-        if ($discount !== null) {
-            if ($discount->is_valid) {
-                throw new \Exception('Can not delete valid discount');
-            } else {
-                DB::beginTransaction();
-                try {
-                    $destroy = Discount::destroy($id);
-                    DB::commit();
-                    return ['id' => $id];
-                } catch (\Exception $exception) {
-                    DB::rollBack();
-                    throw $exception;
-                }
-            }
-        } else {
-            throw new \Exception('No Discount Found');
-        }
-    }
+	public function delete($id)
+	{
+		$discount = Discount::find($id);
+		if ($discount !== null) {
+			if ($discount->is_valid) {
+				throw new \Exception('Can not delete valid discount');
+			} else {
+				DB::beginTransaction();
+				try {
+					$destroy = Discount::destroy($id);
+					DB::commit();
+					return ['id' => $id];
+				} catch (\Exception $exception) {
+					DB::rollBack();
+					throw $exception;
+				}
+			}
+		} else {
+			throw new \Exception('No Discount Found');
+		}
+	}
 }

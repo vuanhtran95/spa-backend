@@ -13,25 +13,29 @@ use App\BaseModel;
  */
 class Discount extends BaseModel
 {
-    protected $table = 'discounts';
+	protected $table = 'discounts';
 
-    public function rank()
-    {
-        return $this->belongsTo('App\Rank');
-    }
+	protected $casts = [
+		'conditions' => 'array',
+	];
 
-    public function serviceCategory()
-    {
-        return $this->belongsTo('App\ServiceCategory');
-    }
-    
-    public function service()
-    {
-        return $this->belongsTo('App\Service');
-    }
+	public function rank()
+	{
+		return $this->belongsTo('App\Rank');
+	}
 
-    public function variant()
-    {
-        return $this->belongsTo('App\Variant');
-    }
+	public function serviceCategory()
+	{
+		return $this->belongsTo('App\ServiceCategory');
+	}
+
+	public function service()
+	{
+		return $this->belongsTo('App\Service');
+	}
+
+	public function variant()
+	{
+		return $this->belongsTo('App\Variant');
+	}
 }
