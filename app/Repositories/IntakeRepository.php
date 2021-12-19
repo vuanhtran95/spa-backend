@@ -349,6 +349,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 						}
 						/* 2.3 Service Reminder */
 						$helper->add_service_reminder($order);
+						$order->save();
 					}
 				);
 			}
