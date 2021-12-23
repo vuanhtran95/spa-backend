@@ -137,8 +137,22 @@ class CustomerRepository implements CustomerRepositoryInterface
 			])
 
 			->withCount([
-				'invoice AS coin_spend' => function ($query) {
+				'invoice AS total_deposit' => function ($query) {
 					$query->where('type', '=', 'topup')->where('status', '=', 'paid')
+						->select(DB::raw("SUM(amount)"));
+				}
+			])
+
+			->withCount([
+				'invoice AS total_promotion_amount' => function ($query) {
+					$query->where('type', '=', 'topup')->where('status', '=', 'paid')->whereNotNull('promotion_amount')
+						->select(DB::raw("SUM(promotion_amount)"));
+				}
+			])
+
+			->withCount([
+				'invoice AS total_withdraw' => function ($query) {
+					$query->where('type', '=', 'deduction')->where('status', '=', 'paid')
 						->select(DB::raw("SUM(amount)"));
 				}
 			])
