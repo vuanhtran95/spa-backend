@@ -133,7 +133,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 							'employee_id' => $intake->employee_id,
 							'intake_id' => $intake->id,
 							'amount' => 0,
-							'type' => 'deduction',
+							'type' => 'withdraw',
 						];
 						$invoiceRepository->create($params);
 					}
@@ -164,7 +164,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 							'employee_id' => $intake->employee_id,
 							'intake_id' => $intake->id,
 							'amount' => 0,
-							'type' => 'deduction',
+							'type' => 'withdraw',
 							// 'signature' => $data['signature']
 						];
 
