@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Customer;
 use App\Rank;
-use App\Intake;
+use App\Repositories\InvoiceRepository;
 use App\Order;
 use App\User;
 use Illuminate\Database\QueryException;
@@ -81,7 +81,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
 			->withCount([
 				'invoice AS coin_spend' => function ($query) {
-					$query->where('type', '=', 'topup')->where('status', '=', 'paid')
+					$query->where('type', '=', 'deposit')->where('status', '=', 'paid')
 						->select(DB::raw("SUM(amount)"));
 				}
 			])
@@ -138,21 +138,21 @@ class CustomerRepository implements CustomerRepositoryInterface
 
 			->withCount([
 				'invoice AS total_deposit' => function ($query) {
-					$query->where('type', '=', 'topup')->where('status', '=', 'paid')
+					$query->where('type', '=', 'deposit')->where('status', '=', 'paid')
 						->select(DB::raw("SUM(amount)"));
 				}
 			])
 
 			->withCount([
 				'invoice AS total_promotion_amount' => function ($query) {
-					$query->where('type', '=', 'topup')->where('status', '=', 'paid')->whereNotNull('promotion_amount')
+					$query->where('type', '=', 'deposit')->where('status', '=', 'paid')->whereNotNull('promotion_amount')
 						->select(DB::raw("SUM(promotion_amount)"));
 				}
 			])
 
 			->withCount([
 				'invoice AS total_withdraw' => function ($query) {
-					$query->where('type', '=', 'deduction')->where('status', '=', 'paid')
+					$query->where('type', '=', 'withdraw')->where('status', '=', 'paid')
 						->select(DB::raw("SUM(amount)"));
 				}
 			])
@@ -211,5 +211,41 @@ class CustomerRepository implements CustomerRepositoryInterface
 	public function delete($id)
 	{
 		return User::destroy($id);
+	}
+
+	public function cashOut($id, array $data = [])
+	{
+		DB::beginTransaction();
+		try {
+			$customer = Customer::find($id);
+			$amount = $data['amount'];
+			if (!isset($data['amount']) || $customer->balance < $data['amount']) {
+				throw new \Exception("invalid_amount");
+			}
+			if (!isset($data['signature'])) {
+				throw new \Exception("no_signature");
+			}
+			if (!isset($data['employee_id'])) {
+				throw new \Exception("no_employee");
+			}
+			$customer->balance = $customer->balance -  $amount;
+			$invoiceRepository = app(InvoiceRepository::class);
+			$params = [
+				'customer_id' => $customer->id,
+				'employee_id' => $data['employee_id'],
+				'amount' => $data['amount'],
+				'signature' => $data['signature'],
+				'type' => 'withdraw',
+				'note' => 'cashout',
+				'status' => 'paid'
+			];
+			$invoiceRepository->create($params);
+			$customer->save();
+			DB::commit();
+			return $customer;
+		} catch (\Exception $exception) {
+			DB::rollBack();
+			throw new \Exception($exception->getMessage());
+		}
 	}
 }

@@ -4,9 +4,9 @@ namespace App\Constants;
 
 class Invoice
 {
-    const PENDING_STATUS = 'pending';
+	const PENDING_STATUS = 'pending';
 
-    const PAID_STATUS = 'paid';
+	const PAID_STATUS = 'paid';
 
-    const TOPUP = 'topup';
+	const TOPUP = 'deposit';
 }
