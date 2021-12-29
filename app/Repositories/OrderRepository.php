@@ -9,6 +9,7 @@ class OrderRepository implements OrderRepositoryInterface
 	public function get(array $condition = [])
 	{
 		$employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
+		$customer_id = isset($condition['customer_id']) ? $condition['customer_id'] : null;
 		$isValid = isset($condition['is_valid']) ? $condition['is_valid'] : null;
 
 		$perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
@@ -21,6 +22,9 @@ class OrderRepository implements OrderRepositoryInterface
 
 		if ($employeeId) {
 			$query = $query->where('employee_id', '=', $employeeId);
+		}
+		if ($customer_id) {
+			$query = $query->where('customer_id', '=', $customer_id);
 		}
 		if ($isValid !== null) {
 			$query = $query->whereHas('intake', function ($query) use ($isValid) {
@@ -43,7 +47,7 @@ class OrderRepository implements OrderRepositoryInterface
 				}]);
 			}, 'intake' => function ($query) {
 				$query->with('customer');
-			}])
+			}, 'employee'])
 			->orderBy('id', 'desc')
 			->paginate($perPage, ['*'], 'page', $page);
 

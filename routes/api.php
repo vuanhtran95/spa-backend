@@ -95,7 +95,7 @@ Route::get('/v1/statistics/summary-details', 'StatisticController@summary_detail
 
 
 // Account
-Route::put('/v1/change-password', 'UserController@updatePassword')->middleware('auth:api');
+Route::post('/v1/account/{id}/change-password', 'UserController@updatePassword')->middleware('auth:api');
 
 // Invoice
 Route::post('/v1/invoice', 'InvoiceController@create')->middleware('auth:api');

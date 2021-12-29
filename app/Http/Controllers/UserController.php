@@ -12,22 +12,21 @@ use App\Helper\Translation;
 
 class UserController extends Controller
 {
-    private $userRepository;
+	private $userRepository;
 
-    public function __construct(UserRepositoryInterface $userRepository)
-    {
-        $this->userRepository = $userRepository;
-    }
+	public function __construct(UserRepositoryInterface $userRepository)
+	{
+		$this->userRepository = $userRepository;
+	}
 
-    public function updatePassword(Request $request)
-    {
-        $id = $request->user()->id;
-        $params = $request->all();
-        try {
-            $this->userRepository->updatePassword($id, $params);
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$UPDATED);
-        } catch (Exception $e) {
-            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
-        }
-    }
+	public function updatePassword(Request $request, $id)
+	{
+		$params = $request->all();
+		try {
+			$this->userRepository->updatePassword($id, $params);
+			return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$UPDATED);
+		} catch (Exception $e) {
+			return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+		}
+	}
 }
