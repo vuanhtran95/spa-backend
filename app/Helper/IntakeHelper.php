@@ -206,6 +206,10 @@ class IntakeHelper
 	public function apply_discounts($order)
 	{
 		$individual_discounts = $this->discounts['individual'];
+		if (empty($individual_discounts)) {
+			$this->points += $order->unit_price * $this->POINT_RATE;
+			return;
+		}
 		foreach ($individual_discounts as $discount) {
 			$this->apply_individual_discount($order, $discount);
 		}
