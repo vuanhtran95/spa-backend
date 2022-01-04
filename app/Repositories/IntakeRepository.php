@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Combo;
 use App\Customer;
-use App\Repositories\CustomerRepository;
 use App\Employee;
 use App\Helper\Translation;
 use App\Helper\Common;
@@ -14,14 +13,9 @@ use App\Constants\Invoice as InvoiceConstant;
 use App\Intake;
 use App\Order;
 use App\Variant;
-use App\Variable;
 use Exception;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\InvoiceRepository;
-
-use function GuzzleHttp\json_decode;
-use function GuzzleHttp\json_encode;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {

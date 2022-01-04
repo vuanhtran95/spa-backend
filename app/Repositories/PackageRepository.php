@@ -66,7 +66,7 @@ class PackageRepository implements PackageRepositoryInterface
 					// Plus customer point
 					//                $customer->points = $customer->points + (int)($totalPrice / env('MONEY_POINT_RATIO'));\
 					// Currently 50k VND = 1 point
-					$customer->points = $customer->points + (int)($package->total_price / 100);
+					// $customer->points = $customer->points + (int)($package->total_price / 100);
 					$customer->save();
 				}
 				$combo_amount = count($combos);
