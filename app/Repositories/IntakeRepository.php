@@ -377,6 +377,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			/* 7. Collect point for customer */
 			if ($intake->final_price > 0 && !empty($customer)) {
+				$intake->customer_earned_points =  $helper->get_points();
 				$customer->cash_point = $customer->cash_point + $helper->get_points();
 				$customer->save();
 			}

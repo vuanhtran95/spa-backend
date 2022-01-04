@@ -16,7 +16,7 @@ class CustomerCashPointSeeder extends Seeder
 	public function run()
 	{
 		$query = new Intake();
-		$intakes = $query->where('created_at', '>=', '2021-12-31 17:00:00')
+		$intakes = $query->where('created_at', '>=', '2021-12-31 17:00:00')->where('is_valid', '=', 1)
 			->with(
 				['orders' => function ($query) {
 					$query->with(
@@ -70,8 +70,10 @@ class CustomerCashPointSeeder extends Seeder
 
 			/* 7. Collect point for customer */
 			if ($intake->final_price > 0 && !empty($customer)) {
+				$intake->customer_earned_points =  $helper->get_points();
 				$customer->cash_point = $customer->cash_point + $helper->get_points();
 				var_dump($customer->id . ': ' . $customer->cash_point);
+				$intake->save();
 				$customer->save();
 			}
 			DB::commit();
