@@ -156,6 +156,7 @@ class IntakeHelper
 
 	public function apply_individual_discount($order, $discount)
 	{
+
 		$condition = $discount['conditions'];
 		$apply_to_key = $condition['apply_to_conditions']['key'];
 		$apply_to_value = $condition['apply_to_conditions']['value'];
@@ -166,7 +167,6 @@ class IntakeHelper
 		$customer_condition = ($apply_to_key === 'non-member' && empty($this->rank))
 			|| ($apply_to_key  === 'member' && in_array($this->rank, $apply_to_value))
 			|| ($apply_to_key  === 'all');
-
 		if ($customer_condition) {
 			$apply_on_key = $condition['apply_on_conditions']['key'];
 			$apply_on_value = $condition['apply_on_conditions']['value'];
@@ -194,12 +194,12 @@ class IntakeHelper
 					$found_key = array_search($id, array_column($apply_on_value, 'id'));
 					if ($found_key !== false) {
 						$this->calculate_discount($order, $discount, $apply_on_value[$found_key]);
-					} else {
-						$this->points += $order->unit_price * $this->POINT_RATE;
+						return;
 					}
 				}
 			}
 		}
+		$this->points += $order->unit_price * $this->POINT_RATE;
 		return;
 	}
 
