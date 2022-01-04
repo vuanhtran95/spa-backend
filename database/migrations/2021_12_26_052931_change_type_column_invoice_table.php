@@ -15,11 +15,11 @@ class ChangeTypeColumnInvoiceTable extends Migration
 	 */
 	public function up()
 	{
-		Invoice::where('type', 'withdraw')
+		Invoice::where('type', 'deduction')
 			->update([
 				'type' => 'withdraw'
 			]);
-		Invoice::where('type', 'deposit')
+		Invoice::where('type', 'topup')
 			->update([
 				'type' => 'deposit'
 			]);
@@ -34,11 +34,11 @@ class ChangeTypeColumnInvoiceTable extends Migration
 	{
 		Invoice::where('type', 'withdraw')
 			->update([
-				'type' => 'withdraw'
+				'type' => 'deduction'
 			]);
 		Invoice::where('type', 'deposit')
 			->update([
-				'type' => 'deposit'
+				'type' => 'topup'
 			]);
 	}
 }
