@@ -211,7 +211,7 @@ class StatisticRepository implements StatisticRepositoryInterface
 		}]);
 
 		$query->withCount(['invoice AS topup_commission' =>  function ($query) use ($from, $to) {
-			$query->whereBetween('updated_at', [$from, $to])
+			$query->whereBetween('created_at', [$from, $to])
 				->select(DB::raw("SUM(topup_commission)"));
 		}]);
 
