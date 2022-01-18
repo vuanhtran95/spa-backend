@@ -21,7 +21,7 @@ class StatisticRepository implements StatisticRepositoryInterface
 		$to =  Carbon::createFromFormat('Y-m-d H:i:s', $query_params['to'], 'Asia/Ho_Chi_Minh')->setTimezone('UTC')->toDateTimeString();
 		// $intakes = Intake::->whereBetween(DB::raw('DATE(updated_at)'), array($from, $to))->get();
 		$intakes = Intake::where('is_valid', '=', 1)->whereBetween('updated_at', [$from, $to])->get();
-		$combos = Package::where('is_valid', '=', 1)->whereBetween('created_at', [$from, $to])->get();
+		$combos = Package::where('is_valid', '=', 1)->whereBetween('created_at', [$from, $to])->with(['employee'])->get();
 		$invoices = Invoice::where('status', '=', 'paid')->where('type', '=', 'deposit')->whereBetween('created_at', [$from, $to])->with(['employee'])->get();
 		$employees = $this->getEmployeeCommission($from, $to);
 		return [
