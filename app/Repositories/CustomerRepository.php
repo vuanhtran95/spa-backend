@@ -168,18 +168,18 @@ class CustomerRepository implements CustomerRepositoryInterface
 			$customer_id = $customer['id'];
 
 			$latest_body_order = Order::whereHas('intake', function ($i) use ($customer_id) {
-				$i->where('customer_id', '=',  $customer_id);
+				$i->where('customer_id', '=',  $customer_id)->where('is_valid', '=', 1);
 			})->whereHas('variant', function ($v) {
 				$v->where('variant_category', '=', 'body');
-			})->orderBy('updated_at', 'DESC')->with(['variant', 'employee'])->first();
+			})->orderBy('created_at', 'DESC')->with(['variant', 'employee'])->first();
 
 
 
 			$latest_facials_order = Order::whereHas('intake', function ($i) use ($customer_id) {
-				$i->where('customer_id', '=',  $customer_id);
+				$i->where('customer_id', '=',  $customer_id)->where('is_valid', '=', 1);
 			})->whereHas('variant', function ($v) {
 				$v->where('variant_category', '=', 'facials');
-			})->orderBy('updated_at', 'DESC')->with(['variant', 'employee'])->first();
+			})->orderBy('created_at', 'DESC')->with(['variant', 'employee'])->first();
 
 			$customer['latest_treatments'] = [
 				'body' => $latest_body_order,

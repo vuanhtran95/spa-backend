@@ -105,12 +105,12 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
 		// Working commissions
 		$query->withCount(['order AS working_commission' => function ($query) use ($this_month_from, $this_month_to) {
-			$query->whereBetween('updated_at', [$this_month_from, $this_month_to])
+			$query->whereBetween('created_at', [$this_month_from, $this_month_to])
 				->select(DB::raw("SUM(working_commission)"));
 		}]);
 
 		$query->withCount(['order AS working_commission_prev' => function ($query) use ($last_month_from, $last_month_to) {
-			$query->whereBetween('updated_at', [$last_month_from, $last_month_to])
+			$query->whereBetween('created_at', [$last_month_from, $last_month_to])
 				->select(DB::raw("SUM(working_commission)"));
 		}]);
 
@@ -150,13 +150,13 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
 		// Count Orders
 		$query->withCount(['order AS total_sales' => function ($query) use ($this_month_from, $this_month_to) {
-			$query->whereBetween('updated_at', [$this_month_from, $this_month_to])->whereHas('intake', function ($iQuery) {
+			$query->whereBetween('created_at', [$this_month_from, $this_month_to])->whereHas('intake', function ($iQuery) {
 				$iQuery->where('is_valid', '=', 1);
 			})->select(DB::raw("SUM(price)"));;
 		}]);
 
 		$query->withCount(['order AS total_sales_prev' => function ($query) use ($last_month_from, $last_month_to) {
-			$query->whereBetween('updated_at', [$last_month_from, $last_month_to])->whereHas('intake', function ($iQuery) {
+			$query->whereBetween('created_at', [$last_month_from, $last_month_to])->whereHas('intake', function ($iQuery) {
 				$iQuery->where('is_valid', '=', 1);
 			})->select(DB::raw("SUM(price)"));;
 		}]);
@@ -265,12 +265,12 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 
 			// Working commission
 			$query->withCount(['order AS working_commission' => function ($query) use ($this_month_from, $this_month_to) {
-				$query->whereBetween('updated_at', [$this_month_from, $this_month_to])
+				$query->whereBetween('created_at', [$this_month_from, $this_month_to])
 					->select(DB::raw("SUM(working_commission)"));
 			}]);
 
 			$query->withCount(['order AS working_commission_prev' => function ($query) use ($last_month_from, $last_month_to) {
-				$query->whereBetween('updated_at', [$last_month_from, $last_month_to])
+				$query->whereBetween('created_at', [$last_month_from, $last_month_to])
 					->select(DB::raw("SUM(working_commission)"));
 			}]);
 			// Sale commission
