@@ -349,9 +349,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 			}
 
 			/* 3. Apply whole bill discount */
-			$whole_bill_discount = $helper->calculate_whole_bill_discount($totalPrice);
-			$totalPrice = $totalPrice - $whole_bill_discount['amount'];
-			$intake->discount_note = $whole_bill_discount['description'];
+			// TODO: To be discussed
+			// $whole_bill_discount = $helper->calculate_whole_bill_discount($totalPrice);
+			// $totalPrice = $totalPrice - $whole_bill_discount['amount'];
+			// $intake->discount_note = $whole_bill_discount['description'];
 
 			/* 4. Apply additional discount */
 			if (

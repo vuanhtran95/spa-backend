@@ -167,40 +167,38 @@ class IntakeHelper
 		$customer_condition = ($apply_to_key === 'non-member' && empty($this->rank))
 			|| ($apply_to_key  === 'member' && in_array($this->rank, $apply_to_value))
 			|| ($apply_to_key  === 'all');
+		// Can apply discount to this user
 		if ($customer_condition) {
 			$apply_on_key = $condition['apply_on_conditions']['key'];
 			$apply_on_value = $condition['apply_on_conditions']['value'];
-			// Check service condition:
-			// (1) apply all services
+			// Check specific cases:
+			$id = null;
+			switch ($apply_on_key) {
+				case $this->APPLY_ON['variants']:
+					$id =  $order->variant->id;
+					break;
+				case $this->APPLY_ON['services']:
+					$id = $order->variant->service_id;
+					break;
+				case $this->APPLY_ON['service_categories']:
+					$id = $order->variant->service->service_category_id;
+					break;
+				default:
+					break;
+			}
+			// Check if we have specific discount for current case
+			$found_key = array_search($id, array_column($apply_on_value, 'id'));
+			if ($found_key !== false) {
+				$this->calculate_discount($order, $discount, $apply_on_value[$found_key]);
+				return true;
+			}
+			// If no specific case, check if apply on all case is possible
 			if ($apply_on_key === $this->APPLY_ON['all']) {
 				$this->calculate_discount($order, $discount, $apply_on_value);
-				return;
-			} else {
-				$id = null;
-				switch ($apply_on_key) {
-					case $this->APPLY_ON['variants']:
-						$id =  $order->variant->id;
-						break;
-					case $this->APPLY_ON['services']:
-						$id = $order->variant->service_id;
-						break;
-					case $this->APPLY_ON['service_categories']:
-						$id = $order->variant->service->service_category_id;
-						break;
-					default:
-						break;
-				}
-				if (isset($id)) {
-					$found_key = array_search($id, array_column($apply_on_value, 'id'));
-					if ($found_key !== false) {
-						$this->calculate_discount($order, $discount, $apply_on_value[$found_key]);
-						return;
-					}
-				}
+				return true;
 			}
 		}
-		$this->points += $order->unit_price * $this->POINT_RATE;
-		return;
+		return false;
 	}
 
 	public function apply_discounts($order)
@@ -210,8 +208,13 @@ class IntakeHelper
 			$this->points += $order->unit_price * $this->POINT_RATE;
 			return;
 		}
+		$isAppliedDiscount = false;
 		foreach ($individual_discounts as $discount) {
-			$this->apply_individual_discount($order, $discount);
+			$isAppliedDiscount = $this->apply_individual_discount($order, $discount);
+			if ($isAppliedDiscount) break;
+		}
+		if (!$isAppliedDiscount) {
+			$this->points += $order->unit_price * $this->POINT_RATE;
 		}
 	}
 	public function process_order($order)
