@@ -2,17 +2,10 @@
 
 namespace App\Helper;
 
-use App\Customer;
-use App\Order;
-use App\Variant;
 use App\Discount;
 use App\Variable;
-use App\Repositories\TaskAssignmentRepository;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use App\Helper\Common;
-
-use function GuzzleHttp\json_encode;
 
 class IntakeHelper
 {

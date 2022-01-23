@@ -16,6 +16,7 @@ use App\Variant;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\InvoiceRepository;
+use Illuminate\Support\Carbon;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
@@ -408,6 +409,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			/* 10. Update intake Status and save to DB */
 			$intake->is_valid = 1;
+			$intake->approved_date = Carbon::now();
 			$intake->save();
 			DB::commit();
 
