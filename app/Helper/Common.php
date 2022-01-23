@@ -65,7 +65,7 @@ class Common
 					$new_rank = 'diamond';
 					break;
 				}
-				if ($total_spending >= 20000) {
+				if ($total_spending >= 30000) {
 					$customer->rank = 'gold';
 					$customer->save();
 					$new_rank = 'gold';
@@ -78,13 +78,13 @@ class Common
 					$new_rank = 'diamond';
 					break;
 				}
-				if ($total_spending >= 20000) {
+				if ($total_spending >= 30000) {
 					$customer->rank = 'gold';
 					$customer->save();
 					$new_rank = 'gold';
 					break;
 				}
-				if ($total_spending >= 10000) {
+				if ($total_spending >= 20000) {
 					$customer->rank = 'silver';
 					$customer->save();
 					$new_rank = 'silver';
