@@ -135,16 +135,8 @@ class IntakeHelper
 		}
 
 		$order->discount_description ? $order->discount_description .= ",{$discount_description}" : $order->discount_description .= $discount_description;
-		if (
-			$this->rank
-			&& $this->RANK_EXTRA_DISCOUNT_ACTIVE
-			&& $this->RANK_EXTRA_DISCOUNT
-		) {
-			$discount_amount += $order->unit_price * ($this->RANK_EXTRA_DISCOUNT / 100);
-			$order->discount_description .= " + extra({$this->RANK_EXTRA_DISCOUNT}%)";
-		}
+
 		$order->discount_amount += $discount_amount;
-		$order->discount_description .= (': -' . Common::currency_format($discount_amount * 1000));
 	}
 
 	public function apply_individual_discount($order, $discount)
@@ -204,11 +196,19 @@ class IntakeHelper
 		$isAppliedDiscount = false;
 		foreach ($individual_discounts as $discount) {
 			$isAppliedDiscount = $this->apply_individual_discount($order, $discount);
-			if ($isAppliedDiscount) break;
+			if ($isAppliedDiscount) {
+				if ($this->rank && $this->RANK_EXTRA_DISCOUNT_ACTIVE && $this->RANK_EXTRA_DISCOUNT) {
+					$order->discount_amount += ($order->unit_price - $order->discount_amount) * ($this->RANK_EXTRA_DISCOUNT / 100);
+					$order->discount_description .= " + extra({$this->RANK_EXTRA_DISCOUNT}%)";
+				}
+				$order->discount_description .= (': -' . Common::currency_format($order->discount_amount * 1000));
+				break;
+			};
 		}
 		if (!$isAppliedDiscount) {
 			$this->points += $order->unit_price * $this->POINT_RATE;
 		}
+		$order->price = $order->unit_price - $order->discount_amount;
 	}
 	public function process_order($order)
 	{
@@ -225,7 +225,6 @@ class IntakeHelper
 		}
 		// Normal Service
 		$this->apply_discounts($order);
-		$order->price = $order->unit_price - $order->discount_amount;
 	}
 
 	public function calculate_whole_bill_discount($totalPrice)
