@@ -127,6 +127,9 @@ class PackageRepository implements PackageRepositoryInterface
 		$employee_id = isset($condition['employee_id']) ? $condition['employee_id'] : null;
 		$isValid = isset($condition['is_valid']) ? $condition['is_valid'] : null;
 
+		$fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
+		$toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
+
 		$perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
 		$page = isset($condition['page']) ? $condition['page'] : 1;
 
@@ -143,6 +146,13 @@ class PackageRepository implements PackageRepositoryInterface
 		}
 		if ($isValid) {
 			$query = $query->where('is_valid', '=', $isValid);
+		}
+		if ($fromDate) {
+			$query = $query->where('created_at', '>=', $fromDate);
+		}
+
+		if ($toDate) {
+			$query = $query->where('created_at', '<=', $toDate);
 		}
 		// 'customer', 'orders' => function ($query) {
 		//     $query->whereHas('intake', function ($query) {

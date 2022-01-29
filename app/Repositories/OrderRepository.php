@@ -47,7 +47,7 @@ class OrderRepository implements OrderRepositoryInterface
 				}]);
 			}, 'intake' => function ($query) {
 				$query->with('customer');
-			}, 'employee'])
+			}, 'employee', 'review'])
 			->orderBy('id', 'desc')
 			->paginate($perPage, ['*'], 'page', $page);
 
