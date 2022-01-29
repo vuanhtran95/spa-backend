@@ -41,6 +41,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 			$intake_id = $data['intake_id'];
 			$intake = Intake::find($intake_id);
 			// Check has intake ?
+
 			if (!$intake) {
 				throw new \Exception(Translation::$NO_INTAKE_FOUND);
 			}
@@ -74,15 +75,13 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 
 			// Check if this is Overtime intake
 			if (!empty($overtime) && !empty($overtime_rate)) {
-				$overtime_parsed = Carbon::createFromTimeString($overtime->value);
 
-				$approved_date = Carbon::parse($intake->approved_date, 'UTC');
-				$hour = $approved_date->setTimezone('Asia/Ho_Chi_Minh')->hour;
-				$minute = $approved_date->setTimezone('Asia/Ho_Chi_Minh')->minute;
-				$second = $approved_date->setTimezone('Asia/Ho_Chi_Minh')->second;
-				$approved_time = Carbon::createFromTimeString($hour, $minute, $second);
-
-				$is_overtime = $approved_time->greaterThanOrEqualTo($overtime_parsed);
+				$approved_date = Carbon::parse($intake->approved_date, 'UTC')->setTimezone('Asia/Ho_Chi_Minh');
+				$day = $approved_date->day;
+				$month = $approved_date->month;
+				$year = $approved_date->year;
+				$over_time =  Carbon::createFromFormat('Y-m-d H:i:s', $year . '-' . $month . '-' . $day . ' ' . $overtime->value, 'Asia/Ho_Chi_Minh');
+				$is_overtime = $approved_date->greaterThanOrEqualTo($over_time);
 			}
 
 			foreach ($reviews as $reviewOrder) {
@@ -92,52 +91,16 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 				$percentCommission = Common::calCommissionPercent($reviewOrder['skill'], $reviewOrder['attitude']);
 
 				// Depend on order gender then get the commission rate by gender
-				//TODO: change to variants commission rate
 				$commission = ($order->variant->commission_rate / 100);
-
-				// switch ($order->variant->gender) {
-				//     case 'male':
-				//         $commission = ($order->variant->service->commission_rate_male / 100);
-				//         break;
-				//     case 'female':
-				//         $commission = ($order->variant->service->commission_rate_female / 100);
-				//         break;
-				//     default:
-				//         // for both
-				//         $commission = ($order->variant->service->commission_rate_both / 100);
-				//         break;
-				// }
 
 				// Calculate commission base on review star
 				$commission = $commission * $percentCommission;
 
 				// Calculate commission base on combo used or not
 				if ($order->combo_id) {
-					// Case order use combo
-
-					$combo = Combo::find($order->combo_id);
-
-					// Collect commission for employee in combo used case
-					/* Deprecated : Store commission in order instead of employee entity*
-                    $employee->working_commission =
-                        $employee->working_commission +
-                        ($order->service->order_commission / 100) * ($combo->total_price / $combo->amount) * $percentCommission;
-                    $employee->save();
-                     */
-					// $commission = $commission * $combo->total_price / $combo->amount;
-
 					// Update commission for combo
 					$commission = $commission * $order->variant->price;
 				} else {
-					// Case order doesn't use combo
-					// Collect commission for employee in money pay case
-					/* Deprecated : Store commission in order instead of employee entity*
-
-                    $employee->working_commission =
-                        $employee->working_commission +
-                        ($order->service->order_commission / 100) * $order->service->price * $percentCommission;
-                    $employee->save();
-                    */
 
 					$commission = $commission * $order->$price_field;
 				}
