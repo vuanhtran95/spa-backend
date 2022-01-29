@@ -86,15 +86,29 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 		$perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
 		$page = isset($condition['page']) ? $condition['page'] : 1;
 		$customer_id = isset($condition['customer_id']) ? $condition['customer_id'] : null;
+
+		$employeeId = isset($condition['employee_id']) ? $condition['employee_id'] : null;
+		$fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
+		$toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
+
 		$type = isset($condition['type']) ? $condition['type'] : null;
 		$query = new Invoice();
+		if ($employeeId) {
+			$query = $query::where('employee_id', $employeeId);
+		}
 		if ($customer_id !== null) {
 			$query = $query->where('customer_id', '=', $customer_id);
 		}
 		if ($type !== null) {
 			$query = $query->where('type', '=', $type);
 		}
+		if ($fromDate) {
+			$query = $query->where('created_at', '>=', $fromDate);
+		}
 
+		if ($toDate) {
+			$query = $query->where('created_at', '<=', $toDate);
+		}
 		$invoices = $query->with(['customer'])
 			->with(['employee'])
 			->paginate($perPage, ['*'], 'page', $page);
