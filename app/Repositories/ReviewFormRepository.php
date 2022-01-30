@@ -110,6 +110,8 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 				}
 
 				$order->working_commission = $commission;
+				$order->is_overtime = $is_overtime;
+				$order->approved_time = $intake->approved_date;
 				$order->save();
 
 
