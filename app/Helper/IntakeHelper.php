@@ -32,7 +32,7 @@ class IntakeHelper
 	public $RANK_EXTRA_DISCOUNT = 0;
 	public $POINT_RATE = 0;
 	public $rank = null;
-	public $customer = true;
+	public $customer = null;
 	public $discounts =  ['whole_bill' => [], 'individual' => []];
 	public $service_reminders = [];
 	public $points = 0;
@@ -189,21 +189,21 @@ class IntakeHelper
 	public function apply_discounts($order)
 	{
 		$individual_discounts = $this->discounts['individual'];
+		$isAppliedDiscount = false;
 		if (empty($individual_discounts)) {
 			$this->points += $order->unit_price * $this->POINT_RATE;
-			return;
-		}
-		$isAppliedDiscount = false;
-		foreach ($individual_discounts as $discount) {
-			$isAppliedDiscount = $this->apply_individual_discount($order, $discount);
-			if ($isAppliedDiscount) {
-				if ($this->rank && $this->RANK_EXTRA_DISCOUNT_ACTIVE && $this->RANK_EXTRA_DISCOUNT) {
-					$order->discount_amount += ($order->unit_price - $order->discount_amount) * ($this->RANK_EXTRA_DISCOUNT / 100);
-					$order->discount_description .= " + extra({$this->RANK_EXTRA_DISCOUNT}%)";
-				}
-				$order->discount_description .= (': -' . Common::currency_format($order->discount_amount * 1000));
-				break;
-			};
+		} else {
+			foreach ($individual_discounts as $discount) {
+				$isAppliedDiscount = $this->apply_individual_discount($order, $discount);
+				if ($isAppliedDiscount) {
+					if ($this->rank && $this->RANK_EXTRA_DISCOUNT_ACTIVE && $this->RANK_EXTRA_DISCOUNT) {
+						$order->discount_amount += ($order->unit_price - $order->discount_amount) * ($this->RANK_EXTRA_DISCOUNT / 100);
+						$order->discount_description .= " + extra({$this->RANK_EXTRA_DISCOUNT}%)";
+					}
+					$order->discount_description .= (': -' . Common::currency_format($order->discount_amount * 1000));
+					break;
+				};
+			}
 		}
 		if (!$isAppliedDiscount) {
 			$this->points += $order->unit_price * $this->POINT_RATE;

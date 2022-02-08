@@ -411,21 +411,20 @@ class IntakeRepository implements IntakeRepositoryInterface
 			$intake->is_valid = 1;
 			$intake->approved_date = Carbon::now();
 			$intake->save();
-			DB::commit();
 
 			/* 11. Upgrade rank for user */
 			$up_rank = false;
-			if (!empty($customer) || $payment_method ===  PaymentType::CASH) {
+			if (!empty($customer) && $payment_method ===  PaymentType::CASH) {
 				$up_rank = Common::upRank($customer);
 				if (!empty($up_rank)) {
-					DB::beginTransaction();
 					$intake->special_note = $up_rank;
 					$intake->save();
-					DB::commit();
 				}
 			}
+			DB::commit();
 
 			$result = $this->getOneBy('id', $id);
+
 			return $result;
 		} catch (\Exception $exception) {
 			DB::rollBack();
