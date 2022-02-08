@@ -190,9 +190,9 @@ class IntakeHelper
 	{
 		$individual_discounts = $this->discounts['individual'];
 		$isAppliedDiscount = false;
-		if (empty($individual_discounts)) {
-			$this->points += $order->unit_price * $this->POINT_RATE;
-		} else {
+
+		// 1. Apply discount if any
+		if (!empty($individual_discounts)) {
 			foreach ($individual_discounts as $discount) {
 				$isAppliedDiscount = $this->apply_individual_discount($order, $discount);
 				if ($isAppliedDiscount) {
@@ -205,6 +205,8 @@ class IntakeHelper
 				};
 			}
 		}
+
+		// 2.If there is no discount, calculate point;
 		if (!$isAppliedDiscount) {
 			$this->points += $order->unit_price * $this->POINT_RATE;
 		}
