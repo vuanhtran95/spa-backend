@@ -126,6 +126,7 @@ class PackageRepository implements PackageRepositoryInterface
 		$customerId = isset($condition['customer_id']) ? $condition['customer_id'] : null;
 		$employee_id = isset($condition['employee_id']) ? $condition['employee_id'] : null;
 		$isValid = isset($condition['is_valid']) ? $condition['is_valid'] : null;
+		$exclude_expired = isset($condition['exclude_expired']) ? $condition['exclude_expired'] : null;
 
 		$fromDate = isset($condition['from_date']) ? $condition['from_date'] : null;
 		$toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
@@ -134,6 +135,12 @@ class PackageRepository implements PackageRepositoryInterface
 		$page = isset($condition['page']) ? $condition['page'] : 1;
 
 		$query = new Package();
+
+		if ($exclude_expired) {
+			$date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
+			$toDay = $date->toDateString();
+			$query = $query->where('expiry_date', '>=', $toDay);
+		}
 
 		if ($variantId) {
 			$query = $query->where('variant_id', '=', $variantId);
