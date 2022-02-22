@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Order;
+use Carbon\Carbon;
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -33,11 +34,13 @@ class OrderRepository implements OrderRepositoryInterface
 		}
 
 		if ($fromDate) {
-			$query = $query->where('created_at', '>=', $fromDate);
+			$parsedFrom = Carbon::createFromFormat('Y-m-d', $fromDate, 'Asia/Ho_Chi_Minh')->startOfDay()->setTimezone('UTC')->toDateTimeString();
+			$query = $query->where('created_at', '>=', $parsedFrom);
 		}
 
 		if ($toDate) {
-			$query = $query->where('created_at', '<=', $toDate);
+			$parsedTo = Carbon::createFromFormat('Y-m-d', $toDate, 'Asia/Ho_Chi_Minh')->endOfDay()->setTimezone('UTC')->toDateTimeString();
+			$query = $query->where('created_at', '<=', $parsedTo);
 		}
 
 		$orders = $query
