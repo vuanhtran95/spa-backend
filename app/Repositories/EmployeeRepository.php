@@ -76,7 +76,9 @@ class EmployeeRepository implements EmployeeRepositoryInterface
 		if ($roleId) {
 			$query = $query::where('role_id', $roleId);
 		}
-
+		$query->with(['user' => function ($uQuery) {
+			$uQuery->where('is_active', 1);
+		}]);
 		$date = Carbon::now()->setTimezone('Asia/Ho_Chi_Minh');
 		$date->settings([
 			'monthOverflow' => false,
