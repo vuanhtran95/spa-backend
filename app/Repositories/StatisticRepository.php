@@ -17,8 +17,8 @@ class StatisticRepository implements StatisticRepositoryInterface
 		if (empty($query_params['from']) || empty($query_params['to'])) {
 			throw new \Exception("please select start date and end date");
 		}
-		$from =  Carbon::createFromFormat('Y-m-d H:i:s', $query_params['from'], 'Asia/Ho_Chi_Minh')->setTimezone('UTC')->toDateTimeString();
-		$to =  Carbon::createFromFormat('Y-m-d H:i:s', $query_params['to'], 'Asia/Ho_Chi_Minh')->setTimezone('UTC')->toDateTimeString();
+		$from =  Carbon::createFromFormat('Y-m-d', $query_params['from'], 'Asia/Ho_Chi_Minh')->startOfDay()->setTimezone('UTC')->toDateTimeString();
+		$to =  Carbon::createFromFormat('Y-m-d', $query_params['to'], 'Asia/Ho_Chi_Minh')->endOfDay()->setTimezone('UTC')->toDateTimeString();
 		// $intakes = Intake::->whereBetween(DB::raw('DATE(updated_at)'), array($from, $to))->get();
 		$intakes = Intake::where('is_valid', '=', 1)->whereBetween('created_at', [$from, $to])->get();
 		$combos = Package::where('is_valid', '=', 1)->whereBetween('created_at', [$from, $to])->with(['employee'])->get();
