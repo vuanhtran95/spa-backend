@@ -44,11 +44,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 						$query->with('combo');
 					}, 'invoice']
 				)->find($id);
-
-				if ($intake->is_valid) {
-					throw new \Exception("Intake already approved");
-				}
-
+				// Todo: comment for now
+				// if ($intake->is_valid) {
+				// 	throw new \Exception("Intake already approved");
+				// }
 				if (isset($data['orders'])) {
 					$allOrdersOfIntake = Order::where('intake_id', '=', $id)->get()->toArray();
 					$updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $data['orders']));
@@ -118,22 +117,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 						}
 					}
 				}
-				// Update payment_type
-				if (!empty($data['payment_type'])) {
-					$intake->payment_type = $data['payment_type'];
-					if ($intake->payment_type === 'credit' & empty($intake->invoice)) {
-						$invoiceRepository = app(InvoiceRepository::class);
-						$params = [
-							'customer_id' => $intake->customer_id,
-							'employee_id' => $intake->employee_id,
-							'intake_id' => $intake->id,
-							'amount' => 0,
-							'type' => 'withdraw',
-						];
-						$invoiceRepository->create($params);
-					}
-					$intake->save();
+				if (isset($data['payment_received_amount'])) {
+					$intake->payment_received_amount = $data['payment_received_amount'];
 				}
+				$intake->save();
 				DB::commit();
 				return $intake;
 			} else {
@@ -146,25 +133,6 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$intake->payment_type = $data['payment_type'];
 
 				if ($intake->save()) {
-					$invoiceRepository = app(InvoiceRepository::class);
-
-					// Create invoice
-					if (!empty($data['payment_type']) && PaymentType::CREDIT === $data['payment_type']) {
-						// if (empty($data['signature'])) {
-						//     throw new \Exception('Signature cannot be empty.');
-						// }
-
-						$params = [
-							'customer_id' => $intake->customer_id,
-							'employee_id' => $intake->employee_id,
-							'intake_id' => $intake->id,
-							'amount' => 0,
-							'type' => 'withdraw',
-							// 'signature' => $data['signature']
-						];
-
-						$invoice = $invoiceRepository->create($params);
-					}
 
 					$orders = $data['orders'];
 					foreach ($orders as $order) {
@@ -372,6 +340,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 			}
 
 			/* 6. Check user Balance if using credit */
+			if (isset($data['payment_type'])) {
+				$intake->payment_type = $data['payment_type'];
+			}
+
 			$payment_method = $intake->payment_type;
 			if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
 				throw new \Exception("Not enough credit");
@@ -384,27 +356,26 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$customer->save();
 			}
 
-			/* 8. Clear created invoice if payment is cash */
-			$invoice = $intake->invoice;
-			if ($payment_method ===  PaymentType::CASH && !empty($invoice)) {
-				$invoice->delete();
-			}
-
 			/* 9. Create Credit Invoice */
 			if ($payment_method ===  PaymentType::CREDIT) {
-				if (empty($invoice)) {
-					throw new \Exception('Missing invoice');
-				}
-				if ($invoice->status === InvoiceConstant::PAID_STATUS) {
-					throw new \Exception('Payment Failed! Invoice has been proceeded');
-				}
-				$invoice->amount = $intake->final_price;
-				$invoice->status = InvoiceConstant::PAID_STATUS;
-				$customer->balance = $customer->balance - $invoice->amount;
+				$invoiceRepository = app(InvoiceRepository::class);
+				$params = [
+					'customer_id' => $intake->customer_id,
+					'employee_id' => $intake->employee_id,
+					'intake_id' => $intake->id,
+					'amount' => $intake->final_price,
+					'type' => 'withdraw',
+					'status' => InvoiceConstant::PAID_STATUS
+					// 'signature' => $data['signature']
+				];
 
-				if ($invoice->save()) {
-					$customer->save();
-				};
+				$invoice = $invoiceRepository->create($params);
+				$customer->balance = $customer->balance - $invoice->amount;
+				$customer->save();
+			}
+
+			if ($payment_method ===  PaymentType::CREDIT || $payment_method ===  PaymentType::CASH) {
+				$intake->payment_received_amount = $intake->final_price;
 			}
 
 			/* 10. Update intake Status and save to DB */
