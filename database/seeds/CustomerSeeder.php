@@ -19,6 +19,6 @@ class CustomerSeeder extends Seeder
         foreach ($customers as $customer) {
             Common::upRank($customer);
         }
-        die(var_dump($customer));
+        dd($customer);
     }
 }
