@@ -120,6 +120,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 				if (isset($data['payment_received_amount'])) {
 					$intake->payment_received_amount = $data['payment_received_amount'];
 				}
+				if (isset($data['payment_type'])) {
+					$intake->payment_type = $data['payment_type'];
+				}
 				$intake->save();
 				DB::commit();
 				return $intake;
