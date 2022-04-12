@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Combo;
 use App\Customer;
 use App\Employee;
+use App\Helper\RewardRuleHelper;
 use App\Helper\Translation;
 use App\Helper\Common;
 use App\Helper\IntakeHelper;
@@ -20,7 +21,11 @@ use Illuminate\Support\Carbon;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
-	public function create(array $attributes = [])
+    public function __construct(RewardRuleHelper $rewardRuleHelper)
+    {
+    }
+
+    public function create(array $attributes = [])
 	{
 		DB::beginTransaction();
 		try {

@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 Route::get('/public', function (Request $request) {
 	return "Public";
 });
+Route::get('/public/test', 'TestController@testnhe');
 
 Route::get('/private', function (Request $request) {
 	return "Private";

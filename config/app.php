@@ -179,8 +179,7 @@ return [
         /**
          * Providers for our own app
          */
-        App\Providers\RepositoryServiceProvider::class,
-        App\Providers\HelperProvider::class
+        App\Providers\RepositoryServiceProvider::class
 
     ],
 

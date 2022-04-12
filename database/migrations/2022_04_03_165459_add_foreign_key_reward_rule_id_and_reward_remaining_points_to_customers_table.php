@@ -29,6 +29,8 @@ class AddForeignKeyRewardRuleIdAndRewardRemainingPointsToCustomersTable extends 
                 ->references('id')
                 ->on('reward_rules')
                 ->onUpdate('cascade'); // This will throw a foreign key error if someone tries to update this id to something not existing in reward rule table
+
+            $table->float('reward_remaining_points')->default(0);
         });
     }
 
@@ -43,7 +45,7 @@ class AddForeignKeyRewardRuleIdAndRewardRemainingPointsToCustomersTable extends 
         {
             Schema::table($this->tableName, function (Blueprint $table) {
                 $table->dropForeign('customers_' . $this->foreignKeyName . '_foreign');
-                $table->dropColumn($this->foreignKeyName);
+                $table->dropColumn([$this->foreignKeyName, 'reward_remaining_points']);
             });
         }
     }
