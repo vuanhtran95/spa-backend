@@ -190,7 +190,8 @@ class IntakeHelper
 	{
 		$individual_discounts = $this->discounts['individual'];
 		$isAppliedDiscount = false;
-
+		$order->discount_amount = 0;
+		$order->discount_description = '';
 		// 1. Apply discount if any
 		if (!empty($individual_discounts)) {
 			foreach ($individual_discounts as $discount) {

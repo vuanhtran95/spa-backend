@@ -13,6 +13,8 @@ interface IntakeRepositoryInterface
     public function update($id, array $attributes = []);
 
     public function approve($id, $data);
+    
+    public function intake_pay_up($id, array $attributes = []);
 
     public function delete($id);
 

@@ -54,6 +54,17 @@ class IntakeController extends Controller
         }
     }
 
+    public function intake_pay_up(Request $request, $id)
+    {
+        $data = $request->all();
+        try {
+            $intake = $this->intakeRepository->intake_pay_up($id, $data);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INTAKE_UPDATED, $intake);
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
     public function delete($id)
     {
         try {

@@ -35,7 +35,7 @@ class Common
 		$customerId = $customer->id;
 		$intake_spending = Intake::where('customer_id', $customerId)
 			->where('is_valid', '=', 1)
-			->where('payment_type', '=', 'cash')
+			->where('payment_method_id', '=', 'cash')
 			->sum('final_price');
 
 		$package_spending = Package::where('customer_id', $customerId)

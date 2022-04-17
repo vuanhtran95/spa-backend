@@ -37,6 +37,7 @@ Route::delete('/v1/employees/{id}', 'EmployeeController@delete')->middleware('au
 Route::post('/v1/intakes', 'IntakeController@create')->middleware('auth:api');
 Route::put('/v1/intakes/{id}', 'IntakeController@update')->middleware('auth:api');
 Route::put('/v1/intakes/{id}/approve', 'IntakeController@approve')->middleware('auth:api');
+Route::put('/v1/intakes/{id}/pay-up', 'IntakeController@intake_pay_up')->middleware('auth:api');
 Route::get('/v1/intakes', 'IntakeController@get')->middleware('auth:api');
 Route::get('/v1/intakes/{id}', 'IntakeController@getOneById')->middleware('auth:api');
 Route::delete('/v1/intakes/{id}', 'IntakeController@delete')->middleware('auth:api');
@@ -143,3 +144,5 @@ Route::get('/v1/ranks', 'CustomerController@getRanks')->middleware('auth:api');
 // Reminder
 Route::post('/v1/reminder', 'TaskController@createReminder')->middleware('auth:api');
 Route::get('/v1/reminder', 'TaskController@getReminderAssignments')->middleware('auth:api');
+// Payment Method
+Route::get('/v1/payment-method', 'PaymentMethodController@get')->middleware('auth:api');
