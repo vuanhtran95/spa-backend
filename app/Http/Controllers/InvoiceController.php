@@ -38,8 +38,9 @@ class InvoiceController extends Controller
 
 	public function approve(Request $request, $invoice_id)
 	{
+		$data = $request->all();
 		try {
-			$invoice = $this->invoiceRepository->approve($invoice_id);
+			$invoice = $this->invoiceRepository->approve($invoice_id, $data);
 
 			return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INVOICE_UPDATED, $invoice);
 		} catch (Exception $e) {
@@ -53,6 +54,16 @@ class InvoiceController extends Controller
 
 		return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INVOICE_SUCCESS, $listOfInvoiceByCustomer);
 	}
+
+	public function getOneById($id)
+    {
+        $invoice = $this->invoiceRepository->getOneBy('id', $id);
+        if ($invoice) {
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INVOICE_SUCCESS, $invoice);
+        } else {
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NOT_FOUND);
+        }
+    }
 
 	public function get(Request $request)
 	{
@@ -81,4 +92,15 @@ class InvoiceController extends Controller
 			return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
 		}
 	}
+
+	public function update(Request $request, $id)
+    {
+        $params = $request->all();
+        try {
+            $invoice = $this->invoiceRepository->save($params, true, $id);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INVOICE_UPDATED, $invoice);
+        } catch (Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
 }

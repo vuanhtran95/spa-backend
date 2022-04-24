@@ -45,7 +45,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 		return $invoice;
 	}
 
-	public function approve($invoice_id)
+	public function approve($invoice_id, array $data = [])
 	{
 		// 0.Find Invoice by Id
 		$invoice = Invoice::find($invoice_id);
@@ -57,6 +57,10 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 		if (empty($customer)) {
 			throw new \Exception('Customer is not existed');
 		}
+		if (empty($data['signature'])) {
+			throw new \Exception('Please add signature');
+		}
+		$invoice->signature = $data['signature'];
 
 		// 2.Update invoice status to "Paid"
 		$invoice->status = InvoiceConstant::PAID_STATUS;
@@ -92,6 +96,9 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 		$toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
 
 		$type = isset($condition['type']) ? $condition['type'] : null;
+
+		$status = isset($condition['status']) ? $condition['status'] : null;
+
 		$query = new Invoice();
 		if ($employeeId) {
 			$query = $query::where('employee_id', $employeeId);
@@ -101,6 +108,9 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 		}
 		if ($type !== null) {
 			$query = $query->where('type', '=', $type);
+		}
+		if ($status !== null) {
+			$query = $query->where('status', '=', $status);
 		}
 		if ($fromDate) {
 			$query = $query->where('created_at', '>=', $fromDate);
@@ -131,5 +141,15 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 		} else {
 			throw new \Exception(Translation::$NO_INVOICE_FOUND);
 		}
+	}
+
+
+
+	public function getOneBy($by, $value)
+	{
+		return Invoice::with(
+			['customer', 'employee']
+		)->where($by, '=', $value)
+			->first();
 	}
 }
