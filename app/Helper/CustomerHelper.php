@@ -25,45 +25,45 @@ class CustomerHelper
         $this->customer = $customer;
     }
 
-    public function setRewardRule() {
-        if (empty($this->customer->rewardRule)) {
-            throw new \Exception('Customer is not linked with any reward rules');
+    public function getCustomer() {
+        return $this->customer;
+    }
+
+    private function handleCustomerPoints() {
+        // Store customer's reward remaining points
+        if (!empty($this->customer->cash_point)) {
+            $this->customer->reward_remaining_points = $this->customer->cash_point;
         }
 
-        // Handle rewardRule reassignment
-        if (RewardRuleStatus::EXPIRED === $this->customer->rewardRule->status) {
-            // Find an active reward rule
-            $activeRewardRule = $this->rewardRuleRepository->findBy([
-                'status' => RewardRuleStatus::ACTIVE
-            ]);
-
-            // Assign customer's reward rule
-            $this->customer->reward_rule_id = $activeRewardRule->id;
-        }
-
-        // Recheck this logic
-        $this->rewardRule = $this->customer->rewardRule;
+        // Reset customer point
+        $this->customer->cash_point = 0;
     }
 
     public function updateCustomerPoints($currentPoints) {
+        if (empty($this->customer)) {
+            throw new \Exception('Customer data is not populated');
+        }
+
         if (empty($this->customer->rewardRule)) {
             throw new \Exception('Customer is not linked with any reward rules');
         }
 
+        // 1. If the customer's reward rule is "ACTIVE", means that we have to verify if this reward rule is still valid (by checking its date)
         if (RewardRuleStatus::ACTIVE === $this->customer->rewardRule->status) {
             $today = Carbon::now(Common::SYSTEM_TIMEZONE);
 
-            $validToDate = Carbon::parse($this->customer->rewardRule->end_date);
+            $validToDate = Carbon::parse($this->customer->rewardRule->end_date, Common::SYSTEM_TIMEZONE);
 
+            // 1.1 If today is after the reward rule valid date
             if ($today->isAfter($validToDate)) {
-                // Reset customer point
-                $this->customer->cash_point = 0;
+                // 1.1.1 First, handle the customer points
+                $this->handleCustomerPoints();
 
-                // Set current reward rule configuration to EXPIRED
+                // 1.1.2 Set current reward rule configuration to EXPIRED
                 $currentLeftOverPointDate = $this->customer->rewardRule->left_over_point_expired_date;
                 $this->rewardRuleRepository->update($this->customer->rewardRule->id, ['status' => RewardRuleStatus::EXPIRED]);
 
-                // Insert new reward rule configuration
+                // 1.1.3 Insert new reward rule configuration
                 $startOfYear = $today->copy()->startOfYear()->toDateTime();
                 $endOfYear = $today->copy()->endOfYear()->toDateTime();
 
@@ -74,22 +74,49 @@ class CustomerHelper
                     'status' => RewardRuleStatus::ACTIVE
                 ]);
 
-                // Link customer to the newly created reward rule
-                $this->customer->rewardRule->save($newRewardRule);
-            } else {
+                // 1.1.4 Link customer to the newly created reward rule
+                $this->customer->rewardRule()->associate($newRewardRule);
+            }
+            // 1.2 If today is before the reward rule valid date
+            else {
+                // 1.2.1 Accumulate the reward points as usual
                 $this->customer->cash_point += $currentPoints;
             }
-        } else {
-            // Find the current "ACTIVE" reward rule
-            
-
-            $this->customer->cash_point = 0;
         }
+        // 2. When the reward rule of the customer is "EXPIRED" then we have to update the reward rule * points for this customer
+        else {
+            // Find the current "ACTIVE" reward rule
+            $activeRewardRule = $this->rewardRuleRepository->findBy([
+                'status' => RewardRuleStatus::ACTIVE
+            ]);
 
+            // Link the customer with the newly "ACTIVE" reward rule
+            $this->customer->rewardRule()->associate($activeRewardRule);
 
+            // Handle the customer point
+            $this->handleCustomerPoints();
+        }
     }
 
-    public static function isRewardRemainingPointValid() {
+    public function saveChanges($changes) {
+        if (!empty($changes['cash_point'])) {
+            $this->updateCustomerPoints($changes['cash_point']);
+        }
 
+        $this->customer->save();
+    }
+
+    public function isRewardRemainingPointValid() {
+        $today = Carbon::now(Common::SYSTEM_TIMEZONE);
+
+        $validLeftOverPointDate = Carbon::parse($this->customer->rewardRule->left_over_point_expired_date, Common::SYSTEM_TIMEZONE);
+
+        return $today->isBefore($validLeftOverPointDate);
+    }
+
+    public function resetRewardRemainingPoints() {
+        if (!$this->isRewardRemainingPointValid()) {
+            $this->customer->reward_remaining_points = 0;
+        }
     }
 }

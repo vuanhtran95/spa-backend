@@ -16,10 +16,15 @@ use Illuminate\Http\Request;
 Route::get('/public', function (Request $request) {
 	return "Public";
 });
-Route::get('/public/test', function(\App\Helper\CustomerHelper $rewardRuleHelper) {
+Route::get('/public/test', function(\App\Helper\CustomerHelper $customerHelper) {
+    $knownDate = \Carbon\Carbon::create(2022, 12, 31, 17, 0, 1);
+    \Carbon\Carbon::setTestNow($knownDate);
+
     $customer = \App\Customer::find(45);
-    $rewardRuleHelper->setCustomer($customer);
-    $rewardRuleHelper->setRewardRule();
+    $customerHelper->setCustomer($customer);
+    $customerHelper->updateCustomerPoints($customer->cash_points);
+    $customerHelper->getCustomer()->save();
+    dd($customerHelper->getCustomer());
 });
 
 Route::get('/private', function (Request $request) {

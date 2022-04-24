@@ -3,22 +3,10 @@
 namespace App\Repositories;
 
 use App\RewardRule;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
-use App\Constants\RewardRule as RewardRuleStatus;
 
 class RewardRuleRepository
 {
-    /**
-     * @param $rewardRuleId
-     * @throws ModelNotFoundException
-     * @return RewardRule
-     */
-    public function findOne($rewardRuleId)
-    {
-        return RewardRule::findOrFail($rewardRuleId);
-    }
-
     public function findBy($condition) {
         return RewardRule::where($condition)->firstOrFail();
     }
