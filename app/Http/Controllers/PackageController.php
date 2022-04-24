@@ -59,7 +59,8 @@ class PackageController extends Controller
 
     public function update(Request $request, $id)
     {
-        $params = $request->only('is_valid');
+        $params = $request->all();
+        // $params = $request->only('is_valid');
         try {
             $package = $this->packageRepository->update($id, $params);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$PACKAGE_UPDATED, $package);
