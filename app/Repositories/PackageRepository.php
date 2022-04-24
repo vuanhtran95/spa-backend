@@ -44,10 +44,13 @@ class PackageRepository implements PackageRepositoryInterface
 				}]);
 			}])->find($id);
 
-			if ($package->is_valid) {
-				throw new \Exception(Translation::$COMBO_ALREADY_VALID);
+			if (isset($data['payment_method_id'])) {
+				$package->payment_method_id = $data['payment_method_id'];
 			}
 			if (isset($data['is_valid'])) {
+				if ($package->is_valid) {
+					throw new \Exception(Translation::$COMBO_ALREADY_VALID);
+				}
 				$total_price = 0;
 				$sale_commission = 0;
 				$combos = $package->combos->toArray();
@@ -79,6 +82,7 @@ class PackageRepository implements PackageRepositoryInterface
 				}
 			}
 			$package->save();
+
 			//TODO: UP RANK
 			$up_rank = false;
 			if (!empty($customer)) {
@@ -193,11 +197,18 @@ class PackageRepository implements PackageRepositoryInterface
 
 	public function getOneBy($by, $value)
 	{
-		// return Combo::where($by, $value)->with(['orders' => function ($query) {
-		//     $query->whereHas('intake', function ($query) {
-		//         $query->where('is_valid', 1);
-		//     });
-		// }, 'variant'])->first();
+		return Package::where($by, $value)->with(['combos' => function ($vQuery) {
+			$vQuery->with(['orders' => function ($query) {
+				$query->whereHas('intake', function ($query) {
+					$query->where('is_valid', 1);
+				});
+			}]);
+			$vQuery->with(['variant' => function ($sQuery) {
+				$sQuery->with(['service' => function ($cQuery) {
+					$cQuery->with('serviceCategory');
+				}]);
+			}]);
+		}, 'customer'])->first();
 	}
 
 	public function update($id, array $attributes = [])
