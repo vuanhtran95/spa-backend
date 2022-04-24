@@ -1,0 +1,11 @@
+<?php
+
+
+namespace App\Constants;
+
+
+abstract class EventLog
+{
+    const CUSTOMER_POINT_DEDUCTED = 'CUSTOMER_CASH_POINTS_DEDUCTED';
+    const CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED = 'CUSTOMER_REWARD_REMAINING_POINTS_DEDUCTED';
+}

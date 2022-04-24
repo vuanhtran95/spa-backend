@@ -99,8 +99,7 @@ class CustomerHelper
                 $newRewardRule = $this->rewardRuleRepository->create([
                     'start_date' => $startOfYear,
                     'end_date' => $endOfYear,
-                    'left_over_point_expired_date' => $currentLeftOverPointDate,
-                    'status' => RewardRuleStatus::ACTIVE
+                    'left_over_point_expired_date' => $currentLeftOverPointDate
                 ]);
 
                 // 1.1.4 Link customer to the newly created reward rule

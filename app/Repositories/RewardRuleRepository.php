@@ -7,10 +7,18 @@ use Illuminate\Support\Facades\DB;
 
 class RewardRuleRepository
 {
+    /**
+     * @param array $condition
+     * @return mixed
+     */
     public function findBy($condition) {
         return RewardRule::where($condition)->firstOrFail();
     }
 
+    /**
+     * @param array $data
+     * @return mixed
+     */
     public function create($data) {
         return RewardRule::create($data);
     }

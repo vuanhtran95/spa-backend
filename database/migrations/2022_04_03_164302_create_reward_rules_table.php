@@ -4,10 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
+use App\Constants\RewardRule;
 
 class CreateRewardRulesTable extends Migration
 {
-    private $tableName = 'reward_rules';
+    private string $tableName = 'reward_rules';
 
     /**
      * Run the migrations.
@@ -21,7 +22,7 @@ class CreateRewardRulesTable extends Migration
             $table->dateTime('start_date');
             $table->dateTime('end_date');
             $table->dateTime('left_over_point_expired_date');
-            $table->string('status');
+            $table->enum('status', [RewardRule::ACTIVE, RewardRule::EXPIRED])->default(RewardRule::ACTIVE);
             $table->timestamps();
         });
 

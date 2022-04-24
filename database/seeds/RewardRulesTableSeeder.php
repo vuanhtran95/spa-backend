@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use App\Constants\RewardRule;
 use Carbon\Carbon;
 use App\Constants\Common;
 
@@ -41,7 +40,6 @@ class RewardRulesTableSeeder extends Seeder
             'start_date' => $startOfYear,
             'end_date' => $endOfYear,
             'left_over_point_expired_date' => $leftOverPointExpiredDate,
-            'status' => RewardRule::ACTIVE,
             'created_at' => now(Common::SYSTEM_TIMEZONE)
         ]);
         $console->writeln('<fg=yellow>Finish!');
