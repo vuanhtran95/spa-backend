@@ -21,8 +21,11 @@ use Illuminate\Support\Carbon;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
-    public function __construct(CustomerHelper $rewardRuleHelper)
+    private $customerHelper;
+
+    public function __construct(CustomerHelper $customerHelper)
     {
+        $this->customerHelper = $customerHelper;
     }
 
     public function create(array $attributes = [])
@@ -192,7 +195,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 		$toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
 
 		$hasReviewForm = isset($condition['has_review']) ? $condition['has_review'] : null;
-		
+
 		$query = new Intake();
 
 		if ($employeeId) {
@@ -293,9 +296,13 @@ class IntakeRepository implements IntakeRepositoryInterface
 		DB::beginTransaction();
 		try {
 			/* 0. Get Customer */
-			$customer = NULL; // Guest
+			$customer = null; // Guest
 			if ($intake->customer_id) {
 				$customer = Customer::find($intake->customer_id); // Customer
+
+                // Update customer points based on reward rule
+                $this->customerHelper->setCustomer($customer);
+                $this->customerHelper->updateRewardPointsBasedOnRewardRule();
 			}
 
 			/* 1. Create Intake Helper */
@@ -422,7 +429,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			/* 7. Collect point for customer */
 			if ($intake->final_price > 0 && !empty($customer)) {
-				$customer->cash_point = $customer->cash_point + $intake->customer_earned_points;
+				$customer->cash_point += $intake->customer_earned_points;
 				$customer->save();
 			}
 

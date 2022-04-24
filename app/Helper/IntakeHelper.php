@@ -6,6 +6,7 @@ use App\Discount;
 use App\Variable;
 use Illuminate\Support\Carbon;
 use App\Helper\Common;
+use App\Constants\Common as CommonConst;
 
 class IntakeHelper
 {
@@ -92,7 +93,7 @@ class IntakeHelper
 
 	public function get_discounts($created_at)
 	{
-		$date = Carbon::parse($created_at)->setTimezone('Asia/Ho_Chi_Minh');
+		$date = Carbon::parse($created_at, CommonConst::SYSTEM_TIMEZONE);
 		$day = strtolower($date->shortEnglishDayOfWeek);
 		$query = new Discount();
 		$discount_array = $query->where('is_active', '=', 1)
@@ -145,9 +146,9 @@ class IntakeHelper
 		$condition = $discount['conditions'];
 		$apply_to_key = $condition['apply_to_conditions']['key'];
 		$apply_to_value = $condition['apply_to_conditions']['value'];
-		// Check customer condition: 
+		// Check customer condition:
 		// (1) apply for non-member
-		// (2) apply for member only 
+		// (2) apply for member only
 		// (3) apply all
 		$customer_condition = ($apply_to_key === 'non-member' && empty($this->rank))
 			|| ($apply_to_key  === 'member' && in_array($this->rank, $apply_to_value))
@@ -241,9 +242,9 @@ class IntakeHelper
 			$condition = $discount['conditions'];
 			$apply_to_key = $condition['apply_to_conditions']['key'];
 			$apply_to_value = $condition['apply_to_conditions']['value'];
-			// Check customer condition: 
+			// Check customer condition:
 			// (1) apply for non-member
-			// (2) apply for member only 
+			// (2) apply for member only
 			// (3) apply all
 			$customer_condition = ($apply_to_key === 'non-member' && empty($this->rank))
 				|| ($apply_to_key  === 'member' && in_array($this->rank, $apply_to_value))

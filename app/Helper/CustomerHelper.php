@@ -22,7 +22,9 @@ class CustomerHelper
     }
 
     public function setCustomer(Customer $customer) {
-        $this->customer = $customer;
+        if (!empty($customer)) {
+            $this->customer = $customer;
+        }
     }
 
     public function getCustomer() {
@@ -39,9 +41,9 @@ class CustomerHelper
         $this->customer->cash_point = 0;
     }
 
-    public function updateCustomerPoints($currentPoints) {
+    public function updateRewardPointsBasedOnRewardRule() {
         if (empty($this->customer)) {
-            throw new \Exception('Customer data is not populated');
+            return;
         }
 
         if (empty($this->customer->rewardRule)) {
@@ -60,7 +62,7 @@ class CustomerHelper
                 $this->handleCustomerPoints();
 
                 // 1.1.2 Set current reward rule configuration to EXPIRED
-                $currentLeftOverPointDate = $this->customer->rewardRule->left_over_point_expired_date;
+                $currentLeftOverPointDate = Carbon::parse($this->customer->rewardRule->left_over_point_expired_date, Common::SYSTEM_TIMEZONE)->addYear()->toDateTime();
                 $this->rewardRuleRepository->update($this->customer->rewardRule->id, ['status' => RewardRuleStatus::EXPIRED]);
 
                 // 1.1.3 Insert new reward rule configuration
@@ -77,10 +79,14 @@ class CustomerHelper
                 // 1.1.4 Link customer to the newly created reward rule
                 $this->customer->rewardRule()->associate($newRewardRule);
             }
-            // 1.2 If today is before the reward rule valid date
+            // 1.2.1 Handle customer's reward remaining points
             else {
-                // 1.2.1 Accumulate the reward points as usual
-                $this->customer->cash_point += $currentPoints;
+                $currentLeftOverPointDate = Carbon::parse($this->customer->rewardRule->left_over_point_expired_date, Common::SYSTEM_TIMEZONE);
+
+                if ($this->isRewardRemainingPointInvalid()) {
+                    // Reset remaining points
+                    $this->customer->reward_remaining_points = 0;
+                }
             }
         }
         // 2. When the reward rule of the customer is "EXPIRED" then we have to update the reward rule * points for this customer
@@ -100,23 +106,19 @@ class CustomerHelper
 
     public function saveChanges($changes) {
         if (!empty($changes['cash_point'])) {
-            $this->updateCustomerPoints($changes['cash_point']);
+            $this->updateRewardPointsBasedOnRewardRule();
         }
 
         $this->customer->save();
     }
 
-    public function isRewardRemainingPointValid() {
+    public function isRewardRemainingPointInvalid() {
         $today = Carbon::now(Common::SYSTEM_TIMEZONE);
 
-        $validLeftOverPointDate = Carbon::parse($this->customer->rewardRule->left_over_point_expired_date, Common::SYSTEM_TIMEZONE);
+        $validLeftOverPointDate = Carbon::parse(
+            $this->customer->rewardRule->left_over_point_expired_date, Common::SYSTEM_TIMEZONE
+        )->subYear();
 
-        return $today->isBefore($validLeftOverPointDate);
-    }
-
-    public function resetRewardRemainingPoints() {
-        if (!$this->isRewardRemainingPointValid()) {
-            $this->customer->reward_remaining_points = 0;
-        }
+        return $today->isAfter($validLeftOverPointDate);
     }
 }

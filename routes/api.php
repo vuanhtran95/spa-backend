@@ -22,7 +22,7 @@ Route::get('/public/test', function(\App\Helper\CustomerHelper $customerHelper) 
 
     $customer = \App\Customer::find(45);
     $customerHelper->setCustomer($customer);
-    $customerHelper->updateCustomerPoints($customer->cash_points);
+    $customerHelper->updateRewardPointsBasedOnRewardRule($customer->cash_points);
     $customerHelper->getCustomer()->save();
     dd($customerHelper->getCustomer());
 });
