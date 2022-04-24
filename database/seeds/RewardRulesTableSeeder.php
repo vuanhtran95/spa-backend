@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use App\Constants\RewardRule;
 use Carbon\Carbon;
+use App\Constants\Common;
 
 class RewardRulesTableSeeder extends Seeder
 {
@@ -26,13 +27,12 @@ class RewardRulesTableSeeder extends Seeder
          * If you need to update the timezone, refer to this official docs for list of supported timezone from PHP site
          * https://www.php.net/manual/en/timezones.asia.php
          */
-        $timezone = 'Asia/Ho_Chi_Minh';
-        $currentDate = Carbon::now($timezone);
+        $currentDate = Carbon::now(Common::SYSTEM_TIMEZONE);
         $currentYear = $currentDate->year;
         $startOfYear = $currentDate->copy()->startOfYear()->toDateTime();
         $endOfYear = $currentDate->copy()->endOfYear()->toDateTime();
 
-        $leftOverPointExpiredDate = Carbon::createFromFormat('Y-m-d', "$currentYear-03-31", $timezone)
+        $leftOverPointExpiredDate = Carbon::createFromFormat('Y-m-d', "$currentYear-03-31", Common::SYSTEM_TIMEZONE)
             ->modify('next year')
             ->endOfDay()
             ->toDateTime();
@@ -42,7 +42,7 @@ class RewardRulesTableSeeder extends Seeder
             'end_date' => $endOfYear,
             'left_over_point_expired_date' => $leftOverPointExpiredDate,
             'status' => RewardRule::ACTIVE,
-            'created_at' => now($timezone)
+            'created_at' => now(Common::SYSTEM_TIMEZONE)
         ]);
         $console->writeln('<fg=yellow>Finish!');
         Log::info('Finish!');

@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Combo;
 use App\Customer;
 use App\Employee;
-use App\Helper\RewardRuleHelper;
+use App\Helper\CustomerHelper;
 use App\Helper\Translation;
 use App\Helper\Common;
 use App\Helper\IntakeHelper;
@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
-    public function __construct(RewardRuleHelper $rewardRuleHelper)
+    public function __construct(CustomerHelper $rewardRuleHelper)
     {
     }
 

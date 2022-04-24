@@ -19,6 +19,14 @@ class RewardRuleRepository
         return RewardRule::findOrFail($rewardRuleId);
     }
 
+    public function findBy($condition) {
+        return RewardRule::where($condition)->firstOrFail();
+    }
+
+    public function create($data) {
+        return RewardRule::create($data);
+    }
+
     /**
      * @param $rewardRuleId
      * @param $updatedData
@@ -33,7 +41,7 @@ class RewardRuleRepository
         $rewardRule = null;
         try {
             DB::beginTransaction();
-            $rewardRule = RewardRule::where('status', RewardRuleStatus::ACTIVE)->update($updatedData);
+            $rewardRule = RewardRule::where('id', $rewardRuleId)->update($updatedData);
 
             DB::commit();
         } catch (\Exception $e) {

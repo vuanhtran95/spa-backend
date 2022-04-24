@@ -16,7 +16,11 @@ use Illuminate\Http\Request;
 Route::get('/public', function (Request $request) {
 	return "Public";
 });
-Route::get('/public/test', 'TestController@testnhe');
+Route::get('/public/test', function(\App\Helper\CustomerHelper $rewardRuleHelper) {
+    $customer = \App\Customer::find(45);
+    $rewardRuleHelper->setCustomer($customer);
+    $rewardRuleHelper->setRewardRule();
+});
 
 Route::get('/private', function (Request $request) {
 	return "Private";
