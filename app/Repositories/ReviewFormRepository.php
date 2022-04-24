@@ -51,7 +51,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 				throw new \Exception(Translation::$INTAKE_NOT_APPROVE);
 			}
 
-			// Get payment_type of intake
+			// Get payment_method_id of intake
 			$price_field = 'price';
 
 			// Check already reviewed ?

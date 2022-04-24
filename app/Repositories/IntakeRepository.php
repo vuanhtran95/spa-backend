@@ -125,8 +125,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 				if (isset($data['payment_received_amount'])) {
 					$intake->payment_received_amount = $data['payment_received_amount'];
 				}
-				if (isset($data['payment_type'])) {
-					$intake->payment_type = $data['payment_type'];
+				if (isset($data['payment_method_id'])) {
+					$intake->payment_method_id = $data['payment_method_id'];
 				}
 				$intake->save();
 				DB::commit();
@@ -138,7 +138,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$intake = new Intake();
 				$intake->customer_id = $data['customer_id'];
 				$intake->employee_id = $employeeId;
-				$intake->payment_type = $data['payment_type'];
+				if (isset($data['payment_method_id'])) {
+					$intake->payment_method_id = $data['payment_method_id'];
+				}
 
 				if ($intake->save()) {
 
@@ -190,7 +192,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 		$toDate = isset($condition['to_date']) ? $condition['to_date'] : null;
 
 		$hasReviewForm = isset($condition['has_review']) ? $condition['has_review'] : null;
-
+		
 		$query = new Intake();
 
 		if ($employeeId) {
@@ -284,7 +286,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 			throw new \Exception("Intake already approved");
 		}
 
-		if ($intake->payment_type === PaymentType::CREDIT && empty($intake->customer_id)) {
+		if ($intake->payment_method_id === PaymentType::CREDIT && empty($intake->customer_id)) {
 			throw new \Exception("Payment method is not allowed");
 		}
 
@@ -308,18 +310,14 @@ class IntakeRepository implements IntakeRepositoryInterface
 						/* 2.1 Process combo order */
 						if ($order->combo_id) {
 							$combo = Combo::find($order->combo_id);
-							$combo->number_used = (int)$combo->number_used + (int)$order->amount;
-							if ($combo->number_used > $combo->amount) {
+							if ($combo->number_used >= $combo->amount) {
 								throw new Exception('You have run out of use this combo');
 							}
-							$combo->save();
 						}
 						/* 2.2 Process normal order */ else {
 							$helper->process_order($order);
 							$totalPrice = $totalPrice  + $order->price * $order->amount;
 						}
-						/* 2.3 Service Reminder */
-						$helper->add_service_reminder($order);
 						$order->save();
 					}
 				);
@@ -332,10 +330,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 			// $intake->discount_note = $whole_bill_discount['description'];
 
 			/* 4. Apply additional discount */
-			if (
-				!empty($data['additional_discount_price'])
-				&& $data['additional_discount_price'] <= $totalPrice
-			) {
+			if ($data['additional_discount_price'] <= $totalPrice) {
 				$totalPrice = $totalPrice - $data['additional_discount_price'];
 				$intake->additional_discount_price = $data['additional_discount_price'];
 				$intake->discount_note ?  $intake->discount_note .= ", {$data['discount_note']}" :  $intake->discount_note = $data['discount_note'];
@@ -347,25 +342,92 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$intake->final_price = 0;
 			}
 
-			/* 6. Check user Balance if using credit */
-			if (isset($data['payment_type'])) {
-				$intake->payment_type = $data['payment_type'];
+			/* 7. Collect point for customer */
+			if ($intake->final_price > 0 && !empty($customer)) {
+				$intake->customer_earned_points =  $helper->get_points();
 			}
 
-			$payment_method = $intake->payment_type;
-			if ($payment_method ===  PaymentType::CREDIT && $customer->balance <  $totalPrice) {
+			/* 10. Update intake Status and save to DB */
+			$intake->save();
+			DB::commit();
+			$result = $this->getOneBy('id', $id);
+			return $result;
+		} catch (\Exception $exception) {
+			DB::rollBack();
+			throw new \Exception($exception->getMessage());
+		}
+	}
+
+	public function intake_pay_up($id, array $data = [])
+	{
+		/* 0. Get Intake detail by ID */
+		$intake = Intake::with(
+			['orders' => function ($query) {
+				$query->with(
+					['variant' => function ($subQuery) {
+						$subQuery->with(['service' => function ($eQuery) {
+							$eQuery->with('serviceCategory');
+						}]);
+					}]
+				);
+			}]
+		)->find($id);
+
+		if ($intake->is_valid) {
+			throw new \Exception("Intake Paid");
+		}
+
+		if (empty($data['payment_method_id'])) {
+			throw new \Exception("Missing payment method");
+		}
+
+		$payment_method_id = $data['payment_method_id'];
+
+		if ($payment_method_id === PaymentType::CREDIT && empty($intake->customer_id)) {
+			throw new \Exception("Payment method is not allowed");
+		}
+
+		DB::beginTransaction();
+		try {
+			/* 0. Get Customer */
+			$customer = NULL; // Guest
+			if ($intake->customer_id) {
+				$customer = Customer::find($intake->customer_id); // Customer
+			}
+			/* 1. Create Intake Helper */
+			$helper = new IntakeHelper($customer, $intake->created_at);
+
+			if (!empty($intake->orders)) {
+				$intake->orders->each(
+					function ($order) use ($helper) {
+						/* 2.1 Process combo order */
+						if ($order->combo_id) {
+							$combo = Combo::find($order->combo_id);
+							$combo->number_used = (int)$combo->number_used + (int)$order->amount;
+							if ($combo->number_used > $combo->amount) {
+								throw new Exception('You have run out of use this combo');
+							}
+							$combo->save();
+						}
+						/* 2.3 Service Reminder */
+						$helper->add_service_reminder($order);
+						$order->save();
+					}
+				);
+			}
+
+			if ($payment_method_id ===  PaymentType::CREDIT && $customer->balance <  $intake->final_price) {
 				throw new \Exception("Not enough credit");
 			}
 
 			/* 7. Collect point for customer */
 			if ($intake->final_price > 0 && !empty($customer)) {
-				$intake->customer_earned_points =  $helper->get_points();
-				$customer->cash_point = $customer->cash_point + $helper->get_points();
+				$customer->cash_point = $customer->cash_point + $intake->customer_earned_points;
 				$customer->save();
 			}
 
 			/* 9. Create Credit Invoice */
-			if ($payment_method ===  PaymentType::CREDIT) {
+			if ($payment_method_id ===  PaymentType::CREDIT) {
 				$invoiceRepository = app(InvoiceRepository::class);
 				$params = [
 					'customer_id' => $intake->customer_id,
@@ -381,19 +443,15 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$customer->balance = $customer->balance - $invoice->amount;
 				$customer->save();
 			}
-
-			if ($payment_method ===  PaymentType::CREDIT || $payment_method ===  PaymentType::CASH) {
-				$intake->payment_received_amount = $intake->final_price;
-			}
-
 			/* 10. Update intake Status and save to DB */
+			$intake->payment_method_id = $payment_method_id;
 			$intake->is_valid = 1;
 			$intake->approved_date = Carbon::now();
 			$intake->save();
 
 			/* 11. Upgrade rank for user */
 			$up_rank = false;
-			if (!empty($customer) && $payment_method ===  PaymentType::CASH) {
+			if (!empty($customer) && $payment_method_id ===  PaymentType::CASH) {
 				$up_rank = Common::upRank($customer);
 				if (!empty($up_rank)) {
 					$intake->special_note = $up_rank;

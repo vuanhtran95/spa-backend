@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\PaymentMethod;
 use App\Repositories\PackageRepository;
 use App\Repositories\PackageRepositoryInterface;
 use App\Repositories\ComboRepository;
@@ -43,7 +44,8 @@ use App\Repositories\DiscountRepositoryInterface;
 use App\Repositories\VariableRepository;
 use App\Repositories\VariableRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
-
+use App\Repositories\PaymentMethodRepository;
+use App\Repositories\PaymentMethodRepositoryInterface;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -84,5 +86,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(JudgementRepositoryInterface::class, JudgementRepository::class);
         $this->app->bind(DiscountRepositoryInterface::class, DiscountRepository::class);
         $this->app->bind(VariableRepositoryInterface::class, VariableRepository::class);
+        $this->app->bind(PaymentMethodRepositoryInterface::class, PaymentMethodRepository::class);
     }
 }

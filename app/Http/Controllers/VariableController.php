@@ -49,7 +49,7 @@ class VariableController extends Controller
             // Update task history
             $variable = $this->VariableRepository->update($params);
 
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DISCOUNT_UPDATED, $discount);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DISCOUNT_UPDATED, $variable);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }

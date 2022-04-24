@@ -88,7 +88,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
 			->withCount([
 				'intakes AS intakes_spend' => function ($query) {
-					$query->where('is_valid', '=', 1)->where('payment_type', '=', 'cash')
+					$query->where('is_valid', '=', 1)->where('payment_method_id', '=', 'cash')
 						->select(DB::raw("SUM(final_price)"));
 				},
 			])
@@ -159,7 +159,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
 			->withCount([
 				'intakes AS intakes_spend' => function ($query) {
-					$query->where('is_valid', '=', 1)->where('payment_type', '=', 'cash')
+					$query->where('is_valid', '=', 1)->where('payment_method_id', '=', 'cash')
 						->select(DB::raw("SUM(final_price)"));
 				},
 			])

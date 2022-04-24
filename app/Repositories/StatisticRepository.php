@@ -37,7 +37,7 @@ class StatisticRepository implements StatisticRepositoryInterface
 	public function get_revenue_between_date($from, $to)
 	{
 		$revenue = Intake::where('is_valid', '=', 1)
-			->where('payment_type', '=', 'cash')
+			->where('payment_method_id', '=', 'cash')
 			->whereBetween('created_at', [$from, $to])
 			->get()
 			->sum('final_price')
@@ -60,7 +60,7 @@ class StatisticRepository implements StatisticRepositoryInterface
 			'monthOverflow' => false,
 		]);
 		$total_revenue = Intake::where('is_valid', '=', 1)
-			->where('payment_type', '=', 'cash')
+			->where('payment_method_id', '=', 'cash')
 			->get()
 			->sum('final_price')
 			+ Invoice::where('status', '=', 'paid')
