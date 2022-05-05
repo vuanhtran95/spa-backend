@@ -192,6 +192,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 		$hasReviewForm = isset($condition['has_review']) ? $condition['has_review'] : null;
 
+		$is_calculated= isset($condition['is_calculated']) ? (int)$condition['is_calculated'] : null;
+
 		$query = new Intake();
 
 		if ($employeeId) {
@@ -204,6 +206,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 		if ($isValid !== null && ($isValid === 0 || $isValid === 1)) {
 			$query = $query->where('is_valid', $isValid);
+		}
+
+		if ($is_calculated !== null && ($is_calculated === 0 || $is_calculated === 1)) {
+			$query = $query->where('is_calculated', $is_calculated);
 		}
 
 		if ($fromDate) {
@@ -347,6 +353,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 			}
 
 			/* 10. Update intake Status and save to DB */
+			$intake->is_calculated = 1;
 			$intake->save();
 			DB::commit();
 			$result = $this->getOneBy('id', $id);
@@ -371,6 +378,10 @@ class IntakeRepository implements IntakeRepositoryInterface
 				);
 			}]
 		)->find($id);
+
+		if (empty($intake->is_calculated)) {
+			throw new \Exception("Intake is not calculated");
+		}
 
 		if ($intake->is_valid) {
 			throw new \Exception("Intake Paid");
