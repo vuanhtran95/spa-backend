@@ -45,6 +45,7 @@ class JudgementRepository implements JudgementRepositoryInterface
         }
 
         $judgements = $query->orderBy('id', 'desc')
+                            ->with(['employee'])
                             ->get()
                             ->toArray();
         return [
