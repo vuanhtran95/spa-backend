@@ -28,7 +28,8 @@ class CustomerHelper
     /**
      * @param Customer $customer
      */
-    public function setCustomer(Customer $customer) {
+    public function setCustomer(Customer $customer)
+    {
         if (!empty($customer)) {
             $this->customer = $customer;
         }
@@ -37,12 +38,14 @@ class CustomerHelper
     /**
      * @return mixed
      */
-    public function getCustomer() {
+    public function getCustomer()
+    {
         return $this->customer;
     }
 
 
-    private function handleCustomerPoints() {
+    private function handleCustomerPoints()
+    {
         // Store customer's reward remaining points
         if (!empty($this->customer->cash_point)) {
             $this->customer->reward_remaining_points = $this->customer->cash_point;
@@ -55,7 +58,8 @@ class CustomerHelper
     /**
      * @return bool
      */
-    private function isRewardRemainingPointInvalid() {
+    private function isRewardRemainingPointInvalid()
+    {
         $today = Carbon::now(Common::SYSTEM_TIMEZONE);
 
         $validLeftOverPointDate = Carbon::parse(
@@ -68,7 +72,8 @@ class CustomerHelper
     /**
      * @throws \Exception
      */
-    public function updateRewardPointsBasedOnRewardRule() {
+    public function updateRewardPointsBasedOnRewardRule()
+    {
         if (empty($this->customer)) {
             return;
         }

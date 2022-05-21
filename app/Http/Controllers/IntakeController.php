@@ -56,9 +56,12 @@ class IntakeController extends Controller
 
     public function intake_pay_up(Request $request, $id)
     {
-        $data = $request->all();
+        $validatedData = $request->validate([
+            'payment_method_id' => 'required',
+            'reward_points' => 'required|numeric',
+        ]);
         try {
-            $intake = $this->intakeRepository->intake_pay_up($id, $data);
+            $intake = $this->intakeRepository->intake_pay_up($id, $validatedData);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$INTAKE_UPDATED, $intake);
         } catch (Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());

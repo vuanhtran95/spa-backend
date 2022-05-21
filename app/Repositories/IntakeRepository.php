@@ -373,7 +373,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 		}
 	}
 
-	public function intake_pay_up($id, array $data = [])
+	public function intake_pay_up($id, array $requestData = [])
 	{
 		/* 0. Get Intake detail by ID */
 		$intake = Intake::with(
@@ -392,11 +392,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 			throw new \Exception("Intake Paid");
 		}
 
-		if (empty($data['payment_method_id'])) {
-			throw new \Exception("Missing payment method");
-		}
-
-		$payment_method_id = $data['payment_method_id'];
+		$payment_method_id = $requestData['payment_method_id'];
 
 		if ($payment_method_id === PaymentType::CREDIT && empty($intake->customer_id)) {
 			throw new \Exception("Payment method is not allowed");
@@ -435,10 +431,74 @@ class IntakeRepository implements IntakeRepositoryInterface
 				throw new \Exception("Not enough credit");
 			}
 
-			/* 7. Collect point for customer */
+			// Calculate final price
+            $customerTotalRewardPoints = $customer->cash_point + $customer->reward_remaining_points;
+
+			if ($requestData['reward_points'] > $customerTotalRewardPoints) {
+			    throw new \Exception('Invalid request. Reason: The total reward points is insufficient for using.');
+            }
+
+			$rewardPointsDeduction = $intake->final_price - $requestData['reward_points'];
+
+			if ($rewardPointsDeduction < 0) {
+			    throw new \Exception('Invalid request. Reason: The final price after deduction is not a valid amount');
+            }
+
+			$deductionCashpoint = null;
+			$deductionRewardRemainingPoint = null;
+
+			if ($customer->reward_remaining_points > 0) {
+                $deductionRewardRemainingPoint = $customer->reward_remaining_points;
+
+                if ($customer->reward_remaining_points >= $requestData['reward_points']) {
+                    $intake->final_price -= $customer->reward_remaining_points;
+                } else {
+                    $intake->final_price -= $customer->reward_remaining_points;
+                    $remainingPoints = $requestData['reward_points'] - $customer->reward_remaining_points;
+
+                    $deductionCashpoint = $customer->cash_point;
+                    if ($remainingPoints >= $customer->cash_point) {
+                        $intake->final_price -= $customer->cash_point;
+                    } else {
+                        $intake->final_price -= $remainingPoints;
+                        $deductionCashpoint = $remainingPoints;
+                    }
+
+                    $customer->cash_point -= $deductionCashpoint;
+                }
+                // Deduct the reward remaining point
+                $customer->reward_remaining_points -= $customer->reward_remaining_points;
+            } else {
+			    $deductionCashpoint = $customer->cash_point;
+                $intake->final_price -= $customer->cash_point;
+                // Deduct the current reward point
+                $customer->cash_point -= $customer->cash_point;
+            }
+
+            // Store event log when customer cash points & reward remaining points are used
+            if (!empty($deductionCashpoint)) {
+                $this->eventLogRepository->storeCustomerRewardPointsEventLog([
+                    EventLogType::CUSTOMER_POINT_DEDUCTED => [
+                        'entityId' => $customer->id,
+                        'placeholder' => 'cashPoints',
+                        'value' => $customer->cash_point
+                    ]
+                ]);
+            }
+
+			if (!empty($deductionRewardRemainingPoint)) {
+                $this->eventLogRepository->storeCustomerRewardPointsEventLog([
+                    EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
+                        'entityId' => $customer->id,
+                        'placeholder' => 'remainingRewardPoints',
+                        'value' => $customer->reward_remaining_points
+                    ]
+                ]);
+            }
+
+            /* 7. Collect point for customer */
 			if ($intake->final_price > 0 && !empty($customer)) {
 			    // Calculate final price with reward points included (customer's cash points & reward remaining points)
-                $intake->final_price -= ($customer->cash_point + $customer->reward_remaining_points);
 				$customer->cash_point += $intake->customer_earned_points;
 				$customer->save();
 			}

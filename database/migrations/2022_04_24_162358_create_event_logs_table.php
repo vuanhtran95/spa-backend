@@ -7,7 +7,7 @@ use App\Constants\EventLog;
 
 class CreateEventLogsTable extends Migration
 {
-    private string $tableName = 'event_logs';
+    private $tableName = 'event_logs';
 
     /**
      * Run the migrations.

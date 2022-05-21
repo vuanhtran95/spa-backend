@@ -8,7 +8,7 @@ use App\Constants\RewardRule;
 
 class CreateRewardRulesTable extends Migration
 {
-    private string $tableName = 'reward_rules';
+    private $tableName = 'reward_rules';
 
     /**
      * Run the migrations.
