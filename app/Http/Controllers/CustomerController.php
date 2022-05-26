@@ -132,4 +132,19 @@ class CustomerController extends Controller
 			return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
 		}
 	}
+
+	public function checkCashPoint(Request $request, $id)
+	{
+		try {
+			$customer = $this->customerRepository->checkCashPoint($id);
+			if ($customer) {
+				return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$USER_UPDATED, $customer);
+			} else {
+				//TODO: Need to improve
+				return HttpResponse::toJson(false, Response::HTTP_BAD_REQUEST, Translation::$SYSTEM_ERROR);
+			}
+		} catch (Exception $e) {
+			return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USER_UPDATE_FAILURE);
+		}
+	}
 }

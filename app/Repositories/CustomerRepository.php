@@ -9,9 +9,16 @@ use App\Order;
 use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-
+use App\Helper\CustomerHelper;
+use Illuminate\Support\Carbon;
 class CustomerRepository implements CustomerRepositoryInterface
 {
+	private $customerHelper;
+	public function __construct(CustomerHelper $customerHelper)
+	{
+		$this->customerHelper = $customerHelper;
+	}
+
 	public function create(array $attributes = [])
 	{
 		DB::beginTransaction();
@@ -241,6 +248,27 @@ class CustomerRepository implements CustomerRepositoryInterface
 			];
 			$invoiceRepository->create($params);
 			$customer->save();
+			DB::commit();
+			return $customer;
+		} catch (\Exception $exception) {
+			DB::rollBack();
+			throw new \Exception($exception->getMessage());
+		}
+	}
+
+	public function checkCashPoint($id)
+	{
+		//TODO: REMOVE AFTER TESTING
+		$knownDate = Carbon::create(2022, 12, 31, 17, 0, 1);
+		Carbon::setTestNow($knownDate);
+		DB::beginTransaction();
+		try {
+			$customer = Customer::find($id); // Customer
+			if (empty($customer)) throw new \Exception("Customer not found");
+
+			// Update customer points based on reward rule
+			$this->customerHelper->setCustomer($customer);
+			$this->customerHelper->updateRewardPointsBasedOnRewardRule();
 			DB::commit();
 			return $customer;
 		} catch (\Exception $exception) {

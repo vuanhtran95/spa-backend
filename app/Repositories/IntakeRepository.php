@@ -6,7 +6,6 @@ use App\Combo;
 use App\Constants\EventLog as EventLogType;
 use App\Customer;
 use App\Employee;
-use App\Helper\CustomerHelper;
 use App\Helper\Translation;
 use App\Helper\Common;
 use App\Helper\IntakeHelper;
@@ -22,13 +21,11 @@ use Illuminate\Support\Carbon;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
-    private $customerHelper;
 
     private $eventLogRepository;
 
-    public function __construct(CustomerHelper $customerHelper, EventLogRepository $eventLogRepository)
+    public function __construct(EventLogRepository $eventLogRepository)
     {
-        $this->customerHelper = $customerHelper;
         $this->eventLogRepository = $eventLogRepository;
     }
 
@@ -307,10 +304,6 @@ class IntakeRepository implements IntakeRepositoryInterface
 			$customer = null; // Guest
 			if ($intake->customer_id) {
 				$customer = Customer::find($intake->customer_id); // Customer
-
-                // Update customer points based on reward rule
-                $this->customerHelper->setCustomer($customer);
-                $this->customerHelper->updateRewardPointsBasedOnRewardRule();
 			}
 
 			/* 1. Create Intake Helper */
