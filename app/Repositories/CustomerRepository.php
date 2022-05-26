@@ -136,6 +136,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 	public function getOneBy($by, $value)
 	{
 		$customer = Customer::where($by, '=', $value)
+			->with(['rewardRule'])
 			->withCount([
 				'package AS packages_spend' => function ($query) {
 					$query->where('is_valid', '=', 1)
@@ -260,6 +261,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 	{
 		//TODO: REMOVE AFTER TESTING
 		$knownDate = Carbon::create(2022, 12, 31, 17, 0, 1);
+		// $knownDate = Carbon::create(2023, 3, 31, 17, 0, 1);
 		Carbon::setTestNow($knownDate);
 		DB::beginTransaction();
 		try {

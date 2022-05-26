@@ -264,7 +264,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 						);
 					}, 'combo', 'review']
 				);
-			}, 'customer', 'employee', 'reviewForm', 'invoice']
+			}, 'customer' => function ($c){
+				$c->with(['rewardRule']);
+			}, 'employee', 'reviewForm', 'invoice']
 		)->where('id', $value)->first();
 	}
 
@@ -435,70 +437,120 @@ class IntakeRepository implements IntakeRepositoryInterface
 				throw new \Exception("Not enough credit");
 			}
 
+			if($requestData['reward_points'] > 0) {
+				// Calculate total reward points that user has has
+				$customerTotalRewardPoints = $customer->cash_point + $customer->reward_remaining_points;
+
+				if ($requestData['reward_points'] > $customerTotalRewardPoints) {
+					throw new \Exception('Invalid request. Reason: The total reward points is insufficient for using.');
+				}
+
+				if ($intake->final_price - $requestData['reward_points'] < 0) {
+					throw new \Exception('Invalid request. Reason: The final price after deduction is not a valid amount');
+				}
+				// current: 5
+				// remain: 0
+				// ask to use :4
+				$clearUpRewardRemainingPoint = $customer->reward_remaining_points - $requestData['reward_points'];
+
+				if($clearUpRewardRemainingPoint >= 0) {
+					$customer->reward_remaining_points = $clearUpRewardRemainingPoint;
+					$this->eventLogRepository->storeCustomerRewardPointsEventLog([
+						EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
+							'entityId' => $customer->id,
+							'placeholder' => 'remainingRewardPoints',
+							'value' => $requestData['reward_points']
+						]
+					]);
+				} else {
+					if($customer->reward_remaining_points > 0) {
+						// Out of remaining points
+						$this->eventLogRepository->storeCustomerRewardPointsEventLog([
+							EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
+								'entityId' => $customer->id,
+								'placeholder' => 'remainingRewardPoints',
+								'value' => $customer->reward_remaining_points
+							]
+						]);
+						$customer->reward_remaining_points = 0;
+					}
+					$customer->cash_point = $customer->cash_point - $clearUpRewardRemainingPoint * -1;
+
+					$this->eventLogRepository->storeCustomerRewardPointsEventLog([
+						EventLogType::CUSTOMER_POINT_DEDUCTED => [
+							'entityId' => $customer->id,
+							'placeholder' => 'cashPoints',
+							'value' => $clearUpRewardRemainingPoint * -1
+						]
+					]);
+				}
+				$intake->final_price -= $customer->cash_point;
+			}
+			// TODO: Review lại code
 			// Calculate final price
-            $customerTotalRewardPoints = $customer->cash_point + $customer->reward_remaining_points;
+            // $customerTotalRewardPoints = $customer->cash_point + $customer->reward_remaining_points;
 
-			if ($requestData['reward_points'] > $customerTotalRewardPoints) {
-			    throw new \Exception('Invalid request. Reason: The total reward points is insufficient for using.');
-            }
+			// if ($requestData['reward_points'] > $customerTotalRewardPoints) {
+			//     throw new \Exception('Invalid request. Reason: The total reward points is insufficient for using.');
+            // }
 
-			$rewardPointsDeduction = $intake->final_price - $requestData['reward_points'];
+			// $rewardPointsDeduction = $intake->final_price - $requestData['reward_points'];
 
-			if ($rewardPointsDeduction < 0) {
-			    throw new \Exception('Invalid request. Reason: The final price after deduction is not a valid amount');
-            }
+			// if ($rewardPointsDeduction < 0) {
+			//     throw new \Exception('Invalid request. Reason: The final price after deduction is not a valid amount');
+            // }
 
-			$deductionCashpoint = null;
-			$deductionRewardRemainingPoint = null;
+			// $deductionCashpoint = null;
+			// $deductionRewardRemainingPoint = null;
 
-			if ($customer->reward_remaining_points > 0) {
-                $deductionRewardRemainingPoint = $customer->reward_remaining_points;
+			// if ($customer->reward_remaining_points > 0) {
+            //     $deductionRewardRemainingPoint = $customer->reward_remaining_points;
 
-                if ($customer->reward_remaining_points >= $requestData['reward_points']) {
-                    $intake->final_price -= $customer->reward_remaining_points;
-                } else {
-                    $intake->final_price -= $customer->reward_remaining_points;
-                    $remainingPoints = $requestData['reward_points'] - $customer->reward_remaining_points;
+            //     if ($customer->reward_remaining_points >= $requestData['reward_points']) {
+            //         $intake->final_price -= $customer->reward_remaining_points;
+            //     } else {
+            //         $intake->final_price -= $customer->reward_remaining_points;
+            //         $remainingPoints = $requestData['reward_points'] - $customer->reward_remaining_points;
 
-                    $deductionCashpoint = $customer->cash_point;
-                    if ($remainingPoints >= $customer->cash_point) {
-                        $intake->final_price -= $customer->cash_point;
-                    } else {
-                        $intake->final_price -= $remainingPoints;
-                        $deductionCashpoint = $remainingPoints;
-                    }
+            //         $deductionCashpoint = $customer->cash_point;
+            //         if ($remainingPoints >= $customer->cash_point) {
+            //             $intake->final_price -= $customer->cash_point;
+            //         } else {
+            //             $intake->final_price -= $remainingPoints;
+            //             $deductionCashpoint = $remainingPoints;
+            //         }
 
-                    $customer->cash_point -= $deductionCashpoint;
-                }
-                // Deduct the reward remaining point
-                $customer->reward_remaining_points -= $customer->reward_remaining_points;
-            } else {
-			    $deductionCashpoint = $customer->cash_point;
-                $intake->final_price -= $customer->cash_point;
-                // Deduct the current reward point
-                $customer->cash_point -= $customer->cash_point;
-            }
+            //         $customer->cash_point -= $deductionCashpoint;
+            //     }
+            //     // Deduct the reward remaining point
+            //     $customer->reward_remaining_points -= $customer->reward_remaining_points;
+            // } else {
+			//     $deductionCashpoint = $customer->cash_point;
+            //     $intake->final_price -= $customer->cash_point;
+            //     // Deduct the current reward point
+            //     $customer->cash_point -= $customer->cash_point;
+            // }
 
             // Store event log when customer cash points & reward remaining points are used
-            if (!empty($deductionCashpoint)) {
-                $this->eventLogRepository->storeCustomerRewardPointsEventLog([
-                    EventLogType::CUSTOMER_POINT_DEDUCTED => [
-                        'entityId' => $customer->id,
-                        'placeholder' => 'cashPoints',
-                        'value' => $customer->cash_point
-                    ]
-                ]);
-            }
+            // if (!empty($deductionCashpoint)) {
+            //     $this->eventLogRepository->storeCustomerRewardPointsEventLog([
+            //         EventLogType::CUSTOMER_POINT_DEDUCTED => [
+            //             'entityId' => $customer->id,
+            //             'placeholder' => 'cashPoints',
+            //             'value' => $customer->cash_point
+            //         ]
+            //     ]);
+            // }
 
-			if (!empty($deductionRewardRemainingPoint)) {
-                $this->eventLogRepository->storeCustomerRewardPointsEventLog([
-                    EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
-                        'entityId' => $customer->id,
-                        'placeholder' => 'remainingRewardPoints',
-                        'value' => $customer->reward_remaining_points
-                    ]
-                ]);
-            }
+			// if (!empty($deductionRewardRemainingPoint)) {
+            //     $this->eventLogRepository->storeCustomerRewardPointsEventLog([
+            //         EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
+            //             'entityId' => $customer->id,
+            //             'placeholder' => 'remainingRewardPoints',
+            //             'value' => $customer->reward_remaining_points
+            //         ]
+            //     ]);
+            // }
 
             /* 7. Collect point for customer */
 			if ($intake->final_price > 0 && !empty($customer)) {
@@ -531,18 +583,18 @@ class IntakeRepository implements IntakeRepositoryInterface
 			$intake->save();
 
 			// Store event log when customer cash points & reward remaining points are used
-            $this->eventLogRepository->storeCustomerRewardPointsEventLog([
-                EventLogType::CUSTOMER_POINT_DEDUCTED => [
-                    'entityId' => $customer->id,
-                    'placeholder' => 'cashPoints',
-                    'value' => $customer->cash_point
-                ],
-                EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
-                    'entityId' => $customer->id,
-                    'placeholder' => 'remainingRewardPoints',
-                    'value' => $customer->reward_remaining_points
-                ]
-            ]);
+            // $this->eventLogRepository->storeCustomerRewardPointsEventLog([
+            //     EventLogType::CUSTOMER_POINT_DEDUCTED => [
+            //         'entityId' => $customer->id,
+            //         'placeholder' => 'cashPoints',
+            //         'value' => $customer->cash_point
+            //     ],
+            //     EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
+            //         'entityId' => $customer->id,
+            //         'placeholder' => 'remainingRewardPoints',
+            //         'value' => $customer->reward_remaining_points
+            //     ]
+            // ]);
 
 			/* 11. Upgrade rank for user */
 			$up_rank = false;

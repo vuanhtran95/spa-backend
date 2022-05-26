@@ -8,8 +8,8 @@ use App\Constants\EventLog as EventLogType;
 class EventLogRepository
 {
     private $message = [
-        EventLogType::CUSTOMER_POINT_DEDUCTED => "Customer has issued {cashPoints} for service payment",
-        EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => "Customer has issued {remainingRewardPoints} for service payment",
+        EventLogType::CUSTOMER_POINT_DEDUCTED => "Khách sử dụng {cashPoints} điểm tích luỹ hiện tại để giảm giá",
+        EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => "Khách sử dụng {remainingRewardPoints} điểm tích luỹ năm ngoái để giảm giá",
     ];
 
     /**
