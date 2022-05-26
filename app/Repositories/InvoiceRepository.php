@@ -62,6 +62,8 @@ class InvoiceRepository implements InvoiceRepositoryInterface
 		}
 		$invoice->signature = $data['signature'];
 
+		if(isset($data['payment_method_id'])) $invoice->payment_method_id = $data['payment_method_id'];
+
 		// 2.Update invoice status to "Paid"
 		$invoice->status = InvoiceConstant::PAID_STATUS;
 		$invoice->save();

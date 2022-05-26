@@ -7,6 +7,7 @@ use App\Variable;
 use Illuminate\Support\Carbon;
 use App\Helper\Common;
 use App\Constants\Common as CommonConst;
+use App\Repositories\TaskAssignmentRepository;
 
 class IntakeHelper
 {
@@ -118,8 +119,15 @@ class IntakeHelper
 	{
 		$service_category = $order->variant->service->serviceCategory->name;
 		$is_owner = $order->is_owner;
-		if ($service_category === 'facials' && $is_owner) {
-			$service_reminders[] = $order->variant->name;
+		if ($service_category === 'facials' && $is_owner && isset($this->customer)) {
+			$taskAssignmentRepository = new taskAssignmentRepository();
+            $date = Carbon::createFromFormat('Y-m-d H:i:s',$order->created_at, 'Asia/Ho_Chi_Minh')->format('d/m/Y');
+            
+            $message = 'Nhắn tin hỏi thăm khách hàng<br><strong>'.$this->customer->name.'</strong><br>SĐT: <a href="tel:'.$this->customer->phone.'">'.$this->customer->phone.'</a><br>Đã làm dịch vụ <i>'.$order->variant->name.'</i><br>Ngày <u>'.$date.'</u>';
+            $taskAssignmentRepository->createReminder([
+                'title'=> $message,
+                'employee_id'=>$order->employee_id,
+            ]);
 		}
 	}
 
