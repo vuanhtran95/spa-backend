@@ -24,6 +24,8 @@ class CreateEventLogsTable extends Migration
                 EventLog::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED
             ]);
             $table->text('message');
+            $table->unsignedBigInteger('target_object_id');
+            $table->string('target_object_type', 100);
             $table->timestamps();
         });
     }

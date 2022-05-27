@@ -29,7 +29,9 @@ class EventLogRepository
                 $this->create([
                     'entity_id' => $data['entityId'],
                     'event_type' => $eventType,
-                    'message' => str_replace($data['placeholder'], $data['value'], $this->message[$eventType])
+                    'message' => str_replace($data['placeholder'], $data['value'], $this->message[$eventType]),
+                    'target_object_id' => $data['targetObjectId'],
+                    'target_object_type' => $data['targetObjectType']
                 ]);
             }
         }
