@@ -260,9 +260,9 @@ class CustomerRepository implements CustomerRepositoryInterface
 	public function checkCashPoint($id)
 	{
 		//TODO: REMOVE AFTER TESTING
-		$knownDate = Carbon::create(2022, 12, 31, 17, 0, 1);
+		// $knownDate = Carbon::create(2022, 12, 31, 17, 0, 1);
 		// $knownDate = Carbon::create(2023, 3, 31, 17, 0, 1);
-		Carbon::setTestNow($knownDate);
+		// Carbon::setTestNow($knownDate);
 		DB::beginTransaction();
 		try {
 			$customer = Customer::find($id); // Customer
