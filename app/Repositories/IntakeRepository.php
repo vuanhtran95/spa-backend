@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Combo;
+use App\Constants\EventLog as EventLogType;
 use App\Customer;
 use App\Employee;
 use App\Helper\Translation;
@@ -20,7 +21,15 @@ use Illuminate\Support\Carbon;
 
 class IntakeRepository implements IntakeRepositoryInterface
 {
-	public function create(array $attributes = [])
+
+    private $eventLogRepository;
+
+    public function __construct(EventLogRepository $eventLogRepository)
+    {
+        $this->eventLogRepository = $eventLogRepository;
+    }
+
+    public function create(array $attributes = [])
 	{
 		DB::beginTransaction();
 		try {
@@ -255,7 +264,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 						);
 					}, 'combo', 'review']
 				);
-			}, 'customer', 'employee', 'reviewForm', 'invoice']
+			}, 'customer' => function ($c){
+				$c->with(['rewardRule']);
+			}, 'employee', 'reviewForm', 'invoice']
 		)->where('id', $value)->first();
 	}
 
@@ -298,7 +309,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 		DB::beginTransaction();
 		try {
 			/* 0. Get Customer */
-			$customer = NULL; // Guest
+			$customer = null; // Guest
 			if ($intake->customer_id) {
 				$customer = Customer::find($intake->customer_id); // Customer
 			}
@@ -364,7 +375,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 		}
 	}
 
-	public function intake_pay_up($id, array $data = [])
+	public function intake_pay_up($id, array $requestData = [])
 	{
 		/* 0. Get Intake detail by ID */
 		$intake = Intake::with(
@@ -387,11 +398,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 			throw new \Exception("Intake Paid");
 		}
 
-		if (empty($data['payment_method_id'])) {
-			throw new \Exception("Missing payment method");
-		}
-
-		$payment_method_id = $data['payment_method_id'];
+		$payment_method_id = $requestData['payment_method_id'];
 
 		if ($payment_method_id === PaymentType::CREDIT && empty($intake->customer_id)) {
 			throw new \Exception("Payment method is not allowed");
@@ -400,7 +407,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 		DB::beginTransaction();
 		try {
 			/* 0. Get Customer */
-			$customer = NULL; // Guest
+			$customer = null; // Guest
 			if ($intake->customer_id) {
 				$customer = Customer::find($intake->customer_id); // Customer
 			}
@@ -430,9 +437,71 @@ class IntakeRepository implements IntakeRepositoryInterface
 				throw new \Exception("Not enough credit");
 			}
 
-			/* 7. Collect point for customer */
-			if ($intake->final_price > 0 && !empty($customer)) {
-				$customer->cash_point = $customer->cash_point + $intake->customer_earned_points;
+			$usePoint = false;
+
+			if($requestData['reward_points'] > 0) {
+                 $deductionCashpoint = null;
+                 $deductionRewardRemainingPoint = null;
+
+				// Calculate total reward points that user has has
+				$customerTotalRewardPoints = $customer->cash_point + $customer->reward_remaining_points;
+
+				if ($requestData['reward_points'] > $customerTotalRewardPoints) {
+					throw new \Exception('Invalid request. Reason: The total reward points is insufficient for using.');
+				}
+
+				if ($intake->final_price - $requestData['reward_points'] < 0) {
+					throw new \Exception('Invalid request. Reason: The final price after deduction is not a valid amount');
+				}
+				$clearUpRewardRemainingPoint = $customer->reward_remaining_points - $requestData['reward_points'];
+
+				if($clearUpRewardRemainingPoint >= 0) {
+					$customer->reward_remaining_points = $clearUpRewardRemainingPoint;
+					$deductionRewardRemainingPoint = $requestData['reward_points'];
+				} else {
+					if($customer->reward_remaining_points > 0) {
+						// Out of remaining points
+						$deductionRewardRemainingPoint = $customer->reward_remaining_points;
+						$customer->reward_remaining_points = 0;
+					}
+					$deductionCashpoint = $clearUpRewardRemainingPoint * -1;
+					$customer->cash_point = $customer->cash_point - $deductionCashpoint;
+				}
+				// Store event log when customer cash points & reward remaining points are used
+
+				if (!empty($deductionRewardRemainingPoint)) {
+                    $this->eventLogRepository->storeCustomerRewardPointsEventLog([
+                        EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
+                            'entityId' => $customer->id,
+                            'placeholder' => 'remainingRewardPoints',
+                            'value' => $deductionRewardRemainingPoint,
+                            'targetObjectId' => $intake->id,
+                            'targetObjectType' => Intake::class
+                        ]
+                    ]);
+                }
+
+                if (!empty($deductionCashpoint)) {
+                    $this->eventLogRepository->storeCustomerRewardPointsEventLog([
+                        EventLogType::CUSTOMER_POINT_DEDUCTED => [
+                            'entityId' => $customer->id,
+                            'placeholder' => 'cashPoints',
+                            'value' => $deductionCashpoint,
+                            'targetObjectId' => $intake->id,
+                            'targetObjectType' => Intake::class
+                        ]
+                    ]);
+                }
+
+				$intake->final_price -= $requestData['reward_points'];
+				$intake->customer_earned_points = 0;
+				$usePoint = true;
+			}
+
+			/* 7. Collect point for customer if not using cash points */
+			if (!$usePoint && ($intake->final_price > 0 && !empty($customer))) {
+			    // Calculate final price with reward points included (customer's cash points & reward remaining points)
+				$customer->cash_point += $intake->customer_earned_points;
 				$customer->save();
 			}
 
@@ -445,8 +514,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 					'intake_id' => $intake->id,
 					'amount' => $intake->final_price,
 					'type' => 'withdraw',
-					'status' => InvoiceConstant::PAID_STATUS
-					// 'signature' => $data['signature']
+					'status' => InvoiceConstant::PAID_STATUS,
+					'signature' => $requestData['signature']
 				];
 				$invoice = $invoiceRepository->create($params);
 				$customer->balance = $customer->balance - $invoice->amount;

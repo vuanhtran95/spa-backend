@@ -24,6 +24,10 @@ class Customer extends Model
         'name','phone', 'email', 'points', 'is_active', 'gender'
     ];
 
+    public function rewardRule() {
+        return $this->belongsTo(RewardRule::class, 'reward_rule_id', 'id');
+    }
+
     public function package()
     {
         return $this->hasMany('App\Package');

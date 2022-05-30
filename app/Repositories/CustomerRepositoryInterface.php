@@ -19,4 +19,6 @@ interface CustomerRepositoryInterface
     public function delete($id);
 
     public function save($data, $is_update, $id = null);
+
+    public function checkCashPoint($id);
 }
