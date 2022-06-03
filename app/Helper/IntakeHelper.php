@@ -94,7 +94,7 @@ class IntakeHelper
 
 	public function get_discounts($created_at)
 	{
-		$date = Carbon::parse($created_at, CommonConst::SYSTEM_TIMEZONE);
+		$date = Carbon::parse($created_at)->setTimezone('Asia/Ho_Chi_Minh');
 		$day = strtolower($date->shortEnglishDayOfWeek);
 		$query = new Discount();
 		$discount_array = $query->where('is_active', '=', 1)
