@@ -144,8 +144,13 @@ Route::put('/v1/discount/{id}', 'DiscountController@update')->middleware('auth:a
 Route::delete('/v1/discount/{id}', 'DiscountController@remove')->middleware('auth:api');
 
 Route::get('/v1/ranks', 'CustomerController@getRanks')->middleware('auth:api');
+
 // Reminder
 Route::post('/v1/reminder', 'TaskController@createReminder')->middleware('auth:api');
 Route::get('/v1/reminder', 'TaskController@getReminderAssignments')->middleware('auth:api');
+
 // Payment Method
 Route::get('/v1/payment-method', 'PaymentMethodController@get')->middleware('auth:api');
+
+// Provinces
+Route::get('/v1/provinces', 'ProvinceController@get')->middleware('auth:api');
