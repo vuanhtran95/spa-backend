@@ -439,7 +439,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			$usePoint = false;
 
-			if($requestData['reward_points'] > 0) {
+			if($requestData['reward_points'] > 0 && !empty($customer)) {
                  $deductionCashpoint = null;
                  $deductionRewardRemainingPoint = null;
 
@@ -496,14 +496,18 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$intake->final_price -= $requestData['reward_points'];
 				$intake->customer_earned_points = 0;
 				$usePoint = true;
+				// Update customer entity 
+				$customer->save();
 			}
 
 			/* 7. Collect point for customer if not using cash points */
 			if (!$usePoint && ($intake->final_price > 0 && !empty($customer))) {
 			    // Calculate final price with reward points included (customer's cash points & reward remaining points)
 				$customer->cash_point += $intake->customer_earned_points;
+				// Update customer entity 
 				$customer->save();
 			}
+			
 
 			/* 9. Create Credit Invoice */
 			if ($payment_method_id ===  PaymentType::CREDIT) {
