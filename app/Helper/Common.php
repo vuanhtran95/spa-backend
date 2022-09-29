@@ -52,14 +52,14 @@ class Common
 		}
 		switch ($customer->rank) {
 			case "gold":
-				if ($total_spending >= 50000) {
+				if ($total_spending >= 60000) {
 					$customer->rank = 'diamond';
 					//   $customer->save();
 					$new_rank = 'diamond';
 				}
 				break;
 			case "silver":
-				if ($total_spending >= 50000) {
+				if ($total_spending >= 60000) {
 					$customer->rank = 'diamond';
 					$customer->save();
 					$new_rank = 'diamond';
@@ -72,7 +72,7 @@ class Common
 					break;
 				}
 			case NULL:
-				if ($total_spending >= 50000) {
+				if ($total_spending >= 60000) {
 					$customer->rank = 'diamond';
 					$customer->save();
 					$new_rank = 'diamond';
@@ -84,7 +84,7 @@ class Common
 					$new_rank = 'gold';
 					break;
 				}
-				if ($total_spending >= 20000) {
+				if ($total_spending >= 15000) {
 					$customer->rank = 'silver';
 					$customer->save();
 					$new_rank = 'silver';
