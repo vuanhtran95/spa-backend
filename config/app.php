@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'development'),
 
     /*
     |--------------------------------------------------------------------------
@@ -176,8 +176,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        App\Providers\RepositoryServiceProvider::class,
-
+        /**
+         * Providers for our own app
+         */
+        App\Providers\RepositoryServiceProvider::class
 
     ],
 

@@ -6,7 +6,6 @@ use App\ServiceCategory;
 
 class ServiceCategoryRepository implements ServiceCategoryRepositoryInterface
 {
-
     public function create(array $attributes = [])
     {
         return $this->save($attributes, false);

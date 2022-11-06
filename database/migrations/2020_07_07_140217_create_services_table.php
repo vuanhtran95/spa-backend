@@ -16,11 +16,11 @@ class CreateServicesTable extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
-            $table->longText('descriptions');
-            $table->float('price');
+            $table->longText('descriptions')->nullable();
             $table->boolean('is_combo_sold');
-            $table->integer('combo_amount');
-            $table->float('commission');
+            $table->integer('combo_commission');
+            $table->float('combo_ratio')->default(1.2);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
         Schema::table('services', function (Blueprint $table) {
@@ -28,7 +28,7 @@ class CreateServicesTable extends Migration
 
             $table->foreign('service_category_id')
                 ->references('id')
-                ->on('services')
+                ->on('service_categories')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });

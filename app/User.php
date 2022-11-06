@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\HasApiTokens;
 
 /**
@@ -56,8 +57,29 @@ class User extends Authenticatable
         return $this->where('email', $username)->first();
     }
 
-    public function role()
+//    /**
+//     * Add a password validation callback
+//     *
+//     * @param type $password
+//     * @return boolean Whether the password is valid
+//     */
+//    public function validateForPassportPasswordGrant($password)
+//    {
+    ////        var_dump(Hash::make($password, [
+    ////            'rounds' => 12,
+    ////        ]));
+    ////        die(var_dump($this->password));
+//
+    ////        die(var_dump(Hash::needsRehash($this->password)));
+//
+//        return Hash::check($password, $this->password);
+//
+//        $hashedPassword = Hash::make($password);
+//        return $hashedPassword == $this->password;
+//    }
+
+    public function employee()
     {
-        return $this->belongsTo('App\Role', 'role_id', 'id');
+        return $this->hasOne('App\Employee');
     }
 }

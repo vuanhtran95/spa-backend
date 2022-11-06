@@ -8,7 +8,6 @@ use App\Repositories\RoleRepositoryInterface;
 use Illuminate\Http\Response as Response;
 use App\Helper\Translation;
 
-
 class RoleController extends Controller
 {
     private $roleRepository;
@@ -21,10 +20,6 @@ class RoleController extends Controller
     public function get()
     {
         $roles = $this->roleRepository->get();
-        if ($roles) {
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_ROLE_SUCCESS, $roles);
-        } else {
-            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_ROLE_FOUND);
-        }
+        return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_ALL_ROLE_SUCCESS, $roles);
     }
 }

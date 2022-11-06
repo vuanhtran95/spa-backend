@@ -2,68 +2,28 @@
 
 namespace App\Repositories;
 
+use App\Helper\Translation;
 use App\User;
-use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Mockery\Exception;
 
 class UserRepository implements UserRepositoryInterface
 {
-
-    public function create(array $attributes = [])
-    {
-        return $this->save($attributes, false);
-    }
-
-    public function save($data, $is_update, $id = null)
-    {
-        if ($is_update) {
-            $user = User::find($id);
-        } else {
-            $user = new User();
-            $user->email = $data['email'];
-        }
-        $user->name = $data['name'];
-        $user->password = Hash::make($data['password']);
-        $user->role_id = $data['role_id'];
-        $user->phone = $data['phone'];
-
-        if ($user->save()) {
-            return $user;
-        } else {
-            return false;
-        }
-    }
-
-    public function get(array $condition = [])
-    {
-        if (empty($condition)) {
-            return User::all();
-        } else {
-            $roleId = $condition['roleId'];
-            $phone = $condition['phone'];
-            $perPage = $condition['perPage'];
-
-            return User::where('role_id', $roleId)
-                ->where('phone', 'LIKE', $phone . '%')
-                ->with('role')
-                ->limit($perPage)
-                ->get()->toArray();
-        }
-    }
-
-    public function getOneBy($by, $value)
-    {
-        return User::where($by, '=', $value)->with('role')->first();
-    }
-
-    public function update($id, array $attributes = [])
-    {
-        return $this->save($attributes, true, $id);
-    }
-
-    public function delete($id)
-    {
-        return User::destroy($id);
-    }
+	public function updatePassword($id, array $attributes = [])
+	{
+		DB::beginTransaction();
+		try {
+			$user = User::find($id);
+			if ($user) {
+				$user->password = Hash::make($attributes['newPassword']);
+				$user->save();
+			} else {
+				throw new \Exception(Translation::$NO_USER_FOUND);
+			}
+			DB::commit();
+		} catch (\Exception $e) {
+			DB::rollBack();
+			throw new \Exception($e->getMessage());
+		}
+	}
 }

@@ -15,12 +15,17 @@ class UserTableSeeder extends Seeder
     {
         $users = [
             [
-                'name' => 'Victor',
-                'email' => 'vuanhtran95',
-                'phone' => '0987654321',
-                'password' => Hash::make('P2ssword1!'),
-                'role_id' => 1
+                'email' => 'admin',
+                'password' => Hash::make('admin'),
             ],
+            [
+                'email' => 'reviewer',
+                'password' => Hash::make('reviewer'),
+            ],
+            [
+                'email' => 'cashier',
+                'password' => Hash::make('cashier'),
+            ]
         ];
         foreach ($users as $key => $user) {
             User::create($user);
