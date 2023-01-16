@@ -36,4 +36,15 @@ class EventLogRepository
             }
         }
     }
+
+    public function get($filter) {
+        $query = EventLog::query();
+        if(isset($filter['target_object_id'])) {
+            $query->where('target_object_id', $filter['target_object_id']);
+        }
+        if(isset($filter['target_object_type'])) {
+            $query->where('target_object_type', $filter['target_object_type']);
+        }
+        return $query->get()->toArray();
+    }
 }
