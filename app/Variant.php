@@ -15,7 +15,7 @@ class Variant extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'price', 'service_id'
+        'price', 'service_id','sale_price'
     ];
 
     public function service()

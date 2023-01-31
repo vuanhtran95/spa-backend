@@ -41,6 +41,7 @@ class VariantRepository implements VariantRepositoryInterface
                     $variants[$key]['created_at'] = Carbon::now();
                     $variants[$key]['updated_at'] = Carbon::now();
                     $variants[$key]['price'] = isset($variants[$key]['price']) ? $variants[$key]['price'] : 0;
+                    $variants[$key]['sale_price'] = isset($variants[$key]['sale_price']) ? $variants[$key]['sale_price'] : 0;
                     $variants[$key]['gender'] = isset($variants[$key]['gender']) ? $variants[$key]['gender'] : 'both';
                     $variants[$key]['description'] = isset($variants[$key]['description']) ? $variants[$key]['description'] : null;
                     $variants[$key]['name'] = isset($variants[$key]['name']) ? $variants[$key]['name'] : null;
@@ -60,7 +61,13 @@ class VariantRepository implements VariantRepositoryInterface
     public function get(array $condition = [])
     {
         $isActive = isset($condition['is_active']) ? $condition['is_active'] : null;
+        $service_id = isset($condition['service_id']) ? $condition['service_id'] : null;
         $query = new Variant();
+        if($service_id) {
+            $query = $query->whereHas('service', function ($query) use ($service_id) {
+                $query->where('id', $service_id);
+            });
+        }
         if ($isActive !== null) {
             $query = $query->where('is_active', '=', $isActive);
             $query = $query->whereHas('service', function ($query) use ($isActive) {

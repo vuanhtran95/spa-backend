@@ -43,6 +43,7 @@ class ServiceRepository implements ServiceRepositoryInterface
                 $variants[$key]['created_at'] = Carbon::now();
                 $variants[$key]['updated_at'] = Carbon::now();
                 $variants[$key]['price'] = isset($variants[$key]['price']) ? $variants[$key]['price'] : 0;
+                $variants[$key]['sale_price'] = isset($variants[$key]['sale_price']) ? $variants[$key]['sale_price'] : 0;
                 $variants[$key]['gender'] = isset($variants[$key]['gender']) ? $variants[$key]['gender'] : 'both';
                 $variants[$key]['description'] = isset($variants[$key]['description']) ? $variants[$key]['description'] : null;
                 $variants[$key]['name'] = isset($variants[$key]['name']) ? $variants[$key]['name'] : null;
@@ -69,9 +70,13 @@ class ServiceRepository implements ServiceRepositoryInterface
         return $service;
     }
 
-    public function get()
+    public function get(array $condition = [])
     {
-        return Service::with('serviceCategory')->get()->toArray();
+        $category_name = isset($condition['category_name']) ? $condition['category_name'] : null;
+        return Service::whereHas('serviceCategory', function ($sQuery) use ($category_name) {
+            $sQuery->where('name', 'LIKE', '%' . $category_name . '%');
+
+        })->get()->toArray();
     }
 
 

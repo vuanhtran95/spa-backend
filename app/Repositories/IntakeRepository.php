@@ -93,7 +93,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 									$orderData->variant_id = $variant->id;
 									$orderData->name = $variant->name;
-									$orderData->unit_price = isset($updateData['combo_id']) ? 0 :  $variant->price;
+									$orderData->unit_price = isset($updateData['combo_id']) ? 0 :  $variant->sale_price;
 								}
 								//                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
 								$orderData->save();
@@ -115,7 +115,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 							$variant = Variant::where('id', '=', $order['variant_id'])->first();
 							$orderData->variant_id = $variant->id;
-							$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->price;
+							$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->sale_price;
 							$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
 
 							$orderData->employee_id = $order['employee_id'];
@@ -160,7 +160,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 						$variant = Variant::where('id', '=', $order['variant_id'])->first();
 						$orderData->variant_id = $variant->id;
-						$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->price;
+						$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->sale_price;
 						$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
 
 						$orderData->employee_id = $order['employee_id'];
