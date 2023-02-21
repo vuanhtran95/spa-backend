@@ -154,3 +154,7 @@ Route::get('/v1/payment-method', 'PaymentMethodController@get')->middleware('aut
 
 // Provinces
 Route::get('/v1/provinces', 'ProvinceController@get')->middleware('auth:api');
+
+// Service
+Route::get('/v1/product-log', 'ProductLogsController@get')->middleware('auth:api');
+Route::post('/v1/product-log', 'ProductLogsController@create')->middleware('auth:api');

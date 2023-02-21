@@ -30,10 +30,11 @@ class VariantRepository implements VariantRepositoryInterface
             foreach ($data as $key => $value) {
                 $variant->$key = $value;
             }
-    
+
             $variant->save();
             return $variant;
         } else {
+            // Import new variants
             if (!empty($data['variants'])) {
                 $variants = $data['variants'];
                 foreach ($variants as $key => $variant) {
@@ -41,7 +42,6 @@ class VariantRepository implements VariantRepositoryInterface
                     $variants[$key]['created_at'] = Carbon::now();
                     $variants[$key]['updated_at'] = Carbon::now();
                     $variants[$key]['price'] = isset($variants[$key]['price']) ? $variants[$key]['price'] : 0;
-                    $variants[$key]['sale_price'] = isset($variants[$key]['sale_price']) ? $variants[$key]['sale_price'] : 0;
                     $variants[$key]['gender'] = isset($variants[$key]['gender']) ? $variants[$key]['gender'] : 'both';
                     $variants[$key]['description'] = isset($variants[$key]['description']) ? $variants[$key]['description'] : null;
                     $variants[$key]['name'] = isset($variants[$key]['name']) ? $variants[$key]['name'] : null;
@@ -49,8 +49,13 @@ class VariantRepository implements VariantRepositoryInterface
                     $variants[$key]['commission_rate'] = isset($variants[$key]['commission_rate']) ? $variants[$key]['commission_rate'] : 0;
                     $variants[$key]['is_active'] = 1;
                     $variants[$key]['variant_category'] = isset($variants[$key]['variant_category']) ? $variants[$key]['variant_category'] : 'other';
+                    // New added properties 2023
+                    $variants[$key]['sale_price'] = isset($variants[$key]['sale_price']) ? $variants[$key]['sale_price'] : 0;
+                    $variants[$key]['stock'] =  isset($variants[$key]['stock']) ? $variants[$key]['stock'] : 0;
+                    $variants[$key]['product_line'] = isset($variants[$key]['product_line']) ? $variants[$key]['product_line'] : '';
+                    $variants[$key]['metadata'] = isset($variants[$key]['metadata']) ? json_encode($variants[$key]['metadata']) : null;
                 }
-                $variants_inserted = Variant::insert($variants);
+                Variant::insert($variants);
                 return true;
             } else {
                 throw new \Exception('Empty Array');

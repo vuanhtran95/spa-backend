@@ -17,6 +17,8 @@ class AddNewColumnsToVariantsTable extends Migration
         Schema::table('variants', function (Blueprint $table) {
             $table->float('sale_price')->default(0);
             $table->integer('stock')->default(0);
+            $table->string('product_line')->nullable();
+            $table->json('metadata')->nullable();
         });
         DB::statement("UPDATE variants SET variants.sale_price = variants.price");
     }
@@ -31,6 +33,8 @@ class AddNewColumnsToVariantsTable extends Migration
         Schema::table('variants', function (Blueprint $table) {
             $table->dropColumn('sale_price');
             $table->dropColumn('stock');
+            $table->dropColumn('product_line');
+            $table->dropColumn('metadata');
         });
     }
 }

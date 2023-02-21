@@ -8,6 +8,8 @@ use Illuminate\Support\Carbon;
 use App\Helper\Common;
 use App\Constants\Common as CommonConst;
 use App\Repositories\TaskAssignmentRepository;
+use App\Variant;
+use Exception;
 
 class IntakeHelper
 {
@@ -195,6 +197,13 @@ class IntakeHelper
 		return false;
 	}
 
+	public function check_stock($order) {
+		$variant = Variant::find($order->variant->id);
+		if(!$variant || $variant->stock < $order->amount) {
+			throw new Exception('Số lượng sản phẩm "' . $order->variant->name . '" trong kho không đủ ! Out of stock !');
+		}
+	}
+
 	public function apply_discounts($order)
 	{
 		$individual_discounts = $this->discounts['individual'];
@@ -217,13 +226,18 @@ class IntakeHelper
 		}
 
 		// 2.If there is no discount, calculate point;
-		if (!$isAppliedDiscount) {
+		$category_name = $order->variant->service->serviceCategory->name;
+		if ($category_name !== 'goods' && !$isAppliedDiscount) {
 			$this->points += $order->unit_price * $this->POINT_RATE;
 		}
 		$order->price = $order->unit_price - $order->discount_amount;
 	}
 	public function process_order($order)
 	{
+		$category_name = $order->variant->service->serviceCategory->name;
+		if ($category_name === 'goods'){
+			$this->check_stock($order);
+		}
 		// Free service
 		if ($order->variant->is_free) {
 			$order->unit_price  = 0;

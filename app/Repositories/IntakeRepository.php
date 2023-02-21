@@ -405,6 +405,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 		$payment_method_id = $requestData['payment_method_id'];
 
+		$use_credit = $requestData['use_credit'];
+
 		if ($payment_method_id === PaymentType::CREDIT && empty($intake->customer_id)) {
 			throw new \Exception("Payment method is not allowed");
 		}
@@ -512,10 +514,12 @@ class IntakeRepository implements IntakeRepositoryInterface
 				// Update customer entity 
 				$customer->save();
 			}
-			
+
+
+
 
 			/* 9. Create Credit Invoice */
-			if ($payment_method_id ===  PaymentType::CREDIT) {
+			if ($payment_method_id ===  PaymentType::CREDIT && !$use_credit && !empty($customer)) {
 				$invoiceRepository = app(InvoiceRepository::class);
 				$params = [
 					'customer_id' => $intake->customer_id,
@@ -531,6 +535,36 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$customer->save();
 				$intake->payment_received_amount = $intake->final_price;
 			}
+
+			/* 9.5. Check if use_credit is checked */
+			if ($payment_method_id !==  PaymentType::CREDIT && $use_credit && !empty($customer) &&  $intake->final_price > 0
+			) {
+				$remaining = $intake->final_price - $customer->balance;
+				$balance_usage = 0;
+				if($remaining >= 0) {
+					$balance_usage = $customer->balance;
+					$customer->balance = 0;
+					$intake->final_price = $remaining;
+					
+				} else {
+					$balance_usage = $intake->final_price;
+					$customer->balance = $remaining * -1;
+					$intake->final_price = 0;
+				}
+				$invoiceRepository = app(InvoiceRepository::class);
+				$params = [
+					'customer_id' => $intake->customer_id,
+					'employee_id' => $intake->employee_id,
+					'intake_id' => $intake->id,
+					'amount' => $balance_usage,
+					'type' => 'withdraw',
+					'status' => InvoiceConstant::PAID_STATUS,
+					'signature' => $requestData['signature']
+				];
+				$invoice = $invoiceRepository->create($params);
+				$customer->save();
+			}
+
 			/* 10. Update intake Status and save to DB */
 			$intake->payment_method_id = $payment_method_id;
 			$intake->is_valid = 1;
