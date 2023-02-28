@@ -98,9 +98,13 @@ class ProductLogRepository implements ProductLogRepositoryInterface
 	{
 		$perPage = isset($req_query['per_page']) ? $req_query['per_page'] : 10;
 		$page = isset($condition['page']) ? $condition['page'] : 1;
-		$product_logs = ProductLog::query()->type($req_query)
-			->with(['customer', 'variant', 'created_by'])
-		->limit($perPage)
+		$product_logs = ProductLog::query()
+			->type($req_query)
+			->with(['customer', 'variant' => function($vQuery) {
+				$vQuery->with(['service' => function($sQuery) {
+					$sQuery->with(['serviceCategory']);
+			}]);}, 'created_by'])
+			->limit($perPage)
 		->paginate($perPage, ['*'], 'page', $page);
 		return [
 			"Data" => $product_logs->items(),

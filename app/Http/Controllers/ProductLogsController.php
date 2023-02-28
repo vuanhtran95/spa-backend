@@ -35,7 +35,12 @@ class ProductLogsController extends Controller
         $params = $request->all();
         try {
             $product_logs = $this->productLogRepository->get($params);
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_LIST_SUCCESS, $product_logs);
+            return HttpResponse::toJson(
+                true,
+                Response::HTTP_OK,
+                Translation::$GET_LIST_SUCCESS,
+                $product_logs['Data'],
+            $product_logs['Pagination']);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }
