@@ -31,7 +31,7 @@ class ProductLog extends BaseModel
 
     public function scopeType($query, $request_query) {
         if (isset($request_query['type'])) {
-            $query->whereIn('type', $request_query['type']);
+            $query->where('type', $request_query['type']);
         }
     
         return $query;
