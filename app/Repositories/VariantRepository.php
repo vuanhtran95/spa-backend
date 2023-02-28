@@ -65,12 +65,23 @@ class VariantRepository implements VariantRepositoryInterface
 
     public function get(array $condition = [])
     {
+        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
+		$page = isset($condition['page']) ? $condition['page'] : 1;
+
         $isActive = isset($condition['is_active']) ? $condition['is_active'] : null;
+        $service_categories =  isset($condition['service_categories']) ? $condition['service_categories'] : null;
         $service_id = isset($condition['service_id']) ? $condition['service_id'] : null;
         $query = new Variant();
         if($service_id) {
             $query = $query->whereHas('service', function ($query) use ($service_id) {
                 $query->where('id', $service_id);
+            });
+        }
+        if($service_categories) {
+            $query = $query->whereHas('service', function ($query) use ($service_categories) {
+                $query->whereHas('serviceCategory', function ($sCQuery) use ($service_categories) {
+                    $sCQuery->whereIn('name', $service_categories);
+                });
             });
         }
         if ($isActive !== null) {
@@ -80,9 +91,18 @@ class VariantRepository implements VariantRepositoryInterface
             });
         }
 
-        return $query->with(['service' => function ($sQuery) {
+       $variants = $query->with(['service' => function ($sQuery) {
             $sQuery->with('serviceCategory');
-        }])->get()->toArray();
+        }])->paginate($perPage, ['*'], 'page', $page);
+
+		return [
+			"Data" => $variants->items(),
+			"Pagination" => [
+				"CurrentPage" => $page,
+				"PerPage" => $perPage,
+				"TotalItems" => $variants->total()
+			]
+		];
     }
 
 

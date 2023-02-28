@@ -92,8 +92,6 @@ class ProductLogRepository implements ProductLogRepositoryInterface
 		}
 	}
 
-
-
 	public function get(array $req_query = [])
 	{
 		$perPage = isset($req_query['per_page']) ? $req_query['per_page'] : 10;
