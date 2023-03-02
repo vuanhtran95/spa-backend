@@ -71,7 +71,11 @@ class VariantRepository implements VariantRepositoryInterface
         $isActive = isset($condition['is_active']) ? $condition['is_active'] : null;
         $service_categories =  isset($condition['service_categories']) ? $condition['service_categories'] : null;
         $service_id = isset($condition['service_id']) ? $condition['service_id'] : null;
+        $inStock = isset($condition['in_stock']) ? $condition['in_stock'] : null;
         $query = new Variant();
+        if($inStock) {
+            $query = $query->where('stock', '>', 0);
+        }
         if($service_id) {
             $query = $query->whereHas('service', function ($query) use ($service_id) {
                 $query->where('id', $service_id);

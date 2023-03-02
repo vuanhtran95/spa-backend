@@ -228,19 +228,15 @@ class IntakeHelper
 		// 2.If there is no discount, calculate point;
 		$category_name = $order->variant->service->serviceCategory->name;
 		if ($category_name !== 'goods' && !$isAppliedDiscount) {
-			$this->points += $order->unit_price * $this->POINT_RATE;
+			$this->points += $order->unit_price * $order->amount * $this->POINT_RATE;
 		}
-		$order->price = $order->unit_price - $order->discount_amount;
+		$order->price = ($order->unit_price - $order->discount_amount) * $order->amount;
 	}
 	public function process_order($order)
 	{
-		$category_name = $order->variant->service->serviceCategory->name;
-		if ($category_name === 'goods'){
-			$this->check_stock($order);
-		}
 		// Free service
 		if ($order->variant->is_free) {
-			$order->unit_price  = 0;
+			$order->unit_price = 0;
 			$order->price = 0;
 			return;
 		}

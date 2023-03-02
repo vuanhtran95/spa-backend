@@ -8,5 +8,7 @@ class ProductLog
 
 	const USE = 'use';
 
+	const TAKE = 'take';
+
 	const SELL = 'sell';
 }

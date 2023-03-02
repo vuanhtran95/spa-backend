@@ -51,9 +51,6 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 				throw new \Exception(Translation::$INTAKE_NOT_APPROVE);
 			}
 
-			// Get payment_method_id of intake
-			$price_field = 'sale_price';
-
 			// Check already reviewed ?
 			$hasReviewForm = ReviewForm::where('intake_id', $intake_id)->first();
 			if ($hasReviewForm) {
@@ -102,7 +99,7 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 					$commission = $commission * $order->variant->sale_price;
 				} else {
 
-					$commission = $commission * $order->$price_field;
+					$commission = $commission * $order->price;
 				}
 
 				if ($is_overtime) {

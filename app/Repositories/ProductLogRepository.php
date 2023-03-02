@@ -66,6 +66,7 @@ class ProductLogRepository implements ProductLogRepositoryInterface
 					$this->handle_stock_up($product_log);
 					break;
 				case ConstantsProductLog::USE:
+				case ConstantsProductLog::TAKE:
 					$this->handle_use_product($product_log);
 					break;
 				case ConstantsProductLog::SELL:

@@ -337,7 +337,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 						}
 						/* 2.2 Process normal order */ else {
 							$helper->process_order($order);
-							$totalPrice = $totalPrice  + $order->price * $order->amount;
+							$totalPrice = $totalPrice  + $order->price;
 						}
 						$order->save();
 					}
@@ -432,6 +432,12 @@ class IntakeRepository implements IntakeRepositoryInterface
 								throw new Exception('You have run out of use this combo');
 							}
 							$combo->save();
+						} else {
+							$category_name = $order->variant->service->serviceCategory->name;
+
+							if ($category_name === 'goods'){
+								$helper->check_stock($order);
+							}
 						}
 						/* 2.3 Service Reminder */
 						$helper->add_service_reminder($order);
