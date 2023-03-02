@@ -65,8 +65,8 @@ class VariantRepository implements VariantRepositoryInterface
 
     public function get(array $condition = [])
     {
-        $perPage = isset($condition['per_page']) ? $condition['per_page'] : 10;
-		$page = isset($condition['page']) ? $condition['page'] : 1;
+        $perPage = isset($condition['per_page']) ? $condition['per_page'] : null;
+		$page = isset($condition['page']) ? $condition['page'] : null;
 
         $isActive = isset($condition['is_active']) ? $condition['is_active'] : null;
         $service_categories =  isset($condition['service_categories']) ? $condition['service_categories'] : null;
@@ -93,9 +93,11 @@ class VariantRepository implements VariantRepositoryInterface
 
        $variants = $query->with(['service' => function ($sQuery) {
             $sQuery->with('serviceCategory');
-        }])->paginate($perPage, ['*'], 'page', $page);
+        }]);
 
-		return [
+        if($perPage && $page) {
+            $variants = $variants->paginate($perPage, ['*'], 'page', $page);
+            return [
 			"Data" => $variants->items(),
 			"Pagination" => [
 				"CurrentPage" => $page,
@@ -103,6 +105,13 @@ class VariantRepository implements VariantRepositoryInterface
 				"TotalItems" => $variants->total()
 			]
 		];
+        }
+
+        return [
+            "Data" => $variants->get()->toArray(),
+            "Pagination" => null
+        ];
+        
     }
 
 

@@ -72,6 +72,7 @@ Route::get('/v1/customers/{id}', 'CustomerController@getOneById')->middleware('a
 Route::put('/v1/customers/{id}', 'CustomerController@update')->middleware('auth:api');
 Route::post('/v1/customers/{id}/check-cash-point', 'CustomerController@checkCashPoint')->middleware('auth:api');
 Route::post('/v1/customers/{id}/cash-out', 'CustomerController@cashOut')->middleware('auth:api');
+Route::get('/v1/customers/{id}/inprogress-intake', 'CustomerController@getInProgressIntake')->middleware('auth:api');
 
 
 // Combo
