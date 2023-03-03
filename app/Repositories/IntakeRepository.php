@@ -23,10 +23,12 @@ class IntakeRepository implements IntakeRepositoryInterface
 {
 
     private $eventLogRepository;
+    private $productLogRepository;
 
-    public function __construct(EventLogRepository $eventLogRepository)
+    public function __construct(EventLogRepository $eventLogRepository, ProductLogRepository $productLogRepository)
     {
         $this->eventLogRepository = $eventLogRepository;
+        $this->productLogRepository = $productLogRepository;
     }
 
     public function create(array $attributes = [])
@@ -423,7 +425,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			if (!empty($intake->orders)) {
 				$intake->orders->each(
-					function ($order) use ($helper) {
+					function ($order) use ($helper, $intake) {
 						/* 2.1 Process combo order */
 						if ($order->combo_id) {
 							$combo = Combo::find($order->combo_id);
@@ -436,7 +438,14 @@ class IntakeRepository implements IntakeRepositoryInterface
 							$category_name = $order->variant->service->serviceCategory->name;
 
 							if ($category_name === 'goods'){
-								$helper->check_stock($order);
+								$is_instock = $helper->check_stock($order);
+								if($is_instock) {
+									$payload = ['type' => 'sell', 'variant_id' => $order->variant->id, 'intake_id' => $intake->id, 'created_by' => $order->employee_id, 'amount' => $order->amount];
+									if ($intake->customer_id) {
+										$payload['customer_id'] = $intake->customer_id;
+									}
+									$this->productLogRepository->create($payload);
+								}
 							}
 						}
 						/* 2.3 Service Reminder */

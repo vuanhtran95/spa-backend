@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Employee;
 use App\Repositories\ProductLogRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Http\HttpResponse;
@@ -21,7 +22,8 @@ class ProductLogsController extends Controller
     public function create(Request $request)
     {
         $params = $request->all();
-        $params['user_id'] = $request->user()->id;
+        $employee_id = Employee::where('user_id', $request->user()->id)->first()->toArray()['id'];
+        $params['created_by'] = $employee_id;
         try {
             $product_log = $this->productLogRepository->create($params);
             return HttpResponse::toJson(true, Response::HTTP_CREATED, Translation::$CREATED, $product_log);

@@ -202,6 +202,7 @@ class IntakeHelper
 		if(!$variant || $variant->stock < $order->amount) {
 			throw new Exception('Số lượng sản phẩm "' . $order->variant->name . '" trong kho không đủ ! Out of stock !');
 		}
+		return true;
 	}
 
 	public function apply_discounts($order)
@@ -234,6 +235,10 @@ class IntakeHelper
 	}
 	public function process_order($order)
 	{
+		$category_name = $order->variant->service->serviceCategory->name;
+		if ($category_name === 'goods'){
+			$this->check_stock($order);
+		}
 		// Free service
 		if ($order->variant->is_free) {
 			$order->unit_price = 0;

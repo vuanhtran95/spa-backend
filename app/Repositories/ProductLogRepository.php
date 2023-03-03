@@ -45,13 +45,10 @@ class ProductLogRepository implements ProductLogRepositoryInterface
 	public function save($data, $is_update = true, $id = null)
 	{
 		$product_log = null;
-		$employee_id = Employee::where('user_id', $data['user_id'])->first()->toArray()['id'];
-		unset($data['user_id']);
 
 		if ($is_update) {
 		} else {
 			$product_log= new ProductLog();
-			$data['created_by'] = $employee_id;
 		}
 
 		foreach ($data as $property => $value) {

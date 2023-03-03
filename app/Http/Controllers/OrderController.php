@@ -65,4 +65,15 @@ class OrderController extends Controller
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$UPDATE_FAILURE);
         }
     }
+
+    public function delete($id)
+    {
+        try {
+            $this->orderRepository->delete($id);
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$DELETE_SUCCESS);
+        } catch (\Exception $e) {
+            return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
+        }
+    }
+
 }
