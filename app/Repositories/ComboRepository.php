@@ -42,7 +42,7 @@ class ComboRepository implements ComboRepositoryInterface
 
             if (isset($data['is_valid'])) {
                 // Calculate total price
-                $total_price = ($combo->variant->price * $combo->amount) / $combo->variant->service->combo_ratio;
+                $total_price = ($combo->variant->sale_price * $combo->amount) / $combo->variant->service->combo_ratio;
                 $combo->is_valid = $data['is_valid'];
 
                 // Store Price to combo in case service price change

@@ -26,11 +26,11 @@ class UpdateUnitPriceColumnToOrdersTable extends Migration
             $orders = Order::paginate($per_page,['*'],'page',$current_page);
             foreach ($orders as $order) {
                 $variant = Variant::find($order->variant_id);
-                $order->unit_price = $variant->price;
+                $order->unit_price = $variant->sale_price;
                 $order->name = $variant->name;
                 DB::beginTransaction();
                 try {
-                    $order->unit_price = $variant->price;
+                    $order->unit_price = $variant->sale_price;
                     $order->save();
                     DB::commit();
                     var_dump('Update order '.$order->id.' with unit_price='.$order->unit_price);

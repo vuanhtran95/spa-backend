@@ -30,10 +30,11 @@ class VariantRepository implements VariantRepositoryInterface
             foreach ($data as $key => $value) {
                 $variant->$key = $value;
             }
-    
+
             $variant->save();
             return $variant;
         } else {
+            // Import new variants
             if (!empty($data['variants'])) {
                 $variants = $data['variants'];
                 foreach ($variants as $key => $variant) {
@@ -48,8 +49,13 @@ class VariantRepository implements VariantRepositoryInterface
                     $variants[$key]['commission_rate'] = isset($variants[$key]['commission_rate']) ? $variants[$key]['commission_rate'] : 0;
                     $variants[$key]['is_active'] = 1;
                     $variants[$key]['variant_category'] = isset($variants[$key]['variant_category']) ? $variants[$key]['variant_category'] : 'other';
+                    // New added properties 2023
+                    $variants[$key]['sale_price'] = isset($variants[$key]['sale_price']) ? $variants[$key]['sale_price'] : 0;
+                    $variants[$key]['stock'] =  isset($variants[$key]['stock']) ? $variants[$key]['stock'] : 0;
+                    $variants[$key]['product_line'] = isset($variants[$key]['product_line']) ? $variants[$key]['product_line'] : '';
+                    $variants[$key]['metadata'] = isset($variants[$key]['metadata']) ? json_encode($variants[$key]['metadata']) : null;
                 }
-                $variants_inserted = Variant::insert($variants);
+                Variant::insert($variants);
                 return true;
             } else {
                 throw new \Exception('Empty Array');
@@ -59,8 +65,29 @@ class VariantRepository implements VariantRepositoryInterface
 
     public function get(array $condition = [])
     {
+        $perPage = isset($condition['per_page']) ? $condition['per_page'] : null;
+		$page = isset($condition['page']) ? $condition['page'] : null;
+
         $isActive = isset($condition['is_active']) ? $condition['is_active'] : null;
+        $service_categories =  isset($condition['service_categories']) ? $condition['service_categories'] : null;
+        $service_id = isset($condition['service_id']) ? $condition['service_id'] : null;
+        $inStock = isset($condition['in_stock']) ? $condition['in_stock'] : null;
         $query = new Variant();
+        if($inStock) {
+            $query = $query->where('stock', '>', 0);
+        }
+        if($service_id) {
+            $query = $query->whereHas('service', function ($query) use ($service_id) {
+                $query->where('id', $service_id);
+            });
+        }
+        if($service_categories) {
+            $query = $query->whereHas('service', function ($query) use ($service_categories) {
+                $query->whereHas('serviceCategory', function ($sCQuery) use ($service_categories) {
+                    $sCQuery->whereIn('name', $service_categories);
+                });
+            });
+        }
         if ($isActive !== null) {
             $query = $query->where('is_active', '=', $isActive);
             $query = $query->whereHas('service', function ($query) use ($isActive) {
@@ -68,9 +95,27 @@ class VariantRepository implements VariantRepositoryInterface
             });
         }
 
-        return $query->with(['service' => function ($sQuery) {
+       $variants = $query->with(['service' => function ($sQuery) {
             $sQuery->with('serviceCategory');
-        }])->get()->toArray();
+        }]);
+
+        if($perPage && $page) {
+            $variants = $variants->paginate($perPage, ['*'], 'page', $page);
+            return [
+			"Data" => $variants->items(),
+			"Pagination" => [
+				"CurrentPage" => $page,
+				"PerPage" => $perPage,
+				"TotalItems" => $variants->total()
+			]
+		];
+        }
+
+        return [
+            "Data" => $variants->get()->toArray(),
+            "Pagination" => null
+        ];
+        
     }
 
 
