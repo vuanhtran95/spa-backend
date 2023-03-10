@@ -30,10 +30,11 @@ class ServiceController extends Controller
         }
     }
 
-    public function get()
+    public function get(Request $request)
     {
+        $params = $request->all();
         try {
-            $services = $this->serviceRepository->get();
+            $services = $this->serviceRepository->get($params);
             return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_LIST_SUCCESS, $services);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());

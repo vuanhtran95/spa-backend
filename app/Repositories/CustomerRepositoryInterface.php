@@ -21,4 +21,6 @@ interface CustomerRepositoryInterface
     public function save($data, $is_update, $id = null);
 
     public function checkCashPoint($id);
+    
+    public function getInProgressIntake($id);
 }

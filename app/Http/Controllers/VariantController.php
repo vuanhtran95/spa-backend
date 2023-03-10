@@ -36,7 +36,12 @@ class VariantController extends Controller
 
         try {
             $variant = $this->variantRepository->get($params);
-            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_LIST_SUCCESS, $variant);
+            return HttpResponse::toJson(
+                true,
+                Response::HTTP_OK,
+                Translation::$GET_LIST_SUCCESS,
+                $variant['Data'],
+            $variant['Pagination']);
         } catch (\Exception $e) {
             return HttpResponse::toJson(false, Response::HTTP_CONFLICT, $e->getMessage());
         }

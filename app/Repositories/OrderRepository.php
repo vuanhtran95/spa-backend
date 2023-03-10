@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Helper\Translation;
 use App\Order;
 use Carbon\Carbon;
 
@@ -69,7 +70,6 @@ class OrderRepository implements OrderRepositoryInterface
 		return Order::where($by, '=', $value)->with('employee')->first();
 	}
 
-	// Not working now
 	public function update($id, array $attributes = [])
 	{
 		return $this->save($attributes, true, $id);
@@ -79,14 +79,24 @@ class OrderRepository implements OrderRepositoryInterface
 	{
 		if ($is_update) {
 			$order = Order::find($id);
-			if (isset($data['note'])) {
-				$order->note = $data['note'];
+			foreach ($data as $property => $value) {
+				$order->$property = $value;
 			}
 			$order->save();
 
 			return $order;
 		} else {
 			return false;
+		}
+	}
+
+	public function delete($id)
+	{
+		$order = Order::find($id);
+		if ($order) {
+			$order->delete();
+		} else {
+			throw new \Exception(Translation::$NOT_FOUND);
 		}
 	}
 }

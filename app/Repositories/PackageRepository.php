@@ -111,7 +111,7 @@ class PackageRepository implements PackageRepositoryInterface
 					$combos[$key]['created_at'] = Carbon::now();
 					$combos[$key]['updated_at'] = Carbon::now();
 					$combos[$key]['number_used'] = 0;
-					$variant_price = Variant::find($combos[$key]['variant_id'])->price;
+					$variant_price = Variant::find($combos[$key]['variant_id'])->sale_price;
 					$combos[$key]['total_price'] = $combos[$key]['amount'] * $variant_price;
 				}
 
