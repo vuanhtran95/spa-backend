@@ -8,15 +8,9 @@ use App\BaseModel;
 class Variant extends BaseModel
 {
     protected $table = 'variants';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'price', 'service_id'
-    ];
+    protected $casts = [
+		'metadata' => 'array',
+	];
 
     public function service()
     {

@@ -51,9 +51,6 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 				throw new \Exception(Translation::$INTAKE_NOT_APPROVE);
 			}
 
-			// Get payment_method_id of intake
-			$price_field = 'price';
-
 			// Check already reviewed ?
 			$hasReviewForm = ReviewForm::where('intake_id', $intake_id)->first();
 			if ($hasReviewForm) {
@@ -99,10 +96,10 @@ class ReviewFormRepository implements ReviewFormRepositoryInterface
 				// Calculate commission base on combo used or not
 				if ($order->combo_id) {
 					// Update commission for combo
-					$commission = $commission * $order->variant->price;
+					$commission = $commission * $order->variant->sale_price;
 				} else {
 
-					$commission = $commission * $order->$price_field;
+					$commission = $commission * $order->price;
 				}
 
 				if ($is_overtime) {

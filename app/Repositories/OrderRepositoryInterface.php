@@ -9,4 +9,7 @@ interface OrderRepositoryInterface
     public function getOneBy($by, $value);
 
     public function update($id, array $attributes = []);
+
+    public function delete($id);
+
 }

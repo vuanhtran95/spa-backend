@@ -23,10 +23,12 @@ class IntakeRepository implements IntakeRepositoryInterface
 {
 
     private $eventLogRepository;
+    private $productLogRepository;
 
-    public function __construct(EventLogRepository $eventLogRepository)
+    public function __construct(EventLogRepository $eventLogRepository, ProductLogRepository $productLogRepository)
     {
         $this->eventLogRepository = $eventLogRepository;
+        $this->productLogRepository = $productLogRepository;
     }
 
     public function create(array $attributes = [])
@@ -93,7 +95,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 									$orderData->variant_id = $variant->id;
 									$orderData->name = $variant->name;
-									$orderData->unit_price = isset($updateData['combo_id']) ? 0 :  $variant->price;
+									$orderData->unit_price = isset($updateData['combo_id']) ? 0 :  $variant->sale_price;
 								}
 								//                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
 								$orderData->save();
@@ -115,7 +117,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 							$variant = Variant::where('id', '=', $order['variant_id'])->first();
 							$orderData->variant_id = $variant->id;
-							$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->price;
+							$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->sale_price;
 							$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
 
 							$orderData->employee_id = $order['employee_id'];
@@ -160,7 +162,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 						$variant = Variant::where('id', '=', $order['variant_id'])->first();
 						$orderData->variant_id = $variant->id;
-						$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->price;
+						$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->sale_price;
 						$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
 
 						$orderData->employee_id = $order['employee_id'];
@@ -337,7 +339,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 						}
 						/* 2.2 Process normal order */ else {
 							$helper->process_order($order);
-							$totalPrice = $totalPrice  + $order->price * $order->amount;
+							$totalPrice = $totalPrice  + $order->price;
 						}
 						$order->save();
 					}
@@ -405,6 +407,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 		$payment_method_id = $requestData['payment_method_id'];
 
+		$use_credit = $requestData['use_credit'];
+
 		if ($payment_method_id === PaymentType::CREDIT && empty($intake->customer_id)) {
 			throw new \Exception("Payment method is not allowed");
 		}
@@ -421,7 +425,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			if (!empty($intake->orders)) {
 				$intake->orders->each(
-					function ($order) use ($helper) {
+					function ($order) use ($helper, $intake) {
 						/* 2.1 Process combo order */
 						if ($order->combo_id) {
 							$combo = Combo::find($order->combo_id);
@@ -430,6 +434,19 @@ class IntakeRepository implements IntakeRepositoryInterface
 								throw new Exception('You have run out of use this combo');
 							}
 							$combo->save();
+						} else {
+							$category_name = $order->variant->service->serviceCategory->name;
+
+							if ($category_name === 'goods'){
+								$is_instock = $helper->check_stock($order);
+								if($is_instock) {
+									$payload = ['type' => 'sell', 'variant_id' => $order->variant->id, 'intake_id' => $intake->id, 'created_by' => $order->employee_id, 'amount' => $order->amount];
+									if ($intake->customer_id) {
+										$payload['customer_id'] = $intake->customer_id;
+									}
+									$this->productLogRepository->create($payload);
+								}
+							}
 						}
 						/* 2.3 Service Reminder */
 						$helper->add_service_reminder($order);
@@ -512,10 +529,12 @@ class IntakeRepository implements IntakeRepositoryInterface
 				// Update customer entity 
 				$customer->save();
 			}
-			
+
+
+
 
 			/* 9. Create Credit Invoice */
-			if ($payment_method_id ===  PaymentType::CREDIT) {
+			if ($payment_method_id ===  PaymentType::CREDIT && !$use_credit && !empty($customer)) {
 				$invoiceRepository = app(InvoiceRepository::class);
 				$params = [
 					'customer_id' => $intake->customer_id,
@@ -531,6 +550,36 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$customer->save();
 				$intake->payment_received_amount = $intake->final_price;
 			}
+
+			/* 9.5. Check if use_credit is checked */
+			if ($payment_method_id !==  PaymentType::CREDIT && $use_credit && !empty($customer) &&  $intake->final_price > 0
+			) {
+				$remaining = $intake->final_price - $customer->balance;
+				$balance_usage = 0;
+				if($remaining >= 0) {
+					$balance_usage = $customer->balance;
+					$customer->balance = 0;
+					$intake->final_price = $remaining;
+					
+				} else {
+					$balance_usage = $intake->final_price;
+					$customer->balance = $remaining * -1;
+					$intake->final_price = 0;
+				}
+				$invoiceRepository = app(InvoiceRepository::class);
+				$params = [
+					'customer_id' => $intake->customer_id,
+					'employee_id' => $intake->employee_id,
+					'intake_id' => $intake->id,
+					'amount' => $balance_usage,
+					'type' => 'withdraw',
+					'status' => InvoiceConstant::PAID_STATUS,
+					'signature' => $requestData['signature']
+				];
+				$invoice = $invoiceRepository->create($params);
+				$customer->save();
+			}
+
 			/* 10. Update intake Status and save to DB */
 			$intake->payment_method_id = $payment_method_id;
 			$intake->is_valid = 1;

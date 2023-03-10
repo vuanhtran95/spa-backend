@@ -46,6 +46,8 @@ use App\Repositories\VariableRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\PaymentMethodRepository;
 use App\Repositories\PaymentMethodRepositoryInterface;
+use App\Repositories\ProductLogRepository;
+use App\Repositories\ProductLogRepositoryInterface;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -87,5 +89,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(DiscountRepositoryInterface::class, DiscountRepository::class);
         $this->app->bind(VariableRepositoryInterface::class, VariableRepository::class);
         $this->app->bind(PaymentMethodRepositoryInterface::class, PaymentMethodRepository::class);
+        $this->app->bind(ProductLogRepositoryInterface::class, ProductLogRepository::class);
     }
 }

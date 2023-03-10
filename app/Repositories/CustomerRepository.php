@@ -10,6 +10,7 @@ use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use App\Helper\CustomerHelper;
+use App\Intake;
 use Illuminate\Support\Carbon;
 class CustomerRepository implements CustomerRepositoryInterface
 {
@@ -277,5 +278,24 @@ class CustomerRepository implements CustomerRepositoryInterface
 			DB::rollBack();
 			throw new \Exception($exception->getMessage());
 		}
+	}
+
+	public function getInProgressIntake($customer_id) {
+		$intake = Intake::with(
+			['orders' => function ($query) {
+				$query->with(
+					['employee', 'variant' => function ($vQuery) {
+						$vQuery->with(
+							['service' => function ($sQuery) {
+								$sQuery->with('serviceCategory');
+							}]
+						);
+					}, 'combo', 'review']
+				);
+			}, 'customer' => function ($c){
+				$c->with(['rewardRule']);
+			}, 'employee', 'reviewForm', 'invoice']
+		)->where('customer_id', $customer_id)->where('is_valid', 0)->first();
+		return $intake;
 	}
 }

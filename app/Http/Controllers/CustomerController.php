@@ -147,4 +147,13 @@ class CustomerController extends Controller
 			return HttpResponse::toJson(false, Response::HTTP_CONFLICT, Translation::$USER_UPDATE_FAILURE);
 		}
 	}
+	public function getInProgressIntake($id)
+    {
+        $intake = $this->customerRepository->getInProgressIntake($id);
+        if ($intake) {
+            return HttpResponse::toJson(true, Response::HTTP_OK, Translation::$GET_INTAKE_SUCCESS, $intake);
+        } else {
+            return HttpResponse::toJson(false, Response::HTTP_NOT_FOUND, Translation::$NO_INTAKE_FOUND);
+        }
+    }
 }
