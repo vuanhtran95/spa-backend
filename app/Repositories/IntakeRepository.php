@@ -253,7 +253,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 	public function getOneBy($by, $value)
 	{
-		return Intake::with(
+		$intake = Intake::with(
 			['orders' => function ($query) {
 				$query->with(
 					['employee', 'variant' => function ($vQuery) {
@@ -268,6 +268,11 @@ class IntakeRepository implements IntakeRepositoryInterface
 				$c->with(['rewardRule']);
 			}, 'employee', 'reviewForm', 'invoice']
 		)->where('id', $value)->first();
+
+		$intake->point_logs = $this->eventLogRepository->get([
+			'target_object_id' => $intake->id, 'target_object_type' => Intake::class,
+		]);
+		return $intake;
 	}
 
 	public function update($id, array $attributes = [])
