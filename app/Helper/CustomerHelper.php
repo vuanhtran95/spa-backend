@@ -131,6 +131,9 @@ class CustomerHelper
 
             // Handle the customer point
             $this->handleCustomerPoints();
+
+            // Clear remaining point
+            $this->customer->reward_remaining_points = 0;
         }
 
         $this->customer->save();
