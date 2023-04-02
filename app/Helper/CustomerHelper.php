@@ -87,9 +87,10 @@ class CustomerHelper
             $today = Carbon::now(Common::SYSTEM_TIMEZONE);
 
             $validToDate = Carbon::parse($this->customer->rewardRule->end_date, Common::SYSTEM_TIMEZONE);
+            $left_over_point_expired_date = Carbon::parse($this->customer->rewardRule->left_over_point_expired_date, Common::SYSTEM_TIMEZONE);
 
             // 1.1 If today is after the reward rule valid date
-            if ($today->isAfter($validToDate)) {
+            if ($today->isAfter($validToDate) && $today->isBefore($left_over_point_expired_date)) {
                 // 1.1.1 First, handle the customer points
                 $this->handleCustomerPoints();
 
@@ -112,7 +113,7 @@ class CustomerHelper
             }
             // 1.2.1 Handle customer's reward remaining points
             else {
-                if ($this->isRewardRemainingPointInvalid()) {
+                if ($this->isRewardRemainingPointInvalid() && $this->customer->reward_remaining_points) {
                     // Reset remaining points
                     $this->customer->reward_remaining_points = 0;
                 }
