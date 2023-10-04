@@ -134,10 +134,11 @@ class IntakeRepository implements IntakeRepositoryInterface
 						$intake->$property = $value;
 					}
 				}
-				// Todo: comment for now
-				// if ($intake->is_valid) {
-				// 	throw new \Exception("Intake already approved");
-				// }
+				// Prevent from update
+				if ($intake->is_valid) {
+					throw new \Exception("Intake already approved");
+				}
+				$intake->is_calculated = 0;
 				$intake->save();
 				DB::commit();
 				return $intake;
