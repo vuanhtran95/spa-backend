@@ -57,7 +57,8 @@ class IntakeRepository implements IntakeRepositoryInterface
 				if (empty($intake)) throw new \Exception("Intake not found");
 
 				foreach ($data as $property => $value) {
-					if ($property === 'orders') {
+					// Not update orders when intake is valid
+					if ($property === 'orders' && !$intake->is_valid) {
 						// Update and remove order
 						$updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $value));
 						$allOrdersOfIntake = Order::where('intake_id', '=', $id)->get();
@@ -131,10 +132,6 @@ class IntakeRepository implements IntakeRepositoryInterface
 					} else {
 						$intake->$property = $value;
 					}
-				}
-				// Prevent from update
-				if ($intake->is_valid) {
-					throw new \Exception("Intake already approved");
 				}
 				$intake->is_calculated = 0;
 				$intake->save();
