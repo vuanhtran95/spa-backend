@@ -59,7 +59,8 @@ class IntakeController extends Controller
         $validatedData = $request->validate([
             'payment_method_id' => 'required',
             'reward_points' => 'required|numeric',
-            'signature' => ''
+            'signature' => '',
+            'use_credit' => 'boolean'
         ]);
         try {
             $intake = $this->intakeRepository->intake_pay_up($id, $validatedData);

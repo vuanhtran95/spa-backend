@@ -46,6 +46,7 @@ Route::delete('/v1/intakes/{id}', 'IntakeController@delete')->middleware('auth:a
 Route::get('/v1/orders', 'OrderController@get')->middleware('auth:api');
 Route::get('/v1/orders/{id}', 'OrderController@getOneById')->middleware('auth:api');
 Route::put('/v1/orders/{id}', 'OrderController@update')->middleware('auth:api');
+Route::delete('/v1/orders/{id}', 'OrderController@delete')->middleware('auth:api');
 
 // Service
 Route::get('/v1/services', 'ServiceController@get')->middleware('auth:api');
@@ -72,6 +73,7 @@ Route::get('/v1/customers/{id}', 'CustomerController@getOneById')->middleware('a
 Route::put('/v1/customers/{id}', 'CustomerController@update')->middleware('auth:api');
 Route::post('/v1/customers/{id}/check-cash-point', 'CustomerController@checkCashPoint')->middleware('auth:api');
 Route::post('/v1/customers/{id}/cash-out', 'CustomerController@cashOut')->middleware('auth:api');
+Route::get('/v1/customers/{id}/inprogress-intake', 'CustomerController@getInProgressIntake')->middleware('auth:api');
 
 
 // Combo
@@ -154,3 +156,7 @@ Route::get('/v1/payment-method', 'PaymentMethodController@get')->middleware('aut
 
 // Provinces
 Route::get('/v1/provinces', 'ProvinceController@get')->middleware('auth:api');
+
+// Service
+Route::get('/v1/product-log', 'ProductLogsController@get')->middleware('auth:api');
+Route::post('/v1/product-log', 'ProductLogsController@create')->middleware('auth:api');
