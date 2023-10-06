@@ -22,16 +22,16 @@ use Illuminate\Support\Carbon;
 class IntakeRepository implements IntakeRepositoryInterface
 {
 
-    private $eventLogRepository;
-    private $productLogRepository;
+	private $eventLogRepository;
+	private $productLogRepository;
 
-    public function __construct(EventLogRepository $eventLogRepository, ProductLogRepository $productLogRepository)
-    {
-        $this->eventLogRepository = $eventLogRepository;
-        $this->productLogRepository = $productLogRepository;
-    }
+	public function __construct(EventLogRepository $eventLogRepository, ProductLogRepository $productLogRepository)
+	{
+		$this->eventLogRepository = $eventLogRepository;
+		$this->productLogRepository = $productLogRepository;
+	}
 
-    public function create(array $attributes = [])
+	public function create(array $attributes = [])
 	{
 		DB::beginTransaction();
 		try {
@@ -60,83 +60,81 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 				foreach ($data as $property => $value) {
 					if ($property === 'orders') {
-						// Update and remove order
-						$updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $value));
-						$allOrdersOfIntake = Order::where('intake_id', '=', $id)->get();
-						foreach ($allOrdersOfIntake as $order) {
-							$key = array_search($order['id'], $updateIds);
-							if ($key !== false) {
-								// Need to update
-								$updateData = $data['orders'][$key];
-								$orderData = Order::find($updateData['id']);
+						if (!$intake->is_valid) {
+							// Update and remove order
+							$updateIds = array_values(array_map("\\App\\Helper\\Common::getIds", $value));
+							$allOrdersOfIntake = Order::where('intake_id', '=', $id)->get();
+							foreach ($allOrdersOfIntake as $order) {
+								$key = array_search($order['id'], $updateIds);
+								if ($key !== false) {
+									// Need to update
+									$updateData = $data['orders'][$key];
+									$orderData = Order::find($updateData['id']);
 
-								if (isset($updateData['employee_id'])) {
-									$orderData->employee_id = $updateData['employee_id'];
-								}
-								if (isset($updateData['amount'])) {
-									$orderData->amount = $updateData['amount'];
-								}
-								if (isset($updateData['note'])) {
-									$orderData->note = $updateData['note'];
-								}
-								if (isset($updateData['combo_id'])) {
-									$orderData->combo_id = $updateData['combo_id'];
-								}
-								if (isset($updateData['is_owner'])) {
-									$orderData->is_owner = $updateData['is_owner'];
-								}
-								if (isset($updateData['owner_name'])) {
-									$orderData->owner_name = $updateData['owner_name'];
-								}
-								if (isset($updateData['variant_id'])) {
-									$variant = Variant::where('id', '=', $updateData['variant_id'])->first();
+									if (isset($updateData['employee_id'])) {
+										$orderData->employee_id = $updateData['employee_id'];
+									}
+									if (isset($updateData['amount'])) {
+										$orderData->amount = $updateData['amount'];
+									}
+									if (isset($updateData['note'])) {
+										$orderData->note = $updateData['note'];
+									}
+									if (isset($updateData['combo_id'])) {
+										$orderData->combo_id = $updateData['combo_id'];
+									}
+									if (isset($updateData['is_owner'])) {
+										$orderData->is_owner = $updateData['is_owner'];
+									}
+									if (isset($updateData['owner_name'])) {
+										$orderData->owner_name = $updateData['owner_name'];
+									}
+									if (isset($updateData['variant_id'])) {
+										$variant = Variant::where('id', '=', $updateData['variant_id'])->first();
 
-									if (empty($variant)) throw new \Exception("Service not found");
+										if (empty($variant)) throw new \Exception("Service not found");
 
-									$orderData->variant_id = $variant->id;
-									$orderData->name = $variant->name;
-									$orderData->unit_price = isset($updateData['combo_id']) ? 0 :  $variant->sale_price;
+										$orderData->variant_id = $variant->id;
+										$orderData->name = $variant->name;
+										$orderData->unit_price = isset($updateData['combo_id']) ? 0 :  $variant->sale_price;
+									}
+									//                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
+									$orderData->save();
+								} else {
+									// Need to delete
+									Order::destroy($order['id']);
 								}
-								//                        if (isset($updateData['gender'])) $orderData->gender = $updateData['gender'];
+							}
+							// Create new order
+							collect($value)->filter(function ($item) {
+								return $item['id'] === null;
+							})->each(function ($order) use ($intake, $id, &$updateIds) {
+								if ($order['id'] !== null) {
+									array_push($updateIds, $order['id']);
+									return true;
+								}
+								$orderData = new Order();
+								$orderData->intake_id = $id;
+
+								$variant = Variant::where('id', '=', $order['variant_id'])->first();
+								$orderData->variant_id = $variant->id;
+								$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->sale_price;
+								$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
+
+								$orderData->employee_id = $order['employee_id'];
+								$orderData->amount = $order['amount'];
+								$orderData->note = $order['note'];
+								$orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
+								$orderData->promotion_hash = isset($order['promotion_hash']) ? $order['promotion_hash'] : null;
+								$orderData->is_owner = isset($order['is_owner']) ? $order['is_owner'] : true;
+								$orderData->owner_name = isset($order['owner_name']) ? $order['owner_name'] : null;
+								$orderData->customer_id = $intake->customer_id;
 								$orderData->save();
-							} else {
-								// Need to delete
-								Order::destroy($order['id']);
-							}
+							});
 						}
-						// Create new order
-						collect($value)->filter(function ($item) {
-							return $item['id'] === null;
-						})->each(function ($order) use ($intake, $id, &$updateIds) {
-							if ($order['id'] !== null) {
-								array_push($updateIds, $order['id']);
-								return true;
-							}
-							$orderData = new Order();
-							$orderData->intake_id = $id;
-
-							$variant = Variant::where('id', '=', $order['variant_id'])->first();
-							$orderData->variant_id = $variant->id;
-							$orderData->unit_price = isset($order['combo_id']) ? 0 : $variant->sale_price;
-							$orderData->name = isset($order['name']) ? $order['name'] : $variant->name;
-
-							$orderData->employee_id = $order['employee_id'];
-							$orderData->amount = $order['amount'];
-							$orderData->note = $order['note'];
-							$orderData->combo_id = isset($order['combo_id']) ? $order['combo_id'] : null;
-							$orderData->promotion_hash = isset($order['promotion_hash']) ? $order['promotion_hash'] : null;
-							$orderData->is_owner = isset($order['is_owner']) ? $order['is_owner'] : true;
-							$orderData->owner_name = isset($order['owner_name']) ? $order['owner_name'] : null;
-							$orderData->customer_id = $intake->customer_id;
-							$orderData->save();
-						});
 					} else {
 						$intake->$property = $value;
 					}
-				}
-				// Prevent from update
-				if ($intake->is_valid) {
-					throw new \Exception("Intake already approved");
 				}
 				$intake->is_calculated = 0;
 				$intake->save();
@@ -204,7 +202,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 		$hasReviewForm = isset($condition['has_review']) ? $condition['has_review'] : null;
 
-		$is_calculated= isset($condition['is_calculated']) ? (int)$condition['is_calculated'] : null;
+		$is_calculated = isset($condition['is_calculated']) ? (int)$condition['is_calculated'] : null;
 
 		$query = new Intake();
 
@@ -267,7 +265,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 						);
 					}, 'combo', 'review']
 				);
-			}, 'customer' => function ($c){
+			}, 'customer' => function ($c) {
 				$c->with(['rewardRule']);
 			}, 'employee', 'reviewForm', 'invoice']
 		)->where('id', $value)->first();
@@ -438,9 +436,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 						} else {
 							$category_name = $order->variant->service->serviceCategory->name;
 
-							if ($category_name === 'goods'){
+							if ($category_name === 'goods') {
 								$is_instock = $helper->check_stock($order);
-								if($is_instock) {
+								if ($is_instock) {
 									$payload = ['type' => 'sell', 'variant_id' => $order->variant->id, 'intake_id' => $intake->id, 'created_by' => $order->employee_id, 'amount' => $order->amount];
 									if ($intake->customer_id) {
 										$payload['customer_id'] = $intake->customer_id;
@@ -462,9 +460,9 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			$usePoint = false;
 
-			if($requestData['reward_points'] > 0 && !empty($customer)) {
-                 $deductionCashpoint = null;
-                 $deductionRewardRemainingPoint = null;
+			if ($requestData['reward_points'] > 0 && !empty($customer)) {
+				$deductionCashpoint = null;
+				$deductionRewardRemainingPoint = null;
 
 				// Calculate total reward points that user has has
 				$customerTotalRewardPoints = $customer->cash_point + $customer->reward_remaining_points;
@@ -478,11 +476,11 @@ class IntakeRepository implements IntakeRepositoryInterface
 				}
 				$clearUpRewardRemainingPoint = $customer->reward_remaining_points - $requestData['reward_points'];
 
-				if($clearUpRewardRemainingPoint >= 0) {
+				if ($clearUpRewardRemainingPoint >= 0) {
 					$customer->reward_remaining_points = $clearUpRewardRemainingPoint;
 					$deductionRewardRemainingPoint = $requestData['reward_points'];
 				} else {
-					if($customer->reward_remaining_points > 0) {
+					if ($customer->reward_remaining_points > 0) {
 						// Out of remaining points
 						$deductionRewardRemainingPoint = $customer->reward_remaining_points;
 						$customer->reward_remaining_points = 0;
@@ -493,28 +491,28 @@ class IntakeRepository implements IntakeRepositoryInterface
 				// Store event log when customer cash points & reward remaining points are used
 
 				if (!empty($deductionRewardRemainingPoint)) {
-                    $this->eventLogRepository->storeCustomerRewardPointsEventLog([
-                        EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
-                            'entityId' => $customer->id,
-                            'placeholder' => 'remainingRewardPoints',
-                            'value' => $deductionRewardRemainingPoint,
-                            'targetObjectId' => $intake->id,
-                            'targetObjectType' => Intake::class
-                        ]
-                    ]);
-                }
+					$this->eventLogRepository->storeCustomerRewardPointsEventLog([
+						EventLogType::CUSTOMER_REWARD_REMAINING_POINT_DEDUCTED => [
+							'entityId' => $customer->id,
+							'placeholder' => 'remainingRewardPoints',
+							'value' => $deductionRewardRemainingPoint,
+							'targetObjectId' => $intake->id,
+							'targetObjectType' => Intake::class
+						]
+					]);
+				}
 
-                if (!empty($deductionCashpoint)) {
-                    $this->eventLogRepository->storeCustomerRewardPointsEventLog([
-                        EventLogType::CUSTOMER_POINT_DEDUCTED => [
-                            'entityId' => $customer->id,
-                            'placeholder' => 'cashPoints',
-                            'value' => $deductionCashpoint,
-                            'targetObjectId' => $intake->id,
-                            'targetObjectType' => Intake::class
-                        ]
-                    ]);
-                }
+				if (!empty($deductionCashpoint)) {
+					$this->eventLogRepository->storeCustomerRewardPointsEventLog([
+						EventLogType::CUSTOMER_POINT_DEDUCTED => [
+							'entityId' => $customer->id,
+							'placeholder' => 'cashPoints',
+							'value' => $deductionCashpoint,
+							'targetObjectId' => $intake->id,
+							'targetObjectType' => Intake::class
+						]
+					]);
+				}
 
 				$intake->final_price -= $requestData['reward_points'];
 				$intake->customer_earned_points = 0;
@@ -525,7 +523,7 @@ class IntakeRepository implements IntakeRepositoryInterface
 
 			/* 7. Collect point for customer if not using cash points */
 			if (!$usePoint && ($intake->final_price > 0 && !empty($customer))) {
-			    // Calculate final price with reward points included (customer's cash points & reward remaining points)
+				// Calculate final price with reward points included (customer's cash points & reward remaining points)
 				$customer->cash_point += $intake->customer_earned_points;
 				// Update customer entity 
 				$customer->save();
@@ -553,15 +551,15 @@ class IntakeRepository implements IntakeRepositoryInterface
 			}
 
 			/* 9.5. Check if use_credit is checked */
-			if ($payment_method_id !==  PaymentType::CREDIT && $use_credit && !empty($customer) &&  $intake->final_price > 0
+			if (
+				$payment_method_id !==  PaymentType::CREDIT && $use_credit && !empty($customer) &&  $intake->final_price > 0
 			) {
 				$remaining = $intake->final_price - $customer->balance;
 				$balance_usage = 0;
-				if($remaining >= 0) {
+				if ($remaining >= 0) {
 					$balance_usage = $customer->balance;
 					$customer->balance = 0;
 					$intake->final_price = $remaining;
-					
 				} else {
 					$balance_usage = $intake->final_price;
 					$customer->balance = $remaining * -1;
